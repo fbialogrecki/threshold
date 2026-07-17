@@ -1,0 +1,128 @@
+= Threshold
+:toc:
+:toclevels: 2
+
+Threshold is an open-source social and event-discovery platform for local music scenes. It combines chronological community feeds, public profiles and pages, groups, events, media, notifications, and organizer-managed guestlists without algorithmic ranking or third-party tracking.
+
+NOTE: Active MVP development. APIs, data models, and deployment procedures may change before the first stable release.
+
+== Product direction
+
+Threshold focuses on direct community relationships:
+
+* chronological content from followed people, pages, groups, and events;
+* public artist, venue, collective, promoter, and user profiles;
+* groups, posts, comments, votes, reactions, and moderation;
+* public event discovery, follows, boosts, lineups, and updates;
+* private organizer/DJ-managed guestlists with quotas and QR check-in;
+* privacy-first operation without third-party trackers.
+
+The MVP excludes ticketing, payments, direct messages, creator monetization, mobile applications, and algorithmic feeds.
+
+== Architecture
+
+[cols="1,3",options="header"]
+|===
+|Component |Responsibility
+|`apps/web` |Next.js App Router frontend and browser-facing BFF
+|`services/users` |Product authentication, sessions, profiles, pages, follows, and canonical blocks
+|`services/social` |Groups, posts, comments, reactions, chronological feed, and moderation
+|`services/events` |Event CRUD, public event reads, follows, boosts, guestlists, and check-in
+|`services/media` |Image validation, metadata, derivatives, and S3-compatible storage
+|`services/auth-gateway` |Authentik-backed SSO edge for internal and administrative surfaces
+|`libs/py` |Shared Python helpers
+|`libs/proto` |Internal Protobuf contracts
+|===
+
+Runtime stack:
+
+* Web: Next.js, React, TypeScript, Tailwind CSS, Bun
+* Services: Python 3.13, FastAPI, SQLAlchemy, Alembic
+* Data: PostgreSQL via CloudNativePG; S3-compatible object storage
+* Messaging: NATS Core
+* Secrets: OpenBao and External Secrets Operator
+* Delivery: Woodpecker CI, Harbor, Argo CD, Kustomize, Kubernetes
+* Observability: OpenTelemetry and the Grafana LGTM stack
+
+== Repository layout
+
+[source,text]
+----
+apps/web/                 Next.js frontend and BFF
+services/                 FastAPI services
+libs/py/                  Shared Python package
+libs/proto/               Protobuf source schemas
+libs/generated/           Generated Protobuf code
+.github/workflows/         Public GitHub validation
+.woodpecker/               Optional self-hosted validation pipelines
+Taskfile.yml               Local quality command contract
+----
+
+Operational scripts, live GitOps topology, runbooks, private hostnames, and agent state are deliberately not published in this repository.
+
+== Prerequisites
+
+* Git
+* https://taskfile.dev/[Task] (`go-task`)
+* https://bun.sh/[Bun]
+* Python 3.13
+* https://docs.astral.sh/uv/[uv]
+* https://buf.build/[Buf] for Protobuf checks
+
+Container workflows additionally require an OCI builder.
+
+== Getting started
+
+[source,bash]
+----
+git clone https://github.com/fbialogrecki/threshold.git
+cd threshold
+uv sync --frozen
+go-task web:install
+cp apps/web/.env.example apps/web/.env.local
+go-task web:dev
+----
+
+Open http://localhost:3000[]. The example environment file contains development placeholders only. Never commit `.env.local`, credentials, tokens, kubeconfigs, or rendered Kubernetes secrets.
+
+The full integrated environment requires PostgreSQL, NATS, object storage, and private deployment configuration.
+
+== Quality gates
+
+[source,bash]
+----
+export PATH="$HOME/.bun/bin:$PATH"
+go-task check
+go-task repo:secret-scan
+----
+
+Focused commands:
+
+[source,bash]
+----
+go-task web:lint
+go-task web:typecheck
+go-task web:test
+go-task web:build
+go-task py:lint
+go-task py:typecheck
+go-task py:test
+go-task proto:lint
+go-task proto:generate
+----
+
+== Contributing
+
+Focused issues and pull requests are welcome. Keep changes inside the stated MVP scope, add tests for changed behavior, run the quality gates, and never commit secrets or private operational data.
+
+Untrusted pull-request jobs run without release, registry-push, signing, Kubernetes, or GitOps credentials.
+
+== Security
+
+Do not report suspected vulnerabilities in a public issue. Use GitHub private vulnerability reporting for this repository or the repository owner's verified private contact channel.
+
+== License and attribution
+
+Copyright 2026 Filip Białogrecki.
+
+Threshold is licensed under the Apache License, Version 2.0. See link:LICENSE[LICENSE] and link:NOTICE[NOTICE]. Redistributed copies must preserve required license, copyright, and attribution notices. The license does not grant rights to the Threshold name or trademarks.

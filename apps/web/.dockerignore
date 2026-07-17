@@ -1,0 +1,35 @@
+# Dependency and generated output caches
+node_modules
+.next
+bun-dist
+.cache
+**/.cache
+coverage
+*.tsbuildinfo
+*.log
+
+# VCS, local editor, agent, and environment material
+.git
+.gitignore
+.github
+.env*
+*.local
+.local
+.idea
+.vscode
+.agent*
+.cursor*
+AGENTS.md
+CLAUDE.md
+
+# Documentation, reports, and non-build scripts
+*.md
+**/*.md
+docs
+**/docs
+scripts
+reports
+**/reports
+
+Dockerfile
+.dockerignore

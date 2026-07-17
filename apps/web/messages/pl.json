@@ -1,0 +1,950 @@
+{
+  "common": {
+    "locale": {
+      "label": "Język",
+      "current": "Obecny język: {locale}",
+      "switchTo": "Zmień język na: {locale}",
+      "en": "angielski",
+      "pl": "polski"
+    }
+  },
+  "landing": {
+    "metadata": {
+      "title": "Threshold",
+      "description": "Chronologiczna platforma dla niezależnych wydarzeń, artystów, klubów i kolektywów."
+    },
+    "navigation": "Nawigacja publiczna",
+    "privacy": "Prywatność",
+    "login": "Zaloguj się",
+    "eyebrow": "Infrastruktura niezależnej sceny",
+    "heroLineOne": "Pod",
+    "heroLineTwo": "powierzchnią",
+    "manifest": "Manifest",
+    "body": "Threshold to chronologiczne miejsce dla niezależnych wydarzeń, artystów, klubów i kolektywów. Bezpośrednie strony publiczne pozostają otwarte. Konto daje dostęp do Aktualności i interakcji.",
+    "registrationOpen": "Rejestracja jest otwarta — podczas konfiguracji wybierzesz obsługiwane miasto",
+    "createAccount": "Utwórz konto →",
+    "enterFeed": "Przejdź do Aktualności →",
+    "principles": {
+      "chronological": {
+        "title": "Chronologicznie",
+        "body": "Posty z wybranych kont i oficjalnych grup, od najnowszych. Bez rankingu i reklam."
+      },
+      "public": {
+        "title": "Publiczne szczegóły",
+        "body": "Strony wydarzeń, artystów i organizacji można czytać bez konta. Interakcje wymagają logowania."
+      },
+      "private": {
+        "title": "Prywatne znaczy prywatne",
+        "body": "Listami gości zarządzają organizatorzy. Szyfrowane ujawnianie dokładnej lokalizacji jest planowane, ale niedostępne w tej wersji."
+      }
+    },
+    "footer": "Prawdziwe imię nie jest wymagane · bez zewnętrznych trackerów",
+    "privacyBoundary": "Przeczytaj o granicy prywatności →"
+  },
+  "authFlow": {
+    "metadata": {
+      "loginTitle": "Zaloguj się",
+      "loginDescription": "Zaloguj się do Threshold.",
+      "registerTitle": "Utwórz konto",
+      "registerDescription": "Utwórz konto Threshold. Rejestracja jest otwarta."
+    },
+    "login": "Zaloguj się",
+    "createAccount": "Utwórz konto",
+    "registrationOpen": "Rejestracja otwarta",
+    "loginCaption": "Wejdź na scenę",
+    "nickname": "Pseudonim",
+    "identifier": "E-mail lub pseudonim",
+    "nicknameHint": "Bez prawdziwych imion",
+    "usernameHelp": "3–30 liter, cyfr, kropek, podkreśleń lub łączników.",
+    "email": "E-mail",
+    "password": "Hasło",
+    "passwordHelp": "Co najmniej 12 znaków, w tym mała i wielka litera, cyfra oraz symbol.",
+    "revealHint": "Przytrzymaj, aby odsłonić",
+    "revealLabel": "Przytrzymaj, aby pokazać hasło",
+    "working": "Przetwarzanie…",
+    "createAccountAction": "Utwórz konto →",
+    "loginAction": "Zaloguj się →",
+    "forgotPassword": "Nie pamiętasz hasła?",
+    "hasAccount": "Masz już konto?",
+    "noAccount": "Nie masz jeszcze konta?",
+    "createOne": "Utwórz konto",
+    "back": "← Wróć do wejścia",
+    "redirecting": "Przekierowywanie…",
+    "strength": {
+      "label": "Siła",
+      "tooShort": "Za krótkie",
+      "fair": "Dostateczne",
+      "good": "Dobre",
+      "strong": "Silne"
+    },
+    "errors": {
+      "network": "Błąd sieci. Sprawdź połączenie i spróbuj ponownie.",
+      "invalidCredentials": "Nieprawidłowe dane. Sprawdź e-mail lub pseudonim i hasło.",
+      "rateLimited": "Zbyt wiele prób. Poczekaj i spróbuj ponownie.",
+      "serviceUnavailable": "Logowanie jest chwilowo niedostępne. Spróbuj ponownie.",
+      "username": "Użyj 3–30 liter, cyfr, kropek, podkreśleń lub łączników.",
+      "reservedUsername": "Ten pseudonim jest zastrzeżony. Wybierz inny.",
+      "email": "Wpisz prawidłowy adres e-mail.",
+      "password": "Hasło musi spełniać wszystkie wymagania bezpieczeństwa.",
+      "passwordLength": "Hasło musi mieć co najmniej 12 znaków.",
+      "passwordTooLong": "Hasło jest za długie.",
+      "passwordLowercase": "Hasło musi zawierać małą literę.",
+      "passwordUppercase": "Hasło musi zawierać wielką literę.",
+      "passwordDigit": "Hasło musi zawierać cyfrę.",
+      "passwordSymbol": "Hasło musi zawierać symbol.",
+      "displayName": "Nazwa wyświetlana jest za długa.",
+      "accountExists": "Konto z tym adresem e-mail lub pseudonimem już istnieje.",
+      "register": "Nie udało się utworzyć konta. Spróbuj ponownie."
+    }
+  },
+  "authUtility": {
+    "metadata": {
+      "resetTitle": "Zresetuj hasło",
+      "resetDescription": "Zresetuj hasło Threshold.",
+      "verifyTitle": "Zweryfikuj e-mail",
+      "verifyDescription": "Zweryfikuj adres e-mail konta Threshold."
+    },
+    "backToLogin": "← Wróć do logowania",
+    "reset": {
+      "title": "Zresetuj hasło",
+      "email": "E-mail",
+      "send": "Wyślij link resetujący →",
+      "working": "Przetwarzanie…",
+      "checkInbox": "Sprawdź skrzynkę",
+      "sent": "Jeśli konto z tym adresem istnieje, sprawdź skrzynkę w poszukiwaniu linku resetującego.",
+      "newTitle": "Ustaw nowe hasło",
+      "newPassword": "Nowe hasło",
+      "passwordHelp": "Co najmniej 12 znaków, w tym mała i wielka litera, cyfra oraz symbol.",
+      "policyErrors": {
+        "passwordLength": "Hasło musi mieć co najmniej 12 znaków.",
+        "passwordTooLong": "Hasło jest za długie.",
+        "passwordLowercase": "Hasło musi zawierać małą literę.",
+        "passwordUppercase": "Hasło musi zawierać wielką literę.",
+        "passwordDigit": "Hasło musi zawierać cyfrę.",
+        "passwordSymbol": "Hasło musi zawierać symbol."
+      },
+      "invalid": "Ten link jest nieprawidłowy lub wygasł. Poproś o nowy.",
+      "network": "Nie udało się połączyć z siecią. Spróbuj ponownie.",
+      "rateLimited": "Zbyt wiele prób. Poczekaj i spróbuj ponownie.",
+      "unavailable": "Resetowanie hasła jest chwilowo niedostępne. Spróbuj ponownie.",
+      "updated": "Hasło zaktualizowane",
+      "updatedBody": "Hasło zostało zmienione, a wszystkie sesje wylogowane. Zaloguj się nowym hasłem.",
+      "strength": "Siła",
+      "strengthValues": {
+        "0": "",
+        "1": "Za krótkie",
+        "2": "Dostateczne",
+        "3": "Dobre",
+        "4": "Silne"
+      },
+      "change": "Zmień hasło →"
+    },
+    "verify": {
+      "verified": "E-mail zweryfikowany",
+      "verifying": "Weryfikowanie…",
+      "link": "Link weryfikacyjny",
+      "confirming": "Potwierdzanie adresu e-mail…",
+      "success": "Adres e-mail został zweryfikowany na potrzeby bezpieczeństwa i odzyskiwania konta.",
+      "invalid": "Brakuje linku weryfikacyjnego lub jest już nieważny. Poproś o nowy na swoim koncie.",
+      "service": "Weryfikacja e-mail jest chwilowo niedostępna. Spróbuj ponownie.",
+      "rateLimited": "Zbyt wiele prób. Poczekaj i spróbuj ponownie.",
+      "retry": "Spróbuj ponownie",
+      "continue": "→ Przejdź do Threshold"
+    },
+    "banner": {
+      "body": "Zweryfikuj e-mail dla bezpieczeństwa i odzyskiwania konta.",
+      "error": "Nie udało się wysłać wiadomości weryfikacyjnej. Spróbuj ponownie.",
+      "resend": "Wyślij link ponownie",
+      "sent": "Wysłano ✓"
+    }
+  },
+  "authServiceUnavailable": {
+    "eyebrow": "Usługa logowania",
+    "title": "Status konta jest niedostępny",
+    "body": "Threshold nie mógł zweryfikować sesji. Konto i pliki cookie pozostały bez zmian.",
+    "publicBanner": "Interakcje konta są chwilowo niedostępne. Publiczne szczegóły pozostają czytelne.",
+    "retry": "Spróbuj ponownie",
+    "retrying": "Ponawianie…"
+  },
+  "onboarding": {
+    "metadata": {
+      "title": "Skonfiguruj konto",
+      "description": "Wybierz tożsamość, miasto i preferencje sceny w Threshold."
+    },
+    "title": "Przekrocz próg",
+    "subtitle": "Wybierz miasto, aby przejść do Aktualności",
+    "steps": {
+      "identity": "Tożsamość",
+      "city": "Miasto",
+      "frequencies": "Brzmienia",
+      "access": "Grupa miasta",
+      "done": "Gotowe"
+    },
+    "identity": {
+      "body": "Wybierz publiczny pseudonim. Prawdziwe imię nie jest wymagane. Awatar możesz dodać później.",
+      "nickname": "Pseudonim",
+      "hint": "To będzie Twoja nazwa wyświetlana. Możesz ją później zmienić w Ustawieniach."
+    },
+    "city": {
+      "body": "Wybierz swoje miasto. W tej wersji wybór obsługiwanego miasta jest wymagany."
+    },
+    "cities": {
+      "Warsaw": "Warszawa",
+      "Wroclaw": "Wrocław",
+      "Berlin": "Berlin",
+      "Krakow": "Kraków",
+      "Lodz": "Łódź",
+      "Poznan": "Poznań"
+    },
+    "frequencies": {
+      "body": "Wybierz pasujące tagi sceny. Ten krok jest opcjonalny i można go później zmienić."
+    },
+    "access": {
+      "body": "Threshold dołączy Twoje konto do oficjalnej grupy wybranego miasta.",
+      "hint": "Żaden artysta, klub ani kolektyw nie będzie obserwowany automatycznie."
+    },
+    "done": {
+      "body": "Miasto i opcjonalne preferencje sceny są gotowe do zapisania.",
+      "hint": "Po dołączeniu do oficjalnej grupy miasta przejdziesz do Aktualności."
+    },
+    "back": "← Wstecz",
+    "next": "Dalej →",
+    "finish": "Zapisz i wejdź →",
+    "saving": "Zapisywanie…",
+    "errors": {
+      "profile": "Nie udało się zapisać pseudonimu. Spróbuj ponownie.",
+      "save": "Nie udało się zapisać konfiguracji lub dołączyć do oficjalnej grupy miasta. Spróbuj ponownie.",
+      "network": "Nie udało się połączyć z siecią. Spróbuj ponownie."
+    }
+  },
+  "privacy": {
+    "metadata": {
+      "title": "Granica prywatności",
+      "description": "Obecne ograniczenia prywatności i prywatnego dostępu w Threshold."
+    },
+    "eyebrow": "Threshold / Granica prywatności",
+    "title": "Metadane prywatnego dostępu są widoczne dla serwera.",
+    "limit": "Obecna wersja / jawne ograniczenie",
+    "intro": "Dostęp przez listę gości działa w tej wersji, ale szyfrowane ujawnianie dokładnej lokalizacji nie. Threshold nie twierdzi, że dokładne tajne adresy chroni funkcja, która nie została wydana.",
+    "points": {
+      "one": "Organizatorzy i upoważniona obsługa mogą zarządzać listami gości i odprawą przy wejściu.",
+      "two": "Serwer przetwarza status dostępu, działania organizatorów, identyfikatory kont i zapisy audytowe.",
+      "three": "Szyfrowane przechowywanie i ujawnianie dokładnej lokalizacji pozostaje przyszłym zadaniem bezpieczeństwa."
+    },
+    "boundary": "Granica danych",
+    "facts": {
+      "server": {
+        "label": "Widoczne dla serwera",
+        "value": "status dostępu, działania organizatorów i DJ-ów, identyfikatory kont i zapisy audytowe"
+      },
+      "plaintext": {
+        "label": "Obecnie niedostępne",
+        "value": "szyfrowane przechowywanie i ujawnianie dokładnej lokalizacji"
+      },
+      "future": {
+        "label": "Przyszłe prace",
+        "value": "szyfrowanie po stronie klienta, klucze odbiorców i kontrolowane ujawnianie lokalizacji"
+      }
+    },
+    "footer": "Nie traktuj metadanych dostępu jako szyfrowanych end-to-end.",
+    "back": "Wróć do wejścia"
+  },
+  "publicProfile": {
+    "notFound": "Nie znaleziono profilu",
+    "metadataFallback": "@{username} w Threshold",
+    "followers": "{count, plural, one {# obserwujący} few {# obserwujących} other {# obserwujących}}",
+    "bio": "Bio",
+    "noBio": "Brak bio.",
+    "upcoming": "Nadchodzące wydarzenia",
+    "noEvents": "Brak powiązanych nadchodzących wydarzeń.",
+    "residencies": "Rezydencje",
+    "confirmed": "potwierdzono",
+    "links": "Linki"
+  },
+  "publicPage": {
+    "notFound": "Nie znaleziono strony",
+    "metadataFallback": "{name} to {type} w mieście {city} w Threshold.",
+    "unknownCity": "nieokreślonym",
+    "types": {
+      "club": "klub",
+      "collective": "kolektyw",
+      "project": "projekt",
+      "festival": "festiwal"
+    },
+    "followers": "{count, plural, one {# obserwujący} few {# obserwujących} other {# obserwujących}}",
+    "upcoming": "Nadchodzące wydarzenia",
+    "noEvents": "Brak nadchodzących wydarzeń.",
+    "about": "O nas",
+    "noAbout": "Brak opisu.",
+    "residents": "Rezydenci",
+    "noResidents": "Brak publicznych rezydentów.",
+    "confirmed": "potwierdzono",
+    "links": "Linki",
+    "noLinks": "Brak linków."
+  },
+  "profileActions": {
+    "follow": "Obserwuj +",
+    "following": "Obserwujesz",
+    "errors": {
+      "forbidden": "Nie możesz obserwować tego profilu.",
+      "notFound": "Ten profil nie jest już dostępny.",
+      "rateLimited": "Zbyt wiele prób. Spróbuj ponownie za chwilę.",
+      "serviceUnavailable": "Obserwowanie jest chwilowo niedostępne.",
+      "network": "Nie udało się połączyć z siecią. Spróbuj ponownie."
+    }
+  },
+  "eventsCatalog": {
+    "metadata": {
+      "title": "Wydarzenia",
+      "description": "Nadchodzące wydarzenia Threshold w porządku chronologicznym."
+    },
+    "title": "Wydarzenia",
+    "subtitle": "Nadchodzące / wszystkie obsługiwane miasta / chronologicznie",
+    "emptyEyebrow": "[ wydarzenia ]",
+    "emptyTitle": "Brak nadchodzących wydarzeń",
+    "emptyBody": "W katalogu nie ma teraz opublikowanych nadchodzących wydarzeń.",
+    "emptyAction": "Przeszukaj scenę",
+    "errorEyebrow": "[ niedostępne ]",
+    "loadErrorTitle": "Wydarzenia są niedostępne",
+    "loadErrorBody": "Nie udało się załadować katalogu wydarzeń.",
+    "retry": "Spróbuj ponownie"
+  },
+  "searchPage": {
+    "metadata": {
+      "title": "Szukaj",
+      "description": "Szukaj profili, Stron, grup i wydarzeń w Threshold."
+    },
+    "title": "Szukaj",
+    "subtitle": "Profile / Strony / grupy / wydarzenia",
+    "emptyEyebrow": "[ wyszukiwanie ]",
+    "filterLabel": "Filtruj wyniki wyszukiwania",
+    "filters": {
+      "all": "Wszystko",
+      "artist": "Artyści",
+      "consumer": "Osoby",
+      "club": "Kluby",
+      "collective": "Kolektywy",
+      "project": "Projekty",
+      "festival": "Festiwale",
+      "group": "Grupy",
+      "event": "Wydarzenia",
+      "unknown": "Nieznany"
+    },
+    "groups": {
+      "profiles": "Profile",
+      "pages": "Strony",
+      "groups": "Grupy",
+      "events": "Wydarzenia"
+    },
+    "noResults": "Brak wyników",
+    "noResultsBody": "Nic nie pasuje do „{query}”. Spróbuj nazwy, @pseudonimu, wydarzenia, miasta lub gatunku.",
+    "emptyTitle": "Przeszukaj scenę",
+    "emptyBody": "Znajdź osoby, artystów, kluby, kolektywy, grupy i wydarzenia w prawdziwych opublikowanych danych.",
+    "suggestions": {
+      "events": "Przeglądaj wydarzenia",
+      "groups": "Przeglądaj grupy",
+      "pages": "Przeglądaj Strony"
+    },
+    "errorEyebrow": "[ niedostępne ]",
+    "loadErrorTitle": "Wyszukiwanie jest niedostępne",
+    "loadErrorBody": "Nie udało się połączyć z usługami wyszukiwania.",
+    "retry": "Spróbuj ponownie"
+  },
+  "notifications": {
+    "metadata": {
+      "title": "Powiadomienia",
+      "description": "Aktywność konta, wydarzeń i sceny w Threshold."
+    },
+    "eyebrow": "Skrzynka",
+    "title": "Powiadomienia",
+    "subtitle": "Aktywność konta i wydarzeń zapisana w Threshold. Powiadomienia push i e-mail nie są włączone.",
+    "emptyEyebrow": "Pusto",
+    "emptyBody": "Nie masz powiadomień.",
+    "unreadCount": "{count, plural, one {# nieprzeczytane} few {# nieprzeczytane} other {# nieprzeczytanych}}",
+    "unread": "Nieprzeczytane",
+    "read": "Przeczytane",
+    "open": "Otwórz",
+    "markRead": "Oznacz jako przeczytane",
+    "marking": "Oznaczanie…",
+    "markAll": "Przeczytaj wszystkie",
+    "markingAll": "Oznaczanie wszystkich…",
+    "loadError": "Nie udało się załadować powiadomień. Spróbuj ponownie.",
+    "readError": "Nie udało się oznaczyć tego powiadomienia.",
+    "readAllError": "Nie udało się oznaczyć powiadomień.",
+    "markedRead": "Oznaczono powiadomienie jako przeczytane.",
+    "markedAll": "Oznaczono wszystkie powiadomienia jako przeczytane.",
+    "errorEyebrow": "[ niedostępne ]",
+    "loadErrorTitle": "Powiadomienia są niedostępne",
+    "retry": "Spróbuj ponownie",
+    "roles": {
+      "owner": "właściciel",
+      "admin": "administrator",
+      "editor": "redaktor",
+      "unknown": "nieznana rola"
+    },
+    "messages": {
+      "follow": "Ktoś zaczął Cię obserwować",
+      "followNamed": "{actor} zaczął Cię obserwować",
+      "comment": "Ktoś skomentował Twój post",
+      "commentNamed": "{actor} skomentował Twój post",
+      "mention": "Ktoś o Tobie wspomniał",
+      "mentionNamed": "{actor} wspomniał o Tobie",
+      "eventUpdate": "Zaktualizowano wydarzenie",
+      "eventUpdateNamed": "{event} opublikowało aktualizację",
+      "guestlistAdded": "Przyznano dostęp z listy gości",
+      "guestlistAddedNamed": "Przyznano dostęp z listy gości na {event}",
+      "guestlistRemoved": "Usunięto dostęp z listy gości",
+      "guestlistRemovedNamed": "Usunięto dostęp z listy gości na {event}",
+      "guestlistQuota": "Zmieniono Twój limit gości",
+      "guestlistQuotaNamed": "Zmieniono Twój limit gości na {event}",
+      "pageRole": "Twoja rola na Stronie zmieniła się na: {role}",
+      "pageRoleNamed": "Twoja rola na Stronie {page} zmieniła się na: {role}",
+      "pageRoleRemoved": "Usunięto Twoją rolę na Stronie",
+      "pageRoleRemovedNamed": "Usunięto Twoją rolę na Stronie {page}",
+      "residencyInvited": "Masz zaproszenie do rezydencji",
+      "residencyInvitedNamed": "{page} zaprasza Cię do rezydencji",
+      "residencyAccepted": "Zaakceptowano zaproszenie do rezydencji",
+      "residencyAcceptedNamed": "{actor} akceptuje zaproszenie do rezydencji",
+      "residencyRejected": "Odrzucono zaproszenie do rezydencji",
+      "residencyRejectedNamed": "{actor} odrzuca zaproszenie do rezydencji",
+      "reaction": "Ktoś zareagował na Twój post",
+      "reactionNamed": "{actor} zareagował na Twój post",
+      "vote": "Ktoś zagłosował na Twój post",
+      "voteNamed": "{actor} zagłosował na Twój post",
+      "pageUpdate": "Zaktualizowano Stronę",
+      "pageUpdateNamed": "Zaktualizowano Stronę {page}",
+      "groupPost": "Grupa opublikowała post"
+    },
+    "types": {
+      "activity": "Aktywność",
+      "comment": "Nowy komentarz",
+      "eventUpdate": "Aktualizacja wydarzenia",
+      "follow": "Nowa obserwacja",
+      "groupPost": "Post w grupie",
+      "guestlistAdded": "Dostęp z listy gości",
+      "guestlistQuota": "Limit gości",
+      "guestlistRemoved": "Dostęp z listy gości",
+      "mention": "Wzmianka",
+      "pageRole": "Rola na Stronie",
+      "pageUpdate": "Aktualizacja Strony",
+      "reaction": "Reakcja",
+      "residency": "Rezydencja",
+      "vote": "Głos"
+    }
+  },
+  "groups": {
+    "metadata": {
+      "title": "Grupy",
+      "description": "Oficjalne grupy sceny w Threshold."
+    },
+    "title": "Grupy",
+    "subtitle": "Oficjalne kanały sceny",
+    "emptyEyebrow": "[ grupy ]",
+    "official": "Oficjalna",
+    "emptyTitle": "Brak dostępnych grup",
+    "emptyBody": "Obecnie nie ma dostępnych oficjalnych grup sceny.",
+    "backToFeed": "Wróć do aktualności",
+    "errorEyebrow": "[ niedostępne ]",
+    "loadErrorTitle": "Grupy są niedostępne",
+    "loadErrorBody": "Nie udało się załadować grup.",
+    "retry": "Spróbuj ponownie"
+  },
+  "groupDetail": {
+    "metadata": {
+      "title": "Grupa | Threshold",
+      "description": "Oficjalna grupa sceny w Threshold."
+    },
+    "back": "Grupy",
+    "official": "Oficjalna",
+    "emptyTitle": "Brak postów",
+    "emptyJoined": "Napisz pierwszy post w tej grupie.",
+    "emptyNotJoined": "Dołącz do grupy, aby publikować i śledzić rozmowę.",
+    "errorEyebrow": "[ niedostępne ]",
+    "loadErrorTitle": "Grupa jest niedostępna",
+    "loadErrorBody": "Nie udało się załadować tej grupy.",
+    "retry": "Spróbuj ponownie",
+    "membership": {
+      "join": "Dołącz +",
+      "joined": "Dołączono",
+      "pending": "Przetwarzanie…",
+      "error": "Nie udało się zmienić członkostwa w grupie."
+    }
+  },
+  "settings": {
+    "metadata": {
+      "title": "Ustawienia",
+      "description": "Zarządzaj publiczną tożsamością, powiadomieniami i kontem Threshold."
+    },
+    "title": "Ustawienia",
+    "subtitle": "Publiczna tożsamość / powiadomienia / konto",
+    "loadErrorEyebrow": "[ niedostępne ]",
+    "loadErrorTitle": "Ustawienia są niedostępne",
+    "loadErrorBody": "Nie udało się załadować ustawień profilu.",
+    "retry": "Spróbuj ponownie",
+    "sectionNavigation": "Sekcje ustawień",
+    "sections": {
+      "profile": "Profil",
+      "artist": "Artysta",
+      "notifications": "Powiadomienia",
+      "account": "Konto"
+    },
+    "status": {
+      "saved": "Zapisano",
+      "unsaved": "Niezapisane zmiany",
+      "avatarUploaded": "Przesłano awatar — zapisz profil"
+    },
+    "actions": {
+      "discard": "Odrzuć",
+      "saving": "Zapisywanie…",
+      "cancel": "Anuluj"
+    },
+    "errors": {
+      "usernameTaken": "Ten pseudonim jest zajęty.",
+      "profileSave": "Nie udało się zapisać profilu.",
+      "avatarUpload": "Nie udało się przesłać awatara.",
+      "artistSave": "Nie udało się zapisać profilu artysty.",
+      "accountDelete": "Nie udało się usunąć konta."
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Publiczna tożsamość widoczna przy postach, komentarzach i na stronie profilu.",
+      "previewName": "Twoja nazwa wyświetlana",
+      "previewUsername": "pseudonim",
+      "uploading": "Przesyłanie…",
+      "uploadAvatar": "Prześlij awatar",
+      "displayName": "Nazwa wyświetlana",
+      "username": "Pseudonim",
+      "publicAddress": "Twój publiczny adres: /u/{username}",
+      "bio": "Bio",
+      "bioHint": "Widoczne na stronie profilu. Tylko zwykły tekst.",
+      "bioPlaceholder": "Twoje miejsce na scenie",
+      "city": "Miasto",
+      "cityHint": "Używane dla lokalnych wydarzeń i oficjalnych grup.",
+      "chooseCity": "Wybierz miasto",
+      "save": "Zapisz profil"
+    },
+    "artist": {
+      "title": "Profil artysty",
+      "createTitle": "Utwórz profil artysty",
+      "description": "Publiczne informacje widoczne na profilu artysty.",
+      "createDescription": "Dodaj publiczną rolę, lokalizację i linki artysty.",
+      "intro": "Użyj tego samego publicznego pseudonimu; prawdziwe imię nie jest wymagane.",
+      "setup": "Skonfiguruj profil artysty",
+      "role": "Rola",
+      "roleHint": "Co robisz na scenie.",
+      "rolePlaceholder": "DJ / producent / promotor",
+      "location": "Lokalizacja",
+      "locationPlaceholder": "Warszawa",
+      "links": "Linki",
+      "linksHint": "SoundCloud, Bandcamp, RA… adresy muszą zaczynać się od https://",
+      "linkLabel": "Etykieta linku {number}",
+      "linkUrl": "Adres URL linku {number}",
+      "linkPlaceholder": "SoundCloud",
+      "removeLink": "Usuń link {number}",
+      "addLink": "+ Dodaj link",
+      "save": "Zapisz profil artysty",
+      "create": "Utwórz profil artysty"
+    },
+    "notifications": {
+      "title": "Preferencje powiadomień",
+      "description": "Wybierz niekrytyczną aktywność widoczną w skrzynce.",
+      "mentions_enabled": {
+        "title": "Wzmianki",
+        "body": "Powiadamiaj o wzmiankach profilu lub Strony."
+      },
+      "engagement_enabled": {
+        "title": "Interakcje",
+        "body": "Powiadamiaj o obserwacjach, komentarzach, reakcjach i głosach."
+      },
+      "event_updates_enabled": {
+        "title": "Aktualizacje wydarzeń",
+        "body": "Powiadamiaj o aktualizacjach obserwowanych wydarzeń."
+      },
+      "page_updates_enabled": {
+        "title": "Aktualizacje Stron i grup",
+        "body": "Powiadamiaj o aktualizacjach Stron i grup."
+      },
+      "save": "Zapisz preferencje",
+      "saving": "Zapisywanie…",
+      "saved": "Zapisano preferencje.",
+      "loadError": "Nie udało się załadować preferencji. Elementy sterujące pozostaną niedostępne do czasu pobrania prawdziwych ustawień.",
+      "saveError": "Nie udało się zapisać preferencji.",
+      "retry": "Spróbuj ponownie",
+      "retrying": "Ponawianie…"
+    },
+    "account": {
+      "title": "Konto",
+      "description": "Nieodwracalne działania na koncie.",
+      "deleteTitle": "Usuń konto",
+      "deleteBody": "Publiczna tożsamość zostanie zanonimizowana, a dane konta usunięte tam, gdzie jest to wymagane. Tej operacji nie można cofnąć.",
+      "deleteAction": "Usuń konto…",
+      "confirm": "Wpisz <code>DELETE</code>, aby potwierdzić.",
+      "deleting": "Usuwanie…",
+      "permanentDelete": "Usuń trwale"
+    }
+  },
+  "organizerPages": {
+    "metadata": {
+      "title": "Strony organizatorów",
+      "description": "Twórz i zarządzaj Stronami organizatorów w Threshold."
+    },
+    "title": "Strony organizatorów",
+    "subtitle": "Kluby / kolektywy / projekty / festiwale",
+    "managedTitle": "Zarządzane Strony",
+    "empty": "Nie zarządzasz żadną Stroną.",
+    "view": "Zobacz Stronę",
+    "createTitle": "Utwórz Stronę",
+    "displayName": "Nazwa wyświetlana",
+    "slug": "Adres Strony",
+    "type": "Typ Strony",
+    "city": "Miasto",
+    "chooseCity": "Wybierz miasto",
+    "about": "Opis",
+    "create": "Utwórz",
+    "creating": "Tworzenie…",
+    "loadError": "Nie udało się załadować zarządzanych Stron.",
+    "createError": "Nie udało się utworzyć Strony.",
+    "loadErrorTitle": "Strony organizatorów są niedostępne",
+    "errorEyebrow": "[ niedostępne ]",
+    "retry": "Spróbuj ponownie",
+    "types": {
+      "club": "Klub",
+      "collective": "Kolektyw",
+      "project": "Projekt",
+      "festival": "Festiwal",
+      "unknown": "Nieznany"
+    },
+    "roles": {
+      "owner": "Właściciel",
+      "admin": "Administrator",
+      "editor": "Redaktor",
+      "unknown": "Nieznana"
+    }
+  },
+  "savedPage": {
+    "metadata": {
+      "title": "Zapisane",
+      "description": "Zapisane elementy w Threshold."
+    },
+    "title": "Zapisane",
+    "subtitle": "Prywatne zapisane elementy",
+    "emptyEyebrow": "[ zapisane ]",
+    "emptyTitle": "Zapisywanie jest niedostępne",
+    "emptyBody": "Ta wersja nie przechowuje zapisanych postów ani wydarzeń.",
+    "action": "Wróć do aktualności"
+  },
+  "loading": {
+    "aria": "Ładowanie strony",
+    "feed": "Ładowanie Aktualności"
+  },
+  "navigation": {
+    "feed": "Aktualności",
+    "events": "Wydarzenia",
+    "groups": "Grupy",
+    "notifications": "Powiadomienia",
+    "notificationsUnread": "Powiadomienia, nieprzeczytane: {count}",
+    "post": "+ Post",
+    "saved": "Zapisane",
+    "settings": "Ustawienia",
+    "profile": "Profil",
+    "you": "Ty"
+  },
+  "guestlistPage": {
+    "metadata": {
+      "title": "Dostęp",
+      "description": "Twój prywatny dostęp do wydarzeń w Threshold."
+    },
+    "title": "Dostęp",
+    "subtitle": "Prywatny dostęp do wydarzeń",
+    "emptyEyebrow": "[ dostęp ]",
+    "emptyTitle": "Brak prywatnego dostępu",
+    "emptyBody": "Dostęp z listy gości przyznany przez organizatora i odprawa kodem QR są dostępne na stronach wydarzeń. Ta wersja nie ma globalnej skrzynki dostępu, publicznego formularza zgłoszenia ani szyfrowanego ujawniania dokładnej lokalizacji.",
+    "action": "Wróć do aktualności"
+  },
+  "feed": {
+    "title": "Aktualności",
+    "newest": "Najnowsze",
+    "emptyEyebrow": "[ puste aktualności ]",
+    "emptyTitle": "Brak postów",
+    "emptyBody": "Obserwuj kluby, DJ-ów i kolektywy, aby zbudować chronologiczne aktualności. Najnowsze publikacje pojawią się tutaj.",
+    "emptyAction": "Znajdź swoją scenę",
+    "suggestionGroups": "Otwórz Grupy i dołącz do oficjalnego kanału miasta",
+    "suggestionEvents": "Przeglądaj nadchodzące wydarzenia",
+    "suggestionCityGroup": "Dołącz do oficjalnych grup: {city}",
+    "suggestionAnyCityGroup": "Dołącz do oficjalnej grupy miasta",
+    "suggestionScenes": "Obserwuj strony scen: {scenes}",
+    "suggestionFollows": "Obserwuj artystów, kluby i kolektywy",
+    "suggestionCityEvents": "Przeglądaj nadchodzące wydarzenia: {city}",
+    "accessUpdate": "Zmiana dostępu",
+    "thresholdSystem": "System Threshold",
+    "verified": "zweryfikowano",
+    "viewDetails": "Zobacz szczegóły",
+    "eventUpdate": "Aktualizacja wydarzenia",
+    "accessState": {
+      "none": "Brak dostępu",
+      "locked": "Dostęp zablokowany",
+      "pending": "Dostęp oczekuje",
+      "approved": "Dostęp przyznany",
+      "rejected": "Dostęp odrzucony"
+    }
+  },
+  "composer": {
+    "metadata": {
+      "title": "Utwórz post",
+      "description": "Opublikuj post w Threshold."
+    },
+    "title": "+ Post",
+    "subtitle": "Udostępnij tekst, zdjęcia i opcjonalne wydarzenie",
+    "textLabel": "Treść posta",
+    "placeholder": "Podziel się czymś ze sceną. Oznacz @osoby.",
+    "attachImages": "Dodaj zdjęcia",
+    "imagesSelected": "Wybrane zdjęcia: {count}",
+    "eventLabel": "Powiązane wydarzenie",
+    "noEvent": "Bez wydarzenia",
+    "publish": "Opublikuj",
+    "publishing": "Publikowanie…",
+    "sessionExpired": "Sesja wygasła. Zaloguj się ponownie.",
+    "publishError": "Nie udało się opublikować. Spróbuj ponownie.",
+    "networkError": "Nie udało się połączyć z siecią. Spróbuj ponownie.",
+    "eventLoadError": "Nie udało się załadować wydarzeń. Nadal możesz opublikować bez wydarzenia.",
+    "uploadError": "Nie udało się przesłać zdjęć. Spróbuj ponownie.",
+    "eventValidationError": "To wydarzenie nie jest już dostępne. Wybierz inne.",
+    "eventValidationUnavailable": "Usługa wydarzeń jest niedostępna. Spróbuj później.",
+    "imagesTruncated": "Zachowano tylko pierwsze {count} zdjęcia."
+  },
+  "commentComposer": {
+    "replyLabel": "Twoja odpowiedź",
+    "commentLabel": "Twój komentarz",
+    "replyPlaceholder": "Odpowiedz…",
+    "commentPlaceholder": "Dodaj komentarz…",
+    "posting": "Publikowanie…",
+    "reply": "Odpowiedz",
+    "comment": "Komentarz",
+    "postError": "Nie udało się opublikować komentarza.",
+    "networkError": "Nie udało się połączyć z siecią. Spróbuj ponownie."
+  },
+  "eventCard": {
+    "event": "Wydarzenie",
+    "venue": "Miejsce",
+    "lineup": "Line-up",
+    "view": "Zobacz wydarzenie",
+    "tba": "Wkrótce",
+    "follow": "Obserwuj +",
+    "following": "Obserwujesz",
+    "boost": "Wzmocnij wydarzenie",
+    "boosted": "Wydarzenie wzmocnione",
+    "errors": {
+      "forbidden": "Ta czynność jest niedozwolona.",
+      "notFound": "To wydarzenie nie jest już dostępne.",
+      "rateLimited": "Zbyt wiele prób. Spróbuj ponownie za chwilę.",
+      "serviceUnavailable": "Ta czynność jest chwilowo niedostępna.",
+      "network": "Nie udało się połączyć z siecią. Spróbuj ponownie."
+    },
+    "location": {
+      "public_location": "Jawna lokalizacja",
+      "secret_location": "Tajna lokalizacja",
+      "tba": "Lokalizacja wkrótce"
+    }
+  },
+  "eventDetail": {
+    "notFound": "Nie znaleziono wydarzenia",
+    "event": "Wydarzenie",
+    "tba": "Wkrótce",
+    "posterAlt": "Plakat wydarzenia {title}",
+    "noPoster": "Brak plakatu",
+    "date": "Data",
+    "city": "Miasto",
+    "organizer": "Organizator",
+    "description": "Opis",
+    "lineup": "Line-up",
+    "genres": "Gatunki",
+    "location": {
+      "title": "Lokalizacja",
+      "public": "Jawna lokalizacja",
+      "tba": "Lokalizacja wkrótce",
+      "tbaBody": "Organizator ogłosi miejsce wydarzenia.",
+      "secret": "Tajna lokalizacja",
+      "secretBody": "Wymagany jest dostęp. Organizator ukrywa dokładny adres.",
+      "city": "Miasto: {city}",
+      "undisclosed": "Nieujawnione",
+      "badge": {
+        "public_location": "Jawna lokalizacja",
+        "tba": "Lokalizacja wkrótce",
+        "secret_location": "Tajna lokalizacja"
+      }
+    },
+    "access": {
+      "approvedTitle": "Dostęp przyznany",
+      "approvedBody": "Jesteś na prywatnej liście gości tego wydarzenia.",
+      "checkedInBody": "Twój wpis na listę gości został już odprawiony.",
+      "guestlistBadge": "Lista gości",
+      "showQr": "Pokaż QR",
+      "qrTitle": "Kod QR do odprawy",
+      "closeQr": "Zamknij kod QR",
+      "qrLoading": "Tworzenie krótkotrwałego kodu QR…",
+      "qrError": "Nie udało się utworzyć kodu QR. Spróbuj ponownie.",
+      "qrExpired": "Ten kod QR wygasł. Odśwież go, aby kontynuować.",
+      "qrExpires": "Wygasa o {time}",
+      "refreshQr": "Odśwież QR",
+      "guestSearchLabel": "Znajdź gościa po nazwie użytkownika",
+      "guestSearchPlaceholder": "Szukaj @nazwy",
+      "guestSearchLoading": "Wyszukiwanie…",
+      "guestSearchError": "Wyszukiwanie jest niedostępne. Spróbuj ponownie.",
+      "guestSearchEmpty": "Brak pasujących osób",
+      "networkError": "Nie udało się połączyć z siecią. Spróbuj ponownie.",
+      "mutationUnauthorized": "Sesja wygasła. Zaloguj się ponownie.",
+      "mutationForbidden": "Nie masz uprawnień do tej czynności.",
+      "mutationNotFound": "Ten wpis już nie istnieje.",
+      "mutationError": "Nie udało się wykonać czynności.",
+      "addGuest": "Dodaj gościa",
+      "addingGuest": "Dodawanie…",
+      "guestAdded": "Dodano gościa.",
+      "guestAddError": "Nie udało się dodać gościa.",
+      "managerTitle": "Zarządzaj listą gości",
+      "guestlistCount": "{count, plural, one {# aktywny gość} few {# aktywnych gości} other {# aktywnych gości}}",
+      "guestlistEmpty": "Lista gości jest pusta.",
+      "sourceDj": "Dodano przez DJ-a",
+      "sourceOrganizer": "Dodano przez organizatora",
+      "checkedIn": "Odprawiono",
+      "removed": "Usunięto",
+      "removeGuestNamed": "Usuń {name} z listy gości",
+      "guestRemoved": "Usunięto gościa.",
+      "guestRemoveError": "Nie udało się usunąć gościa.",
+      "addGuestTitle": "Dodaj gościa",
+      "djTitle": "Twój limit gości",
+      "lineupArtist": "Artysta z line-upu",
+      "quota": "Limit",
+      "used": "Użyto",
+      "remaining": "Zostało",
+      "quotaFull": "W tym limicie nie ma już wolnych miejsc.",
+      "quotaUnassigned": "Organizator nie przyznał limitu gości.",
+      "quotaControlsTitle": "Limity gości line-upu",
+      "quotaUsage": "Użyto {used} z {quota}",
+      "saveQuota": "Zapisz limit",
+      "quotaSaved": "Zapisano limit.",
+      "quotaError": "Nie udało się zapisać limitu.",
+      "doorTitle": "Odprawa przy wejściu",
+      "doorStaffOnly": "Menedżerowie / obsługa wejścia",
+      "managerOnly": "Tylko menedżer",
+      "doorStaffTitle": "Obsługa wejścia",
+      "doorStaffCurrent": "Przypisana obsługa",
+      "doorStaffEmpty": "Nie przypisano obsługi wejścia.",
+      "doorStaffUnavailable": "Niedostępne konto",
+      "assignDoorStaff": "Przypisz obsługę wejścia",
+      "assigningDoorStaff": "Przypisywanie…",
+      "doorStaffSearchLabel": "Znajdź obsługę wejścia po nazwie użytkownika",
+      "doorStaffSearchPlaceholder": "Szukaj @nazwy",
+      "doorStaffAssigned": "Przypisano obsługę wejścia.",
+      "doorStaffRevoked": "Cofnięto dostęp obsługi wejścia.",
+      "revokeDoorStaffNamed": "Cofnij dostęp do wejścia dla {name}",
+      "scannerLabel": "Skaner sprzętowy lub dane kodu QR",
+      "scannerPlaceholder": "Zeskanuj czytnikiem klawiaturowym lub wklej token",
+      "scannerHelp": "Skaner sprzętowy może wpisać kod bezpośrednio w to pole. Możesz też wkleić token; kamera nie jest wymagana.",
+      "checkIn": "Odpraw",
+      "checkingIn": "Odprawianie…",
+      "alreadyCheckedIn": "Ten gość został już odprawiony.",
+      "checkInError": "Nieprawidłowy lub wygasły kod QR.",
+      "guest": "Gość"
+    },
+    "updates": {
+      "title": "Aktualizacje organizatora",
+      "public": "Publiczne",
+      "empty": "Brak aktualizacji organizatora.",
+      "formTitle": "Aktualizacja organizatora",
+      "formHint": "Publiczna informacja · obserwujący dostaną powiadomienie",
+      "formLabel": "Treść aktualizacji",
+      "formPlaceholder": "Drzwi, harmonogram, line-up… bez prywatnych danych dostępu.",
+      "forbidden": "Tylko redaktorzy strony mogą publikować aktualizacje.",
+      "error": "Nie udało się opublikować aktualizacji.",
+      "networkError": "Nie udało się połączyć z siecią. Spróbuj ponownie.",
+      "publishing": "Publikowanie…",
+      "publish": "Opublikuj aktualizację"
+    }
+  },
+  "post": {
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "save": "Zapisz",
+    "saving": "Zapisywanie…",
+    "cancel": "Anuluj",
+    "yes": "Tak",
+    "no": "Nie",
+    "deleting": "Usuwanie…",
+    "edited": "edytowano",
+    "deleteConfirm": "Usunąć?",
+    "editPost": "Edytuj post",
+    "editComment": "Edytuj komentarz",
+    "editError": "Nie udało się zapisać zmian. Spróbuj ponownie.",
+    "deleteError": "Nie udało się usunąć posta. Spróbuj ponownie.",
+    "commentEditError": "Nie udało się zapisać zmian. Spróbuj ponownie.",
+    "commentDeleteError": "Nie udało się usunąć komentarza. Spróbuj ponownie.",
+    "reply": "Odpowiedz",
+    "commentCount": "{count, plural, one {# komentarz} few {# komentarze} other {# komentarzy}}",
+    "commentsLoading": "Ładowanie komentarzy…",
+    "commentsLoadError": "Nie udało się załadować komentarzy. Spróbuj ponownie.",
+    "commentsEmpty": "Brak komentarzy. Napisz pierwszy.",
+    "upvote": "Głos w górę",
+    "removeUpvote": "Usuń głos w górę",
+    "downvote": "Głos w dół",
+    "removeDownvote": "Usuń głos w dół",
+    "addReaction": "Dodaj reakcję emoji",
+    "addNamedReaction": "Dodaj reakcję {emoji}",
+    "removeReaction": "Usuń reakcję {emoji}",
+    "reactWith": "Zareaguj {emoji}",
+    "customEmoji": "Własne emoji",
+    "customEmojiPlaceholder": "Dowolne emoji…",
+    "add": "Dodaj",
+    "attachmentAlt": "Załącznik do posta",
+    "lineup": "Line-up",
+    "locationTba": "Lokalizacja wkrótce",
+    "secretLocation": "Tajna lokalizacja",
+    "viewEvent": "Zobacz wydarzenie"
+  },
+  "shell": {
+    "primaryNavigation": "Główna nawigacja",
+    "mobileNavigation": "Główna nawigacja mobilna",
+    "accountNavigation": "Konto",
+    "closeAccountMenu": "Zamknij menu konta",
+    "privateAccess": "Prywatny dostęp",
+    "privateAccessEmpty": "Dostęp przyznany przez organizatorów pojawi się tutaj.",
+    "tonight": "Dziś",
+    "tonightEmpty": "Miasto milczy. Dzisiejsze wydarzenia pojawią się tutaj.",
+    "all": "Wszystkie",
+    "location": {
+      "public_location": "Jawna",
+      "secret_location": "Tajna",
+      "tba": "Wkrótce"
+    },
+    "search": {
+      "label": "Szukaj wydarzeń, artystów, kolektywów i lokalizacji",
+      "compactPlaceholder": "szukaj...",
+      "placeholder": "szukaj wydarzeń, artystów, kolektywów i lokalizacji..."
+    }
+  },
+  "actions": {
+    "back": "Wstecz",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "retry": "Spróbuj ponownie",
+    "save": "Zapisz",
+    "submit": "Wyślij"
+  },
+  "auth": {
+    "email": "E-mail",
+    "forgotPassword": "Nie pamiętasz hasła?",
+    "login": "Zaloguj się",
+    "logout": "Wyloguj się",
+    "completeOnboarding": "Dokończ konfigurację",
+    "onboardingRequired": "Wybierz miasto, aby korzystać z funkcji konta.",
+    "password": "Hasło",
+    "register": "Utwórz konto"
+  },
+  "errors": {
+    "forbidden": "Nie masz do tego dostępu.",
+    "generic": "Coś poszło nie tak.",
+    "notFound": "Nie znaleziono.",
+    "unauthorized": "Zaloguj się, aby kontynuować."
+  }
+}

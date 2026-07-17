@@ -1,0 +1,42 @@
+# generated / local
+graphify-out/
+**/graphify-out/
+.cursor/
+.worktrees/
+.hermes/
+.learnings/
+/scripts/
+/docs/
+/documents/
+*.[mM][dD]
+/.audit/
+/reports/
+*.sarif
+*.spdx.json
+*.cyclonedx.json
+
+# env / secrets
+.env
+.env.*
+!.env.example
+crash.log
+crash.*.log
+
+# node / frontend
+node_modules/
+.next/
+dist/
+build/
+apps/web/bun-dist/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# logs / system
+*.log
+.DS_Store

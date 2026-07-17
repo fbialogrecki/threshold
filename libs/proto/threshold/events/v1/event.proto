@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package threshold.events.v1;
+
+import "threshold/users/v1/user.proto";
+
+message Event {
+  string id = 1;
+  string title = 2;
+  string starts_at = 3;
+  string city = 4;
+  threshold.users.v1.User organizer = 5;
+}
+
+message GetEventRequest {
+  string id = 1;
+}
+
+message GetEventResponse {
+  Event event = 1;
+}

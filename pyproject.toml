@@ -1,0 +1,68 @@
+[project]
+name = "threshold-workspace"
+version = "0.1.0"
+description = "Threshold backend workspace"
+requires-python = ">=3.13"
+dependencies = [
+  "threshold-auth-gateway",
+  "threshold-events",
+  "threshold-media",
+  "threshold-social",
+  "threshold-users",
+]
+
+[dependency-groups]
+dev = [
+  "httpx>=0.28",
+  "mypy>=1.19",
+  "pytest>=9.0",
+  "pytest-asyncio>=1.3",
+  "ruff>=0.14",
+]
+
+[tool.uv]
+constraint-dependencies = [
+  "cryptography>=48.0.1",
+  "fastapi>=0.139.2",
+  "idna>=3.15",
+  "pillow>=12.3.0",
+  "pydantic-settings>=2.14.2",
+  "pyjwt>=2.13.0",
+  "starlette>=1.3.1",
+]
+
+[tool.uv.sources]
+threshold-auth-gateway = { workspace = true }
+threshold-events = { workspace = true }
+threshold-media = { workspace = true }
+threshold-social = { workspace = true }
+threshold-users = { workspace = true }
+
+[tool.uv.workspace]
+members = [
+  "libs/py",
+  "services/auth-gateway",
+  "services/events",
+  "services/media",
+  "services/social",
+  "services/users",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["libs/py", "services"]
+exclude = ["libs/generated"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+addopts = "-q --import-mode=importlib"
+testpaths = ["services", "libs/py/tests"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+packages = ["threshold_common", "auth_gateway", "events", "media", "users", "social"]
+exclude = "(libs/generated|services/.*/migrations|services/.*/tests|scripts)"

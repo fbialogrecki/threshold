@@ -1,0 +1,49 @@
+when:
+  - event: pull_request
+    path:
+      include:
+        - services/users/**
+        - libs/py/**
+        - pyproject.toml
+        - uv.lock
+        - .python-version
+        - .dockerignore
+        - services/users/Dockerfile
+        - .woodpecker/users.yml
+      on_empty: false
+  - event: push
+    branch: main
+    path:
+      include:
+        - services/users/**
+        - libs/py/**
+        - pyproject.toml
+        - uv.lock
+        - .python-version
+        - .dockerignore
+        - services/users/Dockerfile
+        - .woodpecker/users.yml
+      on_empty: false
+  - event: manual
+
+depends_on:
+  - python-quality
+
+steps:
+  validate-users-image:
+    image: quay.io/buildah/stable@sha256:ca4edbaabf71ca330ec9b2714bf8e06c726a6e85ae215cfb1474d2e2c832aacb
+    environment:
+      STORAGE_DRIVER: vfs
+      BUILDAH_ISOLATION: chroot
+    commands:
+      - buildah bud --format=oci --storage-driver=vfs --isolation=chroot --tag threshold/users:ci --file services/users/Dockerfile .
+      - buildah inspect --type image threshold/users:ci >/dev/null
+    backend_options:
+      kubernetes:
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: "2"
+            memory: 3Gi

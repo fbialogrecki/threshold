@@ -1,0 +1,10 @@
+version: v2
+plugins:
+  - remote: buf.build/protocolbuffers/python
+    out: ../generated/python
+  - remote: buf.build/protocolbuffers/pyi
+    out: ../generated/python
+  - remote: buf.build/bufbuild/es
+    out: ../generated/typescript
+    opt:
+      - target=ts

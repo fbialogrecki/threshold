@@ -1,0 +1,950 @@
+{
+  "common": {
+    "locale": {
+      "label": "Language",
+      "current": "Current language: {locale}",
+      "switchTo": "Switch language to {locale}",
+      "en": "English",
+      "pl": "Polish"
+    }
+  },
+  "landing": {
+    "metadata": {
+      "title": "Threshold",
+      "description": "A chronological social platform for underground events, artists, clubs and collectives."
+    },
+    "navigation": "Public navigation",
+    "privacy": "Privacy",
+    "login": "Log in",
+    "eyebrow": "Independent scene infrastructure",
+    "heroLineOne": "Below",
+    "heroLineTwo": "the surface",
+    "manifest": "Manifest",
+    "body": "Threshold is a chronological place for underground events, artists, clubs and collectives. Direct public pages stay open. An account unlocks the Feed and interactions.",
+    "registrationOpen": "Open registration — choose a supported city during setup",
+    "createAccount": "Create account →",
+    "enterFeed": "Enter Feed →",
+    "principles": {
+      "chronological": {
+        "title": "Chronological",
+        "body": "Posts from accounts and official groups you choose, newest first. No ranking and no ads."
+      },
+      "public": {
+        "title": "Public details",
+        "body": "Event, artist and organization pages can be read without an account. Log in to interact."
+      },
+      "private": {
+        "title": "Private means private",
+        "body": "Guestlists are organizer-managed. Encrypted exact-location reveal is planned, not available in this release."
+      }
+    },
+    "footer": "No real names required · no third-party trackers",
+    "privacyBoundary": "Read the privacy boundary →"
+  },
+  "authFlow": {
+    "metadata": {
+      "loginTitle": "Log in",
+      "loginDescription": "Log in to Threshold.",
+      "registerTitle": "Create account",
+      "registerDescription": "Create a Threshold account. Registration is open."
+    },
+    "login": "Log in",
+    "createAccount": "Create account",
+    "registrationOpen": "Open registration",
+    "loginCaption": "Enter the scene",
+    "nickname": "Nickname",
+    "identifier": "Email or nickname",
+    "nicknameHint": "No real names",
+    "usernameHelp": "3–30 letters, numbers, periods, underscores or hyphens.",
+    "email": "Email",
+    "password": "Password",
+    "passwordHelp": "At least 12 characters with lowercase, uppercase, a digit and a symbol.",
+    "revealHint": "Hold to reveal",
+    "revealLabel": "Hold to show password",
+    "working": "Working…",
+    "createAccountAction": "Create account →",
+    "loginAction": "Log in →",
+    "forgotPassword": "Forgot password?",
+    "hasAccount": "Already have an account?",
+    "noAccount": "No account yet?",
+    "createOne": "Create account",
+    "back": "← Back to entrance",
+    "redirecting": "Redirecting…",
+    "strength": {
+      "label": "Strength",
+      "tooShort": "Too short",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong"
+    },
+    "errors": {
+      "network": "Network error. Check your connection and try again.",
+      "invalidCredentials": "Invalid credentials. Check your email or nickname and password.",
+      "rateLimited": "Too many attempts. Wait and try again.",
+      "serviceUnavailable": "Authentication is temporarily unavailable. Try again.",
+      "username": "Use 3–30 letters, numbers, periods, underscores or hyphens.",
+      "reservedUsername": "That nickname is reserved. Choose another.",
+      "email": "Enter a valid email address.",
+      "password": "Password must meet all security requirements.",
+      "passwordLength": "Password must be at least 12 characters.",
+      "passwordTooLong": "Password is too long.",
+      "passwordLowercase": "Password needs a lowercase letter.",
+      "passwordUppercase": "Password needs an uppercase letter.",
+      "passwordDigit": "Password needs a digit.",
+      "passwordSymbol": "Password needs a symbol.",
+      "displayName": "Display name is too long.",
+      "accountExists": "An account with that email or nickname already exists.",
+      "register": "Could not create the account. Try again."
+    }
+  },
+  "authUtility": {
+    "metadata": {
+      "resetTitle": "Reset password",
+      "resetDescription": "Reset your Threshold password.",
+      "verifyTitle": "Verify email",
+      "verifyDescription": "Verify your Threshold email address."
+    },
+    "backToLogin": "← Back to log in",
+    "reset": {
+      "title": "Reset your password",
+      "email": "Email",
+      "send": "Send reset link →",
+      "working": "Working…",
+      "checkInbox": "Check your inbox",
+      "sent": "If an account exists for that address, check its inbox for a reset link.",
+      "newTitle": "Set a new password",
+      "newPassword": "New password",
+      "passwordHelp": "At least 12 characters with lowercase, uppercase, a digit and a symbol.",
+      "policyErrors": {
+        "passwordLength": "Password must be at least 12 characters.",
+        "passwordTooLong": "Password is too long.",
+        "passwordLowercase": "Password needs a lowercase letter.",
+        "passwordUppercase": "Password needs an uppercase letter.",
+        "passwordDigit": "Password needs a digit.",
+        "passwordSymbol": "Password needs a symbol."
+      },
+      "invalid": "This reset link is invalid or expired. Request a new one.",
+      "network": "Could not reach the network. Try again.",
+      "rateLimited": "Too many attempts. Wait and try again.",
+      "unavailable": "Password reset is temporarily unavailable. Try again.",
+      "updated": "Password updated",
+      "updatedBody": "Your password was changed and all sessions were signed out. Log in with your new password.",
+      "strength": "Strength",
+      "strengthValues": {
+        "0": "",
+        "1": "Too short",
+        "2": "Fair",
+        "3": "Good",
+        "4": "Strong"
+      },
+      "change": "Change password →"
+    },
+    "verify": {
+      "verified": "Email verified",
+      "verifying": "Verifying…",
+      "link": "Verification link",
+      "confirming": "Confirming your email address…",
+      "success": "Your email is verified for account security and recovery.",
+      "invalid": "This verification link is missing or no longer valid. Request a new one from your account.",
+      "service": "Email verification is temporarily unavailable. Try again.",
+      "rateLimited": "Too many attempts. Wait and try again.",
+      "retry": "Try again",
+      "continue": "→ Continue to Threshold"
+    },
+    "banner": {
+      "body": "Verify your email for account security and recovery.",
+      "error": "Could not send the verification email. Try again.",
+      "resend": "Resend link",
+      "sent": "Sent ✓"
+    }
+  },
+  "authServiceUnavailable": {
+    "eyebrow": "Authentication service",
+    "title": "Account status unavailable",
+    "body": "Threshold could not verify your session. Your account and cookies were left unchanged.",
+    "publicBanner": "Account interactions are temporarily unavailable. Public details remain readable.",
+    "retry": "Try again",
+    "retrying": "Retrying…"
+  },
+  "onboarding": {
+    "metadata": {
+      "title": "Set up your account",
+      "description": "Choose your Threshold identity, city and scene preferences."
+    },
+    "title": "Cross the threshold",
+    "subtitle": "Choose a city to enter the Feed",
+    "steps": {
+      "identity": "Identity",
+      "city": "City",
+      "frequencies": "Frequencies",
+      "access": "City group",
+      "done": "Done"
+    },
+    "identity": {
+      "body": "Choose your public nickname. No real name is required. You can add an avatar later.",
+      "nickname": "Nickname",
+      "hint": "This becomes your display name. You can change it later in Settings."
+    },
+    "city": {
+      "body": "Choose your city. A supported city is required for this release."
+    },
+    "cities": {
+      "Warsaw": "Warsaw",
+      "Wroclaw": "Wroclaw",
+      "Berlin": "Berlin",
+      "Krakow": "Krakow",
+      "Lodz": "Lodz",
+      "Poznan": "Poznan"
+    },
+    "frequencies": {
+      "body": "Choose any scene tags that fit. This step is optional and can be changed later."
+    },
+    "access": {
+      "body": "Threshold will join your account to the official group for the selected city.",
+      "hint": "No artists, clubs or collectives are followed automatically."
+    },
+    "done": {
+      "body": "Your city and optional scene preferences are ready to save.",
+      "hint": "After the official city group is joined, you will continue to the Feed."
+    },
+    "back": "← Back",
+    "next": "Next →",
+    "finish": "Save and enter →",
+    "saving": "Saving…",
+    "errors": {
+      "profile": "Your nickname could not be saved. Try again.",
+      "save": "Setup or the official city group could not be saved. Try again.",
+      "network": "Could not reach the network. Try again."
+    }
+  },
+  "privacy": {
+    "metadata": {
+      "title": "Privacy boundary",
+      "description": "Current Threshold privacy and private-access limits."
+    },
+    "eyebrow": "Threshold / Privacy boundary",
+    "title": "Private access metadata is visible to the server.",
+    "limit": "Current release / explicit limit",
+    "intro": "Guestlist access works in this release, but encrypted exact-location reveal does not. Threshold does not claim that exact secret addresses are protected by a feature that has not shipped.",
+    "points": {
+      "one": "Organizers and authorized staff can manage guestlists and door check-in.",
+      "two": "The server processes access status, organizer actions, account identifiers and audit records.",
+      "three": "Encrypted exact-location storage and reveal remain future security work."
+    },
+    "boundary": "Data boundary",
+    "facts": {
+      "server": {
+        "label": "Server-visible now",
+        "value": "access status, organizer and DJ actions, account IDs and audit records"
+      },
+      "plaintext": {
+        "label": "Not available now",
+        "value": "encrypted exact-location storage and reveal"
+      },
+      "future": {
+        "label": "Future privacy work",
+        "value": "client-side encryption, recipient keys and controlled location reveal"
+      }
+    },
+    "footer": "Do not treat access metadata as end-to-end encrypted.",
+    "back": "Back to entrance"
+  },
+  "publicProfile": {
+    "notFound": "Profile not found",
+    "metadataFallback": "@{username} on Threshold",
+    "followers": "{count, plural, one {# follower} other {# followers}}",
+    "bio": "Bio",
+    "noBio": "No bio yet.",
+    "upcoming": "Upcoming events",
+    "noEvents": "No linked upcoming events yet.",
+    "residencies": "Residencies",
+    "confirmed": "confirmed",
+    "links": "Links"
+  },
+  "publicPage": {
+    "notFound": "Page not found",
+    "metadataFallback": "{name} is a {type} in {city} on Threshold.",
+    "unknownCity": "an unspecified city",
+    "types": {
+      "club": "club",
+      "collective": "collective",
+      "project": "project",
+      "festival": "festival"
+    },
+    "followers": "{count, plural, one {# follower} other {# followers}}",
+    "upcoming": "Upcoming events",
+    "noEvents": "No upcoming events yet.",
+    "about": "About",
+    "noAbout": "No description yet.",
+    "residents": "Residents",
+    "noResidents": "No public residents yet.",
+    "confirmed": "confirmed",
+    "links": "Links",
+    "noLinks": "No links yet."
+  },
+  "profileActions": {
+    "follow": "Follow +",
+    "following": "Following",
+    "errors": {
+      "forbidden": "You cannot follow this profile.",
+      "notFound": "This profile is no longer available.",
+      "rateLimited": "Too many attempts. Try again shortly.",
+      "serviceUnavailable": "Following is temporarily unavailable.",
+      "network": "Could not reach the network. Try again."
+    }
+  },
+  "eventsCatalog": {
+    "metadata": {
+      "title": "Events",
+      "description": "Upcoming Threshold events, shown chronologically."
+    },
+    "title": "Events",
+    "subtitle": "Upcoming / all supported cities / chronological",
+    "emptyEyebrow": "[ events ]",
+    "emptyTitle": "No upcoming events",
+    "emptyBody": "No published upcoming events match this catalog right now.",
+    "emptyAction": "Search the scene",
+    "errorEyebrow": "[ unavailable ]",
+    "loadErrorTitle": "Events unavailable",
+    "loadErrorBody": "The event catalog could not be loaded.",
+    "retry": "Try again"
+  },
+  "searchPage": {
+    "metadata": {
+      "title": "Search",
+      "description": "Search Threshold profiles, Pages, groups and events."
+    },
+    "title": "Search",
+    "subtitle": "Profiles / Pages / groups / events",
+    "emptyEyebrow": "[ search ]",
+    "filterLabel": "Filter search results",
+    "filters": {
+      "all": "All",
+      "artist": "Artists",
+      "consumer": "People",
+      "club": "Clubs",
+      "collective": "Collectives",
+      "project": "Projects",
+      "festival": "Festivals",
+      "group": "Groups",
+      "event": "Events",
+      "unknown": "Unknown"
+    },
+    "groups": {
+      "profiles": "Profiles",
+      "pages": "Pages",
+      "groups": "Groups",
+      "events": "Events"
+    },
+    "noResults": "No results",
+    "noResultsBody": "Nothing matched “{query}”. Try a name, @handle, event, city or genre.",
+    "emptyTitle": "Search the scene",
+    "emptyBody": "Find people, artists, clubs, collectives, groups and events using real published data.",
+    "suggestions": {
+      "events": "Browse events",
+      "groups": "Browse groups",
+      "pages": "Browse Pages"
+    },
+    "errorEyebrow": "[ unavailable ]",
+    "loadErrorTitle": "Search unavailable",
+    "loadErrorBody": "Search services could not be reached.",
+    "retry": "Try again"
+  },
+  "notifications": {
+    "metadata": {
+      "title": "Notifications",
+      "description": "Account, event and scene activity on Threshold."
+    },
+    "eyebrow": "Inbox",
+    "title": "Notifications",
+    "subtitle": "Account and event activity stored in Threshold. Push and email delivery are not enabled.",
+    "emptyEyebrow": "Empty",
+    "emptyBody": "You have no notifications.",
+    "unreadCount": "{count, plural, one {# unread} other {# unread}}",
+    "unread": "Unread",
+    "read": "Read",
+    "open": "Open",
+    "markRead": "Mark read",
+    "marking": "Marking…",
+    "markAll": "Mark all read",
+    "markingAll": "Marking all…",
+    "loadError": "Notifications could not be loaded. Try again.",
+    "readError": "This notification could not be marked read.",
+    "readAllError": "Notifications could not be marked read.",
+    "markedRead": "Notification marked read.",
+    "markedAll": "All notifications marked read.",
+    "errorEyebrow": "[ unavailable ]",
+    "loadErrorTitle": "Notifications unavailable",
+    "retry": "Try again",
+    "roles": {
+      "owner": "owner",
+      "admin": "admin",
+      "editor": "editor",
+      "unknown": "unknown role"
+    },
+    "messages": {
+      "follow": "Someone followed you",
+      "followNamed": "{actor} followed you",
+      "comment": "Someone commented on your post",
+      "commentNamed": "{actor} commented on your post",
+      "mention": "Someone mentioned you",
+      "mentionNamed": "{actor} mentioned you",
+      "eventUpdate": "An event was updated",
+      "eventUpdateNamed": "{event} posted an update",
+      "guestlistAdded": "Guestlist access was granted",
+      "guestlistAddedNamed": "Guestlist access granted for {event}",
+      "guestlistRemoved": "Guestlist access was removed",
+      "guestlistRemovedNamed": "Guestlist access removed for {event}",
+      "guestlistQuota": "Your guest quota changed",
+      "guestlistQuotaNamed": "Your guest quota changed for {event}",
+      "pageRole": "Your Page role changed to {role}",
+      "pageRoleNamed": "Your role on {page} changed to {role}",
+      "pageRoleRemoved": "Your Page role was removed",
+      "pageRoleRemovedNamed": "Your role on {page} was removed",
+      "residencyInvited": "You received a residency invitation",
+      "residencyInvitedNamed": "{page} invited you as a resident",
+      "residencyAccepted": "A residency invitation was accepted",
+      "residencyAcceptedNamed": "{actor} accepted the residency invitation",
+      "residencyRejected": "A residency invitation was declined",
+      "residencyRejectedNamed": "{actor} declined the residency invitation",
+      "reaction": "Someone reacted to your post",
+      "reactionNamed": "{actor} reacted to your post",
+      "vote": "Someone voted on your post",
+      "voteNamed": "{actor} voted on your post",
+      "pageUpdate": "A Page was updated",
+      "pageUpdateNamed": "{page} was updated",
+      "groupPost": "A group published a post"
+    },
+    "types": {
+      "activity": "Activity",
+      "comment": "New comment",
+      "eventUpdate": "Event update",
+      "follow": "New follow",
+      "groupPost": "Group post",
+      "guestlistAdded": "Guestlist access",
+      "guestlistQuota": "Guest quota",
+      "guestlistRemoved": "Guestlist access",
+      "mention": "Mention",
+      "pageRole": "Page role",
+      "pageUpdate": "Page update",
+      "reaction": "Reaction",
+      "residency": "Residency",
+      "vote": "Vote"
+    }
+  },
+  "groups": {
+    "metadata": {
+      "title": "Groups",
+      "description": "Official scene groups on Threshold."
+    },
+    "title": "Groups",
+    "subtitle": "Official scene channels",
+    "emptyEyebrow": "[ groups ]",
+    "official": "Official",
+    "emptyTitle": "No groups available",
+    "emptyBody": "No official scene groups are available right now.",
+    "backToFeed": "Back to feed",
+    "errorEyebrow": "[ unavailable ]",
+    "loadErrorTitle": "Groups unavailable",
+    "loadErrorBody": "Groups could not be loaded.",
+    "retry": "Try again"
+  },
+  "groupDetail": {
+    "metadata": {
+      "title": "Group | Threshold",
+      "description": "An official scene group on Threshold."
+    },
+    "back": "Groups",
+    "official": "Official",
+    "emptyTitle": "No posts yet",
+    "emptyJoined": "Be the first to post in this group.",
+    "emptyNotJoined": "Join this group to post and follow the conversation.",
+    "errorEyebrow": "[ unavailable ]",
+    "loadErrorTitle": "Group unavailable",
+    "loadErrorBody": "This group could not be loaded.",
+    "retry": "Try again",
+    "membership": {
+      "join": "Join +",
+      "joined": "Joined",
+      "pending": "Working…",
+      "error": "Group membership could not be updated."
+    }
+  },
+  "settings": {
+    "metadata": {
+      "title": "Settings",
+      "description": "Manage your Threshold public identity, notifications and account."
+    },
+    "title": "Settings",
+    "subtitle": "Public identity / notifications / account",
+    "loadErrorEyebrow": "[ unavailable ]",
+    "loadErrorTitle": "Settings unavailable",
+    "loadErrorBody": "Your profile settings could not be loaded.",
+    "retry": "Try again",
+    "sectionNavigation": "Settings sections",
+    "sections": {
+      "profile": "Profile",
+      "artist": "Artist",
+      "notifications": "Notifications",
+      "account": "Account"
+    },
+    "status": {
+      "saved": "Saved",
+      "unsaved": "Unsaved changes",
+      "avatarUploaded": "Avatar uploaded — save profile"
+    },
+    "actions": {
+      "discard": "Discard",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "usernameTaken": "That username is taken.",
+      "profileSave": "Could not save profile.",
+      "avatarUpload": "Could not upload avatar.",
+      "artistSave": "Could not save artist profile.",
+      "accountDelete": "Could not delete account."
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "How your public identity appears on posts, comments and your profile page.",
+      "previewName": "Your display name",
+      "previewUsername": "username",
+      "uploading": "Uploading…",
+      "uploadAvatar": "Upload avatar",
+      "displayName": "Display name",
+      "username": "Username",
+      "publicAddress": "Your public address: /u/{username}",
+      "bio": "Bio",
+      "bioHint": "Shown on your profile page. Plain text only.",
+      "bioPlaceholder": "Your place in the scene",
+      "city": "City",
+      "cityHint": "Used for local events and official groups.",
+      "chooseCity": "Choose a city",
+      "save": "Save profile"
+    },
+    "artist": {
+      "title": "Artist profile",
+      "createTitle": "Create artist profile",
+      "description": "Public details shown on your artist profile.",
+      "createDescription": "Add a public artist role, location and links.",
+      "intro": "Use the same public nickname; no real name is required.",
+      "setup": "Set up artist profile",
+      "role": "Role",
+      "roleHint": "What you do in the scene.",
+      "rolePlaceholder": "DJ / producer / promoter",
+      "location": "Location",
+      "locationPlaceholder": "Warsaw",
+      "links": "Links",
+      "linksHint": "SoundCloud, Bandcamp, RA… URLs must start with https://",
+      "linkLabel": "Link {number} label",
+      "linkUrl": "Link {number} URL",
+      "linkPlaceholder": "SoundCloud",
+      "removeLink": "Remove link {number}",
+      "addLink": "+ Add link",
+      "save": "Save artist profile",
+      "create": "Create artist profile"
+    },
+    "notifications": {
+      "title": "Notification preferences",
+      "description": "Choose which non-critical activity appears in your inbox.",
+      "mentions_enabled": {
+        "title": "Mentions",
+        "body": "Notify when your profile or Page is mentioned."
+      },
+      "engagement_enabled": {
+        "title": "Engagement",
+        "body": "Notify about follows, comments, reactions and votes."
+      },
+      "event_updates_enabled": {
+        "title": "Event updates",
+        "body": "Notify about updates from events you follow."
+      },
+      "page_updates_enabled": {
+        "title": "Page and group updates",
+        "body": "Notify about updates from Pages and groups."
+      },
+      "save": "Save preferences",
+      "saving": "Saving…",
+      "saved": "Preferences saved.",
+      "loadError": "Preferences could not be loaded. Controls stay unavailable until the real settings load.",
+      "saveError": "Preferences could not be saved.",
+      "retry": "Try again",
+      "retrying": "Retrying…"
+    },
+    "account": {
+      "title": "Account",
+      "description": "Irreversible account actions.",
+      "deleteTitle": "Delete account",
+      "deleteBody": "Your public identity is anonymized and personal account data is removed where required. This cannot be undone.",
+      "deleteAction": "Delete account…",
+      "confirm": "Type <code>DELETE</code> to confirm.",
+      "deleting": "Deleting…",
+      "permanentDelete": "Permanently delete"
+    }
+  },
+  "organizerPages": {
+    "metadata": {
+      "title": "Organizer Pages",
+      "description": "Create and manage Threshold organizer Pages."
+    },
+    "title": "Organizer Pages",
+    "subtitle": "Clubs / collectives / projects / festivals",
+    "managedTitle": "Managed Pages",
+    "empty": "You do not manage any Pages.",
+    "view": "View Page",
+    "createTitle": "Create Page",
+    "displayName": "Display name",
+    "slug": "Page address",
+    "type": "Page type",
+    "city": "City",
+    "chooseCity": "Choose a city",
+    "about": "About",
+    "create": "Create",
+    "creating": "Creating…",
+    "loadError": "Managed Pages could not be loaded.",
+    "createError": "Page could not be created.",
+    "loadErrorTitle": "Organizer Pages unavailable",
+    "errorEyebrow": "[ unavailable ]",
+    "retry": "Try again",
+    "types": {
+      "club": "Club",
+      "collective": "Collective",
+      "project": "Project",
+      "festival": "Festival",
+      "unknown": "Unknown"
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "editor": "Editor",
+      "unknown": "Unknown"
+    }
+  },
+  "savedPage": {
+    "metadata": {
+      "title": "Saved",
+      "description": "Saved items on Threshold."
+    },
+    "title": "Saved",
+    "subtitle": "Personal saved items",
+    "emptyEyebrow": "[ saved ]",
+    "emptyTitle": "Saving is unavailable",
+    "emptyBody": "This release does not store saved posts or events.",
+    "action": "Back to feed"
+  },
+  "loading": {
+    "aria": "Loading page",
+    "feed": "Loading Feed"
+  },
+  "navigation": {
+    "feed": "Feed",
+    "events": "Events",
+    "groups": "Groups",
+    "notifications": "Notifications",
+    "notificationsUnread": "Notifications, {count} unread",
+    "post": "+ Post",
+    "saved": "Saved",
+    "settings": "Settings",
+    "profile": "Profile",
+    "you": "You"
+  },
+  "guestlistPage": {
+    "metadata": {
+      "title": "Access",
+      "description": "Your private event access on Threshold."
+    },
+    "title": "Access",
+    "subtitle": "Private event access",
+    "emptyEyebrow": "[ access ]",
+    "emptyTitle": "No private access yet",
+    "emptyBody": "Organizer-added guestlist access and QR check-in are available on event pages. This release has no global access inbox, public request flow or encrypted exact-location reveal.",
+    "action": "Back to feed"
+  },
+  "feed": {
+    "title": "Feed",
+    "newest": "Newest",
+    "emptyEyebrow": "[ feed empty ]",
+    "emptyTitle": "No posts yet",
+    "emptyBody": "Follow clubs, DJs and collectives to build your chronological feed. Everything they publish lands here, newest first.",
+    "emptyAction": "Find your scene",
+    "suggestionGroups": "Open Groups to join an official city channel",
+    "suggestionEvents": "Browse upcoming events",
+    "suggestionCityGroup": "Join official {city} groups",
+    "suggestionAnyCityGroup": "Join an official city group",
+    "suggestionScenes": "Follow {scenes} pages",
+    "suggestionFollows": "Follow artists, clubs and collectives",
+    "suggestionCityEvents": "Browse upcoming {city} events",
+    "accessUpdate": "Access update",
+    "thresholdSystem": "Threshold system",
+    "verified": "verified",
+    "viewDetails": "View details",
+    "eventUpdate": "Event update",
+    "accessState": {
+      "none": "No access",
+      "locked": "Access locked",
+      "pending": "Access pending",
+      "approved": "Access approved",
+      "rejected": "Access rejected"
+    }
+  },
+  "composer": {
+    "metadata": {
+      "title": "Create post",
+      "description": "Publish a post to Threshold."
+    },
+    "title": "+ Post",
+    "subtitle": "Share text, images, and an optional event",
+    "textLabel": "Post text",
+    "placeholder": "Share something with the scene. Tag @people.",
+    "attachImages": "Attach images",
+    "imagesSelected": "{count} image(s) selected",
+    "eventLabel": "Linked event",
+    "noEvent": "No linked event",
+    "publish": "Post",
+    "publishing": "Posting…",
+    "sessionExpired": "Your session expired. Log in again to post.",
+    "publishError": "Could not publish. Try again.",
+    "networkError": "Could not reach the network. Try again.",
+    "eventLoadError": "Events could not be loaded. You can still post without one.",
+    "uploadError": "Images could not be uploaded. Try again.",
+    "eventValidationError": "That event is no longer available. Select another event.",
+    "eventValidationUnavailable": "The event service is unavailable. Try again later.",
+    "imagesTruncated": "Only the first {count} images were kept."
+  },
+  "commentComposer": {
+    "replyLabel": "Your reply",
+    "commentLabel": "Your comment",
+    "replyPlaceholder": "Reply…",
+    "commentPlaceholder": "Add a comment…",
+    "posting": "Posting…",
+    "reply": "Reply",
+    "comment": "Comment",
+    "postError": "Could not post your comment.",
+    "networkError": "Could not reach the network. Try again."
+  },
+  "eventCard": {
+    "event": "Event",
+    "venue": "Venue",
+    "lineup": "Lineup",
+    "view": "View event",
+    "tba": "TBA",
+    "follow": "Follow +",
+    "following": "Following",
+    "boost": "Boost event",
+    "boosted": "Event boosted",
+    "errors": {
+      "forbidden": "This action is not allowed.",
+      "notFound": "This event is no longer available.",
+      "rateLimited": "Too many attempts. Try again shortly.",
+      "serviceUnavailable": "This action is temporarily unavailable.",
+      "network": "Could not reach the network. Try again."
+    },
+    "location": {
+      "public_location": "Public location",
+      "secret_location": "Secret location",
+      "tba": "Location TBA"
+    }
+  },
+  "eventDetail": {
+    "notFound": "Event not found",
+    "event": "Event",
+    "tba": "TBA",
+    "posterAlt": "Poster for {title}",
+    "noPoster": "No poster uploaded",
+    "date": "Date",
+    "city": "City",
+    "organizer": "Organizer",
+    "description": "Description",
+    "lineup": "Lineup",
+    "genres": "Genres",
+    "location": {
+      "title": "Location",
+      "public": "Public location",
+      "tba": "Location TBA",
+      "tbaBody": "The organizer will announce the venue.",
+      "secret": "Secret location",
+      "secretBody": "Access is required. The organizer keeps the exact address hidden.",
+      "city": "City: {city}",
+      "undisclosed": "Undisclosed",
+      "badge": {
+        "public_location": "Public location",
+        "tba": "Location TBA",
+        "secret_location": "Secret location"
+      }
+    },
+    "access": {
+      "approvedTitle": "Access approved",
+      "approvedBody": "You are on this event's private guestlist.",
+      "checkedInBody": "Your guestlist entry has already been checked in.",
+      "guestlistBadge": "Guestlist",
+      "showQr": "Show QR",
+      "qrTitle": "Guest check-in QR",
+      "closeQr": "Close QR",
+      "qrLoading": "Creating a short-lived QR…",
+      "qrError": "Could not create a QR. Try again.",
+      "qrExpired": "This QR has expired. Refresh it to continue.",
+      "qrExpires": "Expires at {time}",
+      "refreshQr": "Refresh QR",
+      "guestSearchLabel": "Find a guest by username",
+      "guestSearchPlaceholder": "Search @username",
+      "guestSearchLoading": "Searching…",
+      "guestSearchError": "Search is unavailable. Try again.",
+      "guestSearchEmpty": "No matching people",
+      "networkError": "Could not reach the network. Try again.",
+      "mutationUnauthorized": "Your session expired. Log in again.",
+      "mutationForbidden": "You do not have permission for this action.",
+      "mutationNotFound": "That record no longer exists.",
+      "mutationError": "The action could not be completed.",
+      "addGuest": "Add guest",
+      "addingGuest": "Adding…",
+      "guestAdded": "Guest added.",
+      "guestAddError": "Could not add this guest.",
+      "managerTitle": "Manage guestlist",
+      "guestlistCount": "{count, plural, one {# active guest} other {# active guests}}",
+      "guestlistEmpty": "No guestlist entries yet.",
+      "sourceDj": "Added by DJ",
+      "sourceOrganizer": "Added by organizer",
+      "checkedIn": "Checked in",
+      "removed": "Removed",
+      "removeGuestNamed": "Remove {name} from guestlist",
+      "guestRemoved": "Guest removed.",
+      "guestRemoveError": "Could not remove this guest.",
+      "addGuestTitle": "Add guest",
+      "djTitle": "Your guest quota",
+      "lineupArtist": "Lineup artist",
+      "quota": "Quota",
+      "used": "Used",
+      "remaining": "Left",
+      "quotaFull": "No guest places remain in this quota.",
+      "quotaUnassigned": "The organizer has not assigned a guest quota.",
+      "quotaControlsTitle": "Lineup guest quotas",
+      "quotaUsage": "{used} of {quota} used",
+      "saveQuota": "Save quota",
+      "quotaSaved": "Quota saved.",
+      "quotaError": "Could not save the quota.",
+      "doorTitle": "Door check-in",
+      "doorStaffOnly": "Managers / door staff",
+      "managerOnly": "Manager only",
+      "doorStaffTitle": "Door staff",
+      "doorStaffCurrent": "Assigned staff",
+      "doorStaffEmpty": "No door staff assigned.",
+      "doorStaffUnavailable": "Unavailable account",
+      "assignDoorStaff": "Assign door staff",
+      "assigningDoorStaff": "Assigning…",
+      "doorStaffSearchLabel": "Find door staff by username",
+      "doorStaffSearchPlaceholder": "Search @username",
+      "doorStaffAssigned": "Door staff assigned.",
+      "doorStaffRevoked": "Door staff access revoked.",
+      "revokeDoorStaffNamed": "Revoke door access for {name}",
+      "scannerLabel": "Hardware scanner or QR payload",
+      "scannerPlaceholder": "Scan with a keyboard-wedge reader or paste the token",
+      "scannerHelp": "A hardware scanner can type directly into this field. Pasting the token also works; no camera is required.",
+      "checkIn": "Check in",
+      "checkingIn": "Checking…",
+      "alreadyCheckedIn": "This guest is already checked in.",
+      "checkInError": "Invalid or expired QR.",
+      "guest": "Guest"
+    },
+    "updates": {
+      "title": "Organizer updates",
+      "public": "Public",
+      "empty": "No organizer updates yet.",
+      "formTitle": "Organizer update",
+      "formHint": "Public event note · followers get notified",
+      "formLabel": "Update text",
+      "formPlaceholder": "Doors, timetable, lineup note… no private access details.",
+      "forbidden": "Only page editors can post event updates.",
+      "error": "Could not publish the update.",
+      "networkError": "Could not reach the network. Try again.",
+      "publishing": "Publishing…",
+      "publish": "Publish update"
+    }
+  },
+  "post": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "deleting": "Deleting…",
+    "edited": "edited",
+    "deleteConfirm": "Delete?",
+    "editPost": "Edit post",
+    "editComment": "Edit comment",
+    "editError": "Could not save your edit. Try again.",
+    "deleteError": "Could not delete the post. Try again.",
+    "commentEditError": "Could not save your edit. Try again.",
+    "commentDeleteError": "Could not delete the comment. Try again.",
+    "reply": "Reply",
+    "commentCount": "{count, plural, one {# comment} other {# comments}}",
+    "commentsLoading": "Loading comments…",
+    "commentsLoadError": "Could not load comments. Try again.",
+    "commentsEmpty": "No comments yet. Be the first to reply.",
+    "upvote": "Upvote",
+    "removeUpvote": "Remove upvote",
+    "downvote": "Downvote",
+    "removeDownvote": "Remove downvote",
+    "addReaction": "Add emoji reaction",
+    "addNamedReaction": "Add {emoji} reaction",
+    "removeReaction": "Remove {emoji} reaction",
+    "reactWith": "React with {emoji}",
+    "customEmoji": "Custom emoji",
+    "customEmojiPlaceholder": "Any emoji…",
+    "add": "Add",
+    "attachmentAlt": "Post attachment",
+    "lineup": "Lineup",
+    "locationTba": "Location TBA",
+    "secretLocation": "Secret location",
+    "viewEvent": "View event"
+  },
+  "shell": {
+    "primaryNavigation": "Primary navigation",
+    "mobileNavigation": "Primary mobile navigation",
+    "accountNavigation": "Account",
+    "closeAccountMenu": "Close account menu",
+    "privateAccess": "Private Access",
+    "privateAccessEmpty": "Organizer-added access will appear here.",
+    "tonight": "Tonight",
+    "tonightEmpty": "The city is quiet. Tonight's events land here.",
+    "all": "All",
+    "location": {
+      "public_location": "Public",
+      "secret_location": "Secret",
+      "tba": "TBA"
+    },
+    "search": {
+      "label": "Search events, artists, collectives, locations",
+      "compactPlaceholder": "search...",
+      "placeholder": "search events, artists, collectives, locations..."
+    }
+  },
+  "actions": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "retry": "Try again",
+    "save": "Save",
+    "submit": "Submit"
+  },
+  "auth": {
+    "email": "Email",
+    "forgotPassword": "Forgot password?",
+    "login": "Log in",
+    "logout": "Log out",
+    "completeOnboarding": "Complete setup",
+    "onboardingRequired": "Choose your city before using account interactions.",
+    "password": "Password",
+    "register": "Create account"
+  },
+  "errors": {
+    "forbidden": "You do not have access to this.",
+    "generic": "Something went wrong.",
+    "notFound": "Not found.",
+    "unauthorized": "Log in to continue."
+  }
+}

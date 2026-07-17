@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package threshold.users.v1;
+
+message User {
+  string id = 1;
+  string display_name = 2;
+  string email = 3;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
