@@ -11,6 +11,9 @@ from python_multipart.multipart import MultipartParser, parse_options_header
 _READ_CHUNK_SIZE = 64 * 1024
 _MAX_BOUNDARY_BYTES = 200
 _MAX_CONTEXT_BYTES = 100
+_MAX_PART_HEADERS = 8
+_MAX_HEADER_NAME_BYTES = 100
+_MAX_HEADER_VALUE_BYTES = 4096
 
 
 @dataclass(frozen=True)
@@ -76,20 +79,32 @@ def parse_multipart_upload(
     found_context = False
     found_file = False
     complete = False
+    header_count = 0
 
     def on_part_begin() -> None:
-        nonlocal headers, part_name, part_content_type
+        nonlocal headers, part_name, part_content_type, header_count
         headers = {}
         part_name = None
         part_content_type = None
+        header_count = 0
+        header_name.clear()
+        header_value.clear()
 
     def on_header_field(data: bytes, start: int, end: int) -> None:
+        if len(header_name) + end - start > _MAX_HEADER_NAME_BYTES:
+            raise ValueError("header name too large")
         header_name.extend(data[start:end])
 
     def on_header_value(data: bytes, start: int, end: int) -> None:
+        if len(header_value) + end - start > _MAX_HEADER_VALUE_BYTES:
+            raise ValueError("header value too large")
         header_value.extend(data[start:end])
 
     def on_header_end() -> None:
+        nonlocal header_count
+        header_count += 1
+        if header_count > _MAX_PART_HEADERS:
+            raise ValueError("too many part headers")
         headers[bytes(header_name).lower()] = bytes(header_value)
         header_name.clear()
         header_value.clear()
@@ -150,6 +165,8 @@ def parse_multipart_upload(
             "on_part_end": on_part_end,
             "on_end": on_end,
         },
+        max_header_count=_MAX_PART_HEADERS,
+        max_header_size=_MAX_HEADER_NAME_BYTES + _MAX_HEADER_VALUE_BYTES + 2,
     )
     try:
         source.seek(0)

@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Annotated
@@ -21,6 +22,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def _safe_asset_path(asset_path: str) -> bool:
@@ -52,6 +54,20 @@ def _create_asset_record(
     session.flush()
     asset.original_key = f"assets/{asset.id}/original"
     return asset
+
+
+def _rollback_failed_upload(
+    *, session: Session, storage: ObjectStorage, bucket: str, object_keys: list[str]
+) -> None:
+    try:
+        session.rollback()
+    except Exception:
+        logger.warning("Failed to roll back media upload database transaction", exc_info=True)
+    for key in reversed(object_keys):
+        try:
+            storage.delete_object(bucket=bucket, key=key)
+        except Exception:
+            logger.warning("Failed to delete media upload object during rollback", exc_info=True)
 
 
 @router.post(
@@ -112,15 +128,17 @@ async def upload_asset(
         except InvalidImageError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-        asset = _create_asset_record(
-            owner_user_id=owner_user_id,
-            context=upload.context,
-            content_type=processed.content_type,
-            size_bytes=upload.size_bytes,
-            checksum_sha256=None,
-            session=session,
-        )
+        cleanup_keys: list[str] = []
         try:
+            asset = _create_asset_record(
+                owner_user_id=owner_user_id,
+                context=upload.context,
+                content_type=processed.content_type,
+                size_bytes=upload.size_bytes,
+                checksum_sha256=None,
+                session=session,
+            )
+            cleanup_keys.append(asset.original_key)
             with upload.file_path.open("rb") as original:
                 storage.put_object(
                     bucket=asset.bucket,
@@ -130,6 +148,7 @@ async def upload_asset(
                 )
             for variant, derivative_body in processed.derivatives.items():
                 object_key = f"assets/{asset.id}/{variant}.webp"
+                cleanup_keys.append(object_key)
                 storage.put_object(
                     bucket=asset.bucket,
                     key=object_key,
@@ -146,10 +165,18 @@ async def upload_asset(
                         size_bytes=len(derivative_body),
                     )
                 )
-        except ClientError as exc:
-            raise HTTPException(status_code=503, detail="media storage unavailable") from exc
-        asset.status = "ready"
-        session.commit()
+            asset.status = "ready"
+            session.commit()
+        except BaseException as exc:
+            _rollback_failed_upload(
+                session=session,
+                storage=storage,
+                bucket=settings.s3_bucket,
+                object_keys=cleanup_keys,
+            )
+            if isinstance(exc, ClientError):
+                raise HTTPException(status_code=503, detail="media storage unavailable") from exc
+            raise
         loaded_asset = session.get(
             MediaAsset,
             asset.id,
