@@ -7,6 +7,7 @@ from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExp
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
+from opentelemetry.metrics import NoOpMeterProvider
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
@@ -40,9 +41,7 @@ def configure_telemetry(service_name: str) -> None:
     if sdk_enabled and os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT"):
         provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
         metric_reader = PeriodicExportingMetricReader(OTLPMetricExporter())
-        metrics.set_meter_provider(
-            MeterProvider(resource=resource, metric_readers=[metric_reader])
-        )
+        metrics.set_meter_provider(MeterProvider(resource=resource, metric_readers=[metric_reader]))
 
     if not _client_instrumented:
         _instrument_optional_client(
@@ -79,5 +78,5 @@ def _instrument_optional_client(*, module_name: str, class_name: str, client_nam
 
 
 def instrument_fastapi(app: FastAPI) -> None:
-    """Attach FastAPI route instrumentation to an app instance."""
-    FastAPIInstrumentor.instrument_app(app)
+    """Attach FastAPI tracing while leaving HTTP metrics to bounded middleware."""
+    FastAPIInstrumentor.instrument_app(app, meter_provider=NoOpMeterProvider())

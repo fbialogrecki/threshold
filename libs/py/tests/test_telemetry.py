@@ -1,7 +1,10 @@
 import importlib
 import sys
 import types
+from typing import Any
 
+from fastapi import FastAPI
+from opentelemetry.metrics import NoOpMeterProvider
 from pytest import MonkeyPatch
 
 
@@ -80,3 +83,24 @@ def test_configure_telemetry_exports_metrics_over_existing_otlp_pipeline(
     assert isinstance(configured["exporter"], FakeExporter)
     assert configured["readers"]
     assert configured["provider"] is not None
+
+
+def test_instrument_fastapi_keeps_tracing_but_uses_noop_metrics_provider(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    telemetry = importlib.import_module("threshold_common.telemetry")
+    telemetry = importlib.reload(telemetry)
+    captured: dict[str, Any] = {}
+
+    def fake_instrument_app(app: FastAPI, **kwargs: Any) -> None:
+        captured["app"] = app
+        captured.update(kwargs)
+
+    monkeypatch.setattr(telemetry.FastAPIInstrumentor, "instrument_app", fake_instrument_app)
+    app = FastAPI()
+
+    telemetry.instrument_fastapi(app)
+
+    assert captured["app"] is app
+    assert isinstance(captured["meter_provider"], NoOpMeterProvider)
+    assert "tracer_provider" not in captured
