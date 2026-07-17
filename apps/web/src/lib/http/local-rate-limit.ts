@@ -1,3 +1,5 @@
+import { isIP } from "node:net"
+
 export type RateLimitPolicy = {
   limit: number
   windowMs: number
@@ -48,10 +50,15 @@ export class LocalFixedWindowRateLimiter {
 
     if (current) this.windows.delete(key)
     this.pruneExpired(now)
-    while (this.windows.size >= this.maxEntries) {
-      const oldest = this.windows.keys().next().value as string | undefined
-      if (oldest === undefined) break
-      this.windows.delete(oldest)
+    if (this.windows.size >= this.maxEntries) {
+      let earliestResetAt = Number.POSITIVE_INFINITY
+      for (const window of this.windows.values()) {
+        earliestResetAt = Math.min(earliestResetAt, window.resetAt)
+      }
+      return {
+        allowed: false,
+        retryAfterSeconds: Math.max(1, Math.ceil((earliestResetAt - now) / 1_000)),
+      }
     }
     this.windows.set(key, { count: 1, resetAt: now + policy.windowMs })
     return { allowed: true }
@@ -76,11 +83,30 @@ export const LOCAL_ABUSE_POLICIES = {
 
 const limiter = new LocalFixedWindowRateLimiter({ maxEntries: 10_000 })
 
-export function requestClientKey(request: Request): string {
-  const candidate = request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim()
-    || request.headers.get("x-real-ip")?.trim()
-    || "unknown"
-  return /^[0-9a-f:.]{1,64}$/i.test(candidate) ? candidate : "unknown"
+const MAX_TRUSTED_PROXY_DEPTH = 10
+const MAX_FORWARDED_HEADER_LENGTH = 1_024
+
+export function resolveTrustedProxyDepth(value: string | undefined): number | undefined {
+  if (!value || !/^\d+$/.test(value)) return undefined
+  const depth = Number(value)
+  return Number.isInteger(depth) && depth >= 1 && depth <= MAX_TRUSTED_PROXY_DEPTH
+    ? depth
+    : undefined
+}
+
+export function requestClientKey(request: Request, trustedProxyDepth?: number): string {
+  if (!Number.isInteger(trustedProxyDepth)
+    || trustedProxyDepth === undefined
+    || trustedProxyDepth < 1
+    || trustedProxyDepth > MAX_TRUSTED_PROXY_DEPTH) return "unknown"
+
+  const forwarded = request.headers.get("x-forwarded-for")
+  if (!forwarded || forwarded.length > MAX_FORWARDED_HEADER_LENGTH) return "unknown"
+  const chain = forwarded.split(",")
+  // Select from the proxy-controlled right edge, never the client-controlled
+  // left edge. Correctness depends on configuring the actual trusted depth.
+  const candidate = chain.at(-trustedProxyDepth)?.trim() ?? "unknown"
+  return isIP(candidate) ? candidate : "unknown"
 }
 
 export function rateLimitResponse(retryAfterSeconds: number): Response {
@@ -98,6 +124,9 @@ export function enforceLocalRateLimit(
   scope: string,
   policy: RateLimitPolicy,
 ): Response | null {
-  const result = limiter.consume(`${scope}:${requestClientKey(request)}`, policy)
+  const result = limiter.consume(
+    `${scope}:${requestClientKey(request, resolveTrustedProxyDepth(process.env.WEB_TRUSTED_PROXY_DEPTH))}`,
+    policy,
+  )
   return result.allowed ? null : rateLimitResponse(result.retryAfterSeconds)
 }

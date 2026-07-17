@@ -16,6 +16,8 @@ class ObjectStorage(Protocol):
 
     def get_object(self, *, bucket: str, key: str) -> tuple[bytes, str]: ...
 
+    def delete_object(self, *, bucket: str, key: str) -> None: ...
+
 
 @dataclass
 class StoredObject:
@@ -36,6 +38,9 @@ class InMemoryObjectStorage:
     def get_object(self, *, bucket: str, key: str) -> tuple[bytes, str]:
         stored = self.objects[(bucket, key)]
         return stored.body, stored.content_type
+
+    def delete_object(self, *, bucket: str, key: str) -> None:
+        self.objects.pop((bucket, key), None)
 
 
 class S3ObjectStorage:
@@ -66,3 +71,6 @@ class S3ObjectStorage:
     def get_object(self, *, bucket: str, key: str) -> tuple[bytes, str]:
         response = self.client.get_object(Bucket=bucket, Key=key)
         return response["Body"].read(), response.get("ContentType", "application/octet-stream")
+
+    def delete_object(self, *, bucket: str, key: str) -> None:
+        self.client.delete_object(Bucket=bucket, Key=key)

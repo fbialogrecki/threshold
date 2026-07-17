@@ -61,11 +61,13 @@ class OtelLogDefaultsFilter(logging.Filter):
             if exception_type is not None:
                 error_type = exception_type.__name__
             record.exc_info = None
-            record.exc_text = None
+        record.exc_text = None
 
-        for key in SENSITIVE_KEYS:
-            if key in record.__dict__:
+        for key, value in list(record.__dict__.items()):
+            if key.lower() in SENSITIVE_KEYS:
                 record.__dict__[key] = "[REDACTED]"
+            else:
+                record.__dict__[key] = _redact_value(value)
 
         for field, default in {
             "otelTraceID": trace_id,
@@ -80,15 +82,25 @@ class OtelLogDefaultsFilter(logging.Filter):
         return True
 
 
+def _redact_value(value: Any) -> Any:
+    if isinstance(value, BaseException):
+        return type(value).__name__
+    if isinstance(value, Mapping):
+        return redact_mapping(value)
+    if isinstance(value, tuple):
+        return tuple(_redact_value(item) for item in value)
+    if isinstance(value, list):
+        return [_redact_value(item) for item in value]
+    return value
+
+
 def redact_mapping(values: Mapping[str, Any]) -> dict[str, Any]:
     redacted: dict[str, Any] = {}
     for key, value in values.items():
         if key.lower() in SENSITIVE_KEYS:
             redacted[key] = "[REDACTED]"
-        elif isinstance(value, Mapping):
-            redacted[key] = redact_mapping(value)
         else:
-            redacted[key] = value
+            redacted[key] = _redact_value(value)
     return redacted
 
 

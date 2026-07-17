@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageOps, UnidentifiedImageError
 from PIL.Image import DecompressionBombError, DecompressionBombWarning
 
 
@@ -26,7 +26,7 @@ _CONTENT_TYPES_BY_FORMAT = {
     "PNG": "image/png",
     "WEBP": "image/webp",
 }
-MAX_IMAGE_PIXELS = 40_000_000
+MAX_IMAGE_PIXELS = 16_000_000
 MAX_IMAGE_DIMENSION = 8192
 Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS
 
@@ -43,19 +43,14 @@ def _validate_dimensions(image: Image.Image) -> None:
         raise InvalidImageError("image dimensions are too large")
 
 
-def _center_square(image: Image.Image) -> Image.Image:
-    width, height = image.size
-    side = min(width, height)
-    left = (width - side) // 2
-    top = (height - side) // 2
-    return image.crop((left, top, left + side, top + side))
-
-
-def _webp_bytes(image: Image.Image, *, size: tuple[int, int] | None = None) -> bytes:
+def _webp_bytes(image: Image.Image, *, size: tuple[int, int], crop_square: bool = False) -> bytes:
     output = BytesIO()
-    frame = image.convert("RGB")
-    if size is not None:
-        frame.thumbnail(size, Image.Resampling.LANCZOS)
+    if crop_square:
+        frame = ImageOps.fit(image, size, method=Image.Resampling.LANCZOS)
+    else:
+        image.thumbnail(size, Image.Resampling.LANCZOS)
+        frame = image
+    frame = frame.convert("RGB")
     frame.save(output, format="WEBP", quality=86, method=6)
     return output.getvalue()
 
@@ -66,13 +61,14 @@ def process_image(path: Path, declared_content_type: str, context: str) -> Proce
             warnings.simplefilter("error", DecompressionBombWarning)
             image = Image.open(path)
             _validate_dimensions(image)
+            original_width, original_height = image.size
+            detected_content_type = _CONTENT_TYPES_BY_FORMAT.get(image.format or "")
             image.load()
     except (DecompressionBombError, DecompressionBombWarning) as exc:
         raise InvalidImageError("image dimensions are too large") from exc
     except (UnidentifiedImageError, OSError) as exc:
         raise InvalidImageError("invalid image bytes") from exc
 
-    detected_content_type = _CONTENT_TYPES_BY_FORMAT.get(image.format or "")
     if detected_content_type is None:
         raise InvalidImageError("unsupported image format")
     if detected_content_type != declared_content_type:
@@ -80,16 +76,15 @@ def process_image(path: Path, declared_content_type: str, context: str) -> Proce
 
     derivatives: dict[str, bytes] = {}
     if context in {"user_avatar", "page_avatar"}:
-        square = _center_square(image)
-        derivatives["avatar_512"] = _webp_bytes(square, size=(512, 512))
-        derivatives["avatar_256"] = _webp_bytes(square, size=(256, 256))
+        derivatives["avatar_512"] = _webp_bytes(image, size=(512, 512), crop_square=True)
+        derivatives["avatar_256"] = _webp_bytes(image, size=(256, 256), crop_square=True)
     elif context in {"post_image", "event_poster"}:
         derivatives["post_1280"] = _webp_bytes(image, size=(1280, 1280))
         derivatives["post_480"] = _webp_bytes(image, size=(480, 480))
 
     return ProcessedImage(
         content_type=detected_content_type,
-        width=image.width,
-        height=image.height,
+        width=original_width,
+        height=original_height,
         derivatives=derivatives,
     )

@@ -61,9 +61,7 @@ class HttpObservabilityMiddleware(BaseHTTPMiddleware):
         started = time.perf_counter()
         supplied_request_id = request.headers.get("x-request-id", "")
         request_id = (
-            supplied_request_id
-            if _REQUEST_ID.fullmatch(supplied_request_id)
-            else uuid.uuid4().hex
+            supplied_request_id if _REQUEST_ID.fullmatch(supplied_request_id) else uuid.uuid4().hex
         )
         token = request_id_context.set(request_id)
         try:
@@ -87,7 +85,8 @@ class HttpObservabilityMiddleware(BaseHTTPMiddleware):
     def _record(self, started: float, attributes: dict[str, str], *, is_error: bool) -> None:
         self._requests.add(1, attributes)
         self._duration.record(time.perf_counter() - started, attributes)
-        self._errors.add(1 if is_error else 0, attributes)
+        if is_error:
+            self._errors.add(1, attributes)
 
     @staticmethod
     def _log_request(request_id: str, attributes: dict[str, str], *, failed: bool) -> None:

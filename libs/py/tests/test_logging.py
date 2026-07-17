@@ -1,6 +1,7 @@
 import logging
 import sys
 from contextvars import Token
+from typing import Any, cast
 
 from opentelemetry import context as otel_context
 from opentelemetry import trace
@@ -97,3 +98,68 @@ def test_redaction_covers_auth_cookies_body_email_and_nested_tokens() -> None:
         "nested": {"refresh_token": "[REDACTED]"},
         "safe": "kept",
     }
+
+
+def test_log_filter_redacts_case_insensitive_recursive_extras() -> None:
+    record = logging.LogRecord(
+        name="threshold.test",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=1,
+        msg="safe message",
+        args=(),
+        exc_info=None,
+    )
+    record.__dict__["Authorization"] = "private-auth"
+    record.__dict__["context"] = {"items": [{"Refresh_Token": "private-token", "safe": "kept"}]}
+
+    assert OtelLogDefaultsFilter().filter(record)
+
+    assert record.__dict__["Authorization"] == "[REDACTED]"
+    context = cast(dict[str, Any], record.__dict__["context"])
+    assert context == {"items": [{"Refresh_Token": "[REDACTED]", "safe": "kept"}]}
+
+
+def test_log_filter_sanitizes_message_args_without_breaking_formatting() -> None:
+    record = logging.LogRecord(
+        name="threshold.test",
+        level=logging.ERROR,
+        pathname=__file__,
+        lineno=1,
+        msg="failed with %s after %d attempts: %s",
+        args=(
+            RuntimeError("private raw exception text"),
+            2,
+            {"Authorization": "private-auth", "safe": "kept"},
+        ),
+        exc_info=None,
+    )
+
+    assert OtelLogDefaultsFilter().filter(record)
+
+    rendered = record.getMessage()
+    assert rendered == (
+        "failed with RuntimeError after 2 attempts: {'Authorization': '[REDACTED]', 'safe': 'kept'}"
+    )
+    assert "private raw exception text" not in rendered
+    assert "private-auth" not in rendered
+
+
+def test_log_filter_removes_preformatted_exception_text_and_sanitizes_exception_message() -> None:
+    record = logging.LogRecord(
+        name="threshold.test",
+        level=logging.ERROR,
+        pathname=__file__,
+        lineno=1,
+        msg=RuntimeError("private raw exception message"),
+        args=(),
+        exc_info=None,
+    )
+    record.exc_text = "RuntimeError: private preformatted traceback"
+
+    assert OtelLogDefaultsFilter().filter(record)
+
+    assert record.getMessage() == "RuntimeError"
+    assert record.exc_text is None
+    assert "private raw exception message" not in repr(record.__dict__)
+    assert "private preformatted traceback" not in repr(record.__dict__)

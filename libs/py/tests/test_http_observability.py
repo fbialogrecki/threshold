@@ -58,7 +58,6 @@ def test_records_normalized_route_request_count_and_latency() -> None:
     assert set(by_name) == {
         "threshold.http.server.requests",
         "threshold.http.server.request.duration",
-        "threshold.http.server.errors",
     }
     request_point = cast(Any, by_name["threshold.http.server.requests"].data.data_points[0])
     duration_point = cast(
@@ -77,7 +76,7 @@ def test_records_normalized_route_request_count_and_latency() -> None:
     assert "private-user-value" not in repr(by_name)
 
 
-def test_uses_explicit_fallback_route_and_bounded_error_labels() -> None:
+def test_uses_explicit_fallback_route_and_emits_errors_only_for_5xx() -> None:
     reader = InMemoryMetricReader()
     provider = MeterProvider(metric_readers=[reader])
     app = FastAPI()
@@ -102,8 +101,7 @@ def test_uses_explicit_fallback_route_and_bounded_error_labels() -> None:
         dict(cast(Any, point).attributes)["http.route"]: cast(Any, point)
         for point in errors.data.data_points
     }
-    assert set(points) == {"__unmatched__", "/broken/{item_id}"}
-    assert points["__unmatched__"].value == 0
+    assert set(points) == {"/broken/{item_id}"}
     assert points["/broken/{item_id}"].value == 1
     assert dict(points["/broken/{item_id}"].attributes)["http.response.status_class"] == "5xx"
     assert "private-value" not in repr(errors)

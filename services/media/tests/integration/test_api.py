@@ -1,11 +1,16 @@
+import asyncio
 from io import BytesIO
 from pathlib import Path
 
+import pytest
+from botocore.exceptions import ClientError
 from fastapi.testclient import TestClient
+from media.domain.models import MediaAsset
 from media.main import app
 from media.main_dependencies import settings
 from media.storage import InMemoryObjectStorage
 from PIL import Image
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 TOKEN_HEADERS = {"X-Threshold-Internal-Token": "test-internal-token"}
@@ -31,6 +36,25 @@ def decompression_bomb_png_bytes() -> bytes:
     output = BytesIO()
     Image.new("1", (8_000, 6_000)).save(output, format="PNG")
     return output.getvalue()
+
+
+def multipart_body_with_context_headers(
+    boundary: str, extra_headers: list[tuple[str, str]]
+) -> bytes:
+    headers = "".join(f"{name}: {value}\r\n" for name, value in extra_headers)
+    return (
+        (
+            f"--{boundary}\r\n"
+            'Content-Disposition: form-data; name="context"\r\n'
+            f"{headers}\r\n"
+            "post_image\r\n"
+            f"--{boundary}\r\n"
+            'Content-Disposition: form-data; name="file"; filename="photo.png"\r\n'
+            "Content-Type: image/png\r\n\r\n"
+        ).encode()
+        + png_bytes()
+        + f"\r\n--{boundary}--\r\n".encode()
+    )
 
 
 def test_healthz() -> None:
@@ -126,20 +150,152 @@ def test_upload_media_asset_stores_original_and_webp_derivatives(
     assert derivative_response.content.startswith(b"RIFF")
 
 
+def test_upload_storage_failure_deletes_prior_objects_and_rolls_back_asset(
+    session: Session, object_storage: InMemoryObjectStorage, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original_put = object_storage.put_object
+    put_count = 0
+
+    def fail_second_put(*, bucket: str, key: str, body: bytes, content_type: str) -> None:
+        nonlocal put_count
+        put_count += 1
+        if put_count == 2:
+            raise ClientError({"Error": {"Code": "ServiceUnavailable"}}, "PutObject")
+        original_put(bucket=bucket, key=key, body=body, content_type=content_type)
+
+    monkeypatch.setattr(object_storage, "put_object", fail_second_put)
+
+    response = TestClient(app).post(
+        "/v1/assets/upload",
+        headers=USER_HEADERS,
+        data={"context": "post_image"},
+        files={"file": ("photo.png", png_bytes(), "image/png")},
+    )
+
+    assert (response.status_code, response.json()) == (
+        503,
+        {"detail": "media storage unavailable"},
+    )
+    assert object_storage.objects == {}
+    assert session.scalars(select(MediaAsset)).all() == []
+
+
+def test_upload_cleanup_failure_does_not_mask_storage_error_or_stop_remaining_deletes(
+    session: Session, object_storage: InMemoryObjectStorage, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original_put = object_storage.put_object
+    original_delete = object_storage.delete_object
+    put_count = 0
+    delete_calls: list[str] = []
+
+    def fail_second_put(*, bucket: str, key: str, body: bytes, content_type: str) -> None:
+        nonlocal put_count
+        put_count += 1
+        if put_count == 2:
+            raise ClientError({"Error": {"Code": "ServiceUnavailable"}}, "PutObject")
+        original_put(bucket=bucket, key=key, body=body, content_type=content_type)
+
+    def fail_first_delete(*, bucket: str, key: str) -> None:
+        delete_calls.append(key)
+        if len(delete_calls) == 1:
+            raise ClientError({"Error": {"Code": "ServiceUnavailable"}}, "DeleteObject")
+        original_delete(bucket=bucket, key=key)
+
+    monkeypatch.setattr(object_storage, "put_object", fail_second_put)
+    monkeypatch.setattr(object_storage, "delete_object", fail_first_delete)
+
+    response = TestClient(app).post(
+        "/v1/assets/upload",
+        headers=USER_HEADERS,
+        data={"context": "post_image"},
+        files={"file": ("photo.png", png_bytes(), "image/png")},
+    )
+
+    assert (response.status_code, response.json()) == (
+        503,
+        {"detail": "media storage unavailable"},
+    )
+    assert len(delete_calls) == 2
+    assert object_storage.objects == {}
+
+
+def test_upload_commit_failure_deletes_all_objects_and_rolls_back_asset(
+    session: Session, object_storage: InMemoryObjectStorage, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    rollback_calls = 0
+    original_rollback = Session.rollback
+
+    def fail_commit(_session: Session) -> None:
+        raise RuntimeError("injected commit failure")
+
+    def record_rollback(db_session: Session) -> None:
+        nonlocal rollback_calls
+        rollback_calls += 1
+        original_rollback(db_session)
+
+    with monkeypatch.context() as patcher:
+        patcher.setattr(Session, "commit", fail_commit)
+        patcher.setattr(Session, "rollback", record_rollback)
+        response = TestClient(app, raise_server_exceptions=False).post(
+            "/v1/assets/upload",
+            headers=USER_HEADERS,
+            data={"context": "post_image"},
+            files={"file": ("photo.png", png_bytes(), "image/png")},
+        )
+
+    assert response.status_code == 500
+    assert rollback_calls == 1
+    assert object_storage.objects == {}
+    assert session.scalars(select(MediaAsset)).all() == []
+
+
+def test_upload_cancellation_deletes_written_objects_and_rolls_back_asset(
+    session: Session, object_storage: InMemoryObjectStorage, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original_put = object_storage.put_object
+    put_count = 0
+
+    def cancel_second_put(*, bucket: str, key: str, body: bytes, content_type: str) -> None:
+        nonlocal put_count
+        put_count += 1
+        if put_count == 2:
+            raise asyncio.CancelledError
+        original_put(bucket=bucket, key=key, body=body, content_type=content_type)
+
+    monkeypatch.setattr(object_storage, "put_object", cancel_second_put)
+
+    # BaseHTTPMiddleware translates a cancellation escaping the endpoint into this
+    # transport-level error; the assertions below verify the compensation still ran.
+    with pytest.raises(RuntimeError, match="No response returned"):
+        TestClient(app).post(
+            "/v1/assets/upload",
+            headers=USER_HEADERS,
+            data={"context": "post_image"},
+            files={"file": ("photo.png", png_bytes(), "image/png")},
+        )
+
+    assert object_storage.objects == {}
+    assert session.scalars(select(MediaAsset)).all() == []
+
+
 def test_upload_media_asset_accepts_file_before_context(
     session: Session, object_storage: InMemoryObjectStorage
 ) -> None:
     boundary = "field-order"
     body = (
-        f"--{boundary}\r\n"
-        'Content-Disposition: form-data; name="file"; filename="photo.png"\r\n'
-        "Content-Type: image/png\r\n\r\n"
-    ).encode() + png_bytes() + (
-        f"\r\n--{boundary}\r\n"
-        'Content-Disposition: form-data; name="context"\r\n\r\n'
-        "post_image\r\n"
-        f"--{boundary}--\r\n"
-    ).encode()
+        (
+            f"--{boundary}\r\n"
+            'Content-Disposition: form-data; name="file"; filename="photo.png"\r\n'
+            "Content-Type: image/png\r\n\r\n"
+        ).encode()
+        + png_bytes()
+        + (
+            f"\r\n--{boundary}\r\n"
+            'Content-Disposition: form-data; name="context"\r\n\r\n'
+            "post_image\r\n"
+            f"--{boundary}--\r\n"
+        ).encode()
+    )
     client = TestClient(app)
 
     response = client.post(
@@ -288,6 +444,49 @@ def test_upload_rejects_empty_and_malformed_requests_with_stable_errors(
         {"detail": "invalid multipart upload"},
     )
     assert object_storage.objects == {}
+
+
+@pytest.mark.parametrize(
+    "extra_headers",
+    [
+        pytest.param([(f"X-Header-{index}", "x") for index in range(8)], id="header-count"),
+        pytest.param([("X" * 101, "x")], id="header-name-bytes"),
+        pytest.param([("X-Header", "x" * 4097)], id="header-value-bytes"),
+    ],
+)
+def test_upload_rejects_independently_oversized_multipart_headers_with_stable_error(
+    session: Session,
+    object_storage: InMemoryObjectStorage,
+    extra_headers: list[tuple[str, str]],
+) -> None:
+    boundary = "bounded-headers"
+    response = TestClient(app).post(
+        "/v1/assets/upload",
+        headers={**USER_HEADERS, "content-type": f"multipart/form-data; boundary={boundary}"},
+        content=multipart_body_with_context_headers(boundary, extra_headers),
+    )
+
+    assert (response.status_code, response.json()) == (
+        400,
+        {"detail": "invalid multipart upload"},
+    )
+    assert object_storage.objects == {}
+
+
+def test_upload_accepts_multipart_headers_at_each_limit(
+    session: Session, object_storage: InMemoryObjectStorage
+) -> None:
+    boundary = "header-boundaries"
+    extra_headers = [(f"X-Header-{index}", "x") for index in range(6)]
+    extra_headers.append(("X" * 100, "x" * 4096))
+
+    response = TestClient(app).post(
+        "/v1/assets/upload",
+        headers={**USER_HEADERS, "content-type": f"multipart/form-data; boundary={boundary}"},
+        content=multipart_body_with_context_headers(boundary, extra_headers),
+    )
+
+    assert response.status_code == 201
 
 
 def test_upload_cleans_request_temp_files_after_success(
