@@ -45,6 +45,7 @@ exit 42
 EOF
   cat > "$tmp/buildah" <<'EOF'
 #!/usr/bin/env bash
+python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$REGISTRY_AUTH_FILE"
 printf '%s:%s\n' "$1" "$REGISTRY_AUTH_FILE" >> "$WOODPECKER_TEST_LOG"
 if [[ "$1" == push ]]; then
   shift
@@ -222,6 +223,7 @@ trap cleanup EXIT
 REGISTRY_AUTH_FILE=$(mktemp)
 harbor_ca_tmp=$(mktemp)
 digest_tmp=$(mktemp)
+printf '{}\n' > "$REGISTRY_AUTH_FILE"
 export REGISTRY_AUTH_FILE
 
 resolve_args=()
