@@ -1,5 +1,9 @@
 when:
   - event: manual
+    branch: main
+
+labels:
+  release: trusted
 
 steps:
   build-images:
@@ -7,6 +11,18 @@ steps:
     environment:
       STORAGE_DRIVER: vfs
       BUILDAH_ISOLATION: chroot
+      HARBOR_USERNAME:
+        from_secret: release_harbor_username
+      HARBOR_PASSWORD:
+        from_secret: release_harbor_password
+      REGISTRY:
+        from_secret: release_registry
+      IMAGE_NAMESPACE:
+        from_secret: release_image_namespace
+      HARBOR_IP:
+        from_secret: release_harbor_ip
+      HARBOR_CA_SHA256:
+        from_secret: release_harbor_ca_sha256
     commands:
       - .woodpecker/scripts/woodpecker-build-push.sh auth-gateway services/auth-gateway/Dockerfile .
       - .woodpecker/scripts/woodpecker-build-push.sh events services/events/Dockerfile .
@@ -16,7 +32,6 @@ steps:
       - .woodpecker/scripts/woodpecker-build-push.sh web apps/web/Dockerfile apps/web
     backend_options:
       kubernetes:
-        serviceAccountName: woodpecker-harbor-ci-reader
         resources:
           requests:
             cpu: "1"
@@ -26,15 +41,25 @@ steps:
             memory: 6Gi
 
   promote-gitops:
-    image: python:3.13-alpine
+    image: python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0
     depends_on:
       - build-images
+    environment:
+      GIT_USERNAME:
+        from_secret: release_git_username
+      GIT_TOKEN:
+        from_secret: release_git_token
+      GITOPS_REPO_SLUG:
+        from_secret: release_gitops_repo_slug
+      GITOPS_REPO_URL:
+        from_secret: release_gitops_repo_url
+      IMAGE_REGISTRY:
+        from_secret: release_image_registry
     commands:
       - apk add --no-cache bash git curl
       - .woodpecker/scripts/woodpecker-promote-gitops.sh
     backend_options:
       kubernetes:
-        serviceAccountName: woodpecker-github-writer-reader
         resources:
           requests:
             cpu: 100m

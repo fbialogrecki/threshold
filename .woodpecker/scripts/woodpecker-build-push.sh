@@ -16,14 +16,16 @@ self_test() {
 
   output=$(cd "$tmp/repo" && WOODPECKER_DRY_RUN=1 REGISTRY=registry.example.test \
     WOODPECKER_CURL_BIN=/bin/false WOODPECKER_BUILDAH_BIN=/bin/false \
+    CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" users Dockerfile context)
   [[ "$output" == \
-    "build registry.example.test/threshold/users:2222222 from Dockerfile with context context" ]] ||
+    "build registry.example.test/threshold/users:2222222222222222222222222222222222222222 from Dockerfile with context context" ]] ||
     { echo "self-test failed: dry-run attempted side effects" >&2; exit 1; }
 
   printf 'test-ca\n' > "$tmp/ca-source"
   printf 'service-account-token\n' > "$tmp/token"
+  printf 'woodpecker-release\n' > "$tmp/namespace"
   : > "$tmp/kube-ca"
   mkdir "$tmp/anchors"
   cat > "$tmp/curl" <<'EOF'
@@ -39,8 +41,7 @@ if [[ "$*" == *"/api/v2.0/systeminfo/getcert"* ]]; then
   done
   exit 1
 fi
-echo secret >> "$WOODPECKER_TEST_LOG"
-printf '%s\n' '{"data":{"HARBOR_USERNAME":"dQ==","HARBOR_PASSWORD":"cA=="}}'
+exit 42
 EOF
   cat > "$tmp/buildah" <<'EOF'
 #!/usr/bin/env bash
@@ -75,6 +76,7 @@ EOF
     WOODPECKER_KUBE_CA="$tmp/kube-ca" WOODPECKER_TEST_LOG="$tmp/log" \
     WOODPECKER_TEST_CA_SOURCE="$tmp/ca-source" \
     HARBOR_CA_SHA256=0000000000000000000000000000000000000000000000000000000000000000 \
+    CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" users Dockerfile context >/dev/null 2>&1; then
     echo "self-test failed: mismatched CA fingerprint was accepted" >&2
@@ -91,8 +93,10 @@ EOF
     WOODPECKER_UPDATE_CA_TRUST_BIN="$tmp/update-ca-trust" \
     WOODPECKER_HARBOR_CA_ANCHOR="$tmp/anchors/harbor-ca.crt" \
     WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/kube-ca" \
+    WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
     WOODPECKER_TEST_LOG="$tmp/log" WOODPECKER_TEST_CA_SOURCE="$tmp/ca-source" \
-    HARBOR_CA_SHA256="$ca_sha" \
+    HARBOR_CA_SHA256="$ca_sha" HARBOR_USERNAME=u HARBOR_PASSWORD=p \
+    CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" users Dockerfile context >/dev/null)
 
@@ -100,7 +104,7 @@ EOF
   while IFS= read -r line; do
     [[ "$line" == login:* ]] && auth_file=${line#login:}
   done < "$tmp/log"
-  [[ "$(<"$tmp/log")" == $'cert\ntrust\nsecret\nlogin:'"$auth_file"$'\nbud:'"$auth_file"$'\npush:'"$auth_file" ]] ||
+  [[ "$(<"$tmp/log")" == $'cert\ntrust\nlogin:'"$auth_file"$'\nbud:'"$auth_file"$'\npush:'"$auth_file" ]] ||
     { echo "self-test failed: pinned CA production sequence" >&2; exit 1; }
   [[ -n "$auth_file" && ! -e "$auth_file" ]] ||
     { echo "self-test failed: registry auth file was not removed" >&2; exit 1; }
@@ -135,15 +139,22 @@ HOSTS_FILE=${WOODPECKER_HOSTS_FILE:-/etc/hosts}
 HARBOR_CA_ANCHOR=${WOODPECKER_HARBOR_CA_ANCHOR:-/etc/pki/ca-trust/source/anchors/harbor-ca.crt}
 KUBE_TOKEN_FILE=${WOODPECKER_KUBE_TOKEN_FILE:-/var/run/secrets/kubernetes.io/serviceaccount/token}
 KUBE_CA=${WOODPECKER_KUBE_CA:-/var/run/secrets/kubernetes.io/serviceaccount/ca.crt}
+KUBE_NAMESPACE_FILE=${WOODPECKER_KUBE_NAMESPACE_FILE:-/var/run/secrets/kubernetes.io/serviceaccount/namespace}
 RELEASE_CONFIG_NAME=${WOODPECKER_RELEASE_CONFIG_NAME:-woodpecker-release-config}
 IMAGE_DIGEST_DIR=${WOODPECKER_IMAGE_DIGEST_DIR:-.woodpecker-digests}
+
+[[ "${CI_COMMIT_BRANCH:-}" == "${CI_REPO_DEFAULT_BRANCH:-main}" ]] || {
+  echo "Build/push is allowed only from the default branch" >&2
+  exit 1
+}
 
 if [[ "$WOODPECKER_DRY_RUN" == 0 ]] &&
   [[ -z "$REGISTRY" || -z "$HARBOR_CA_SHA256" || -z "$IMAGE_NAMESPACE" ]]; then
   KUBE_TOKEN=$(<"$KUBE_TOKEN_FILE")
+  KUBE_NAMESPACE=$(<"$KUBE_NAMESPACE_FILE")
   RELEASE_CONFIG_JSON=$("$CURL_BIN" --fail --silent --show-error --cacert "$KUBE_CA" \
     -H "Authorization: Bearer $KUBE_TOKEN" \
-    "https://kubernetes.default.svc/api/v1/namespaces/woodpecker/configmaps/$RELEASE_CONFIG_NAME")
+    "https://kubernetes.default.svc/api/v1/namespaces/$KUBE_NAMESPACE/configmaps/$RELEASE_CONFIG_NAME")
   config_value() {
     printf '%s' "$RELEASE_CONFIG_JSON" | python3 -c \
       'import json,sys; print(json.load(sys.stdin).get("data", {}).get(sys.argv[1], ""))' "$1"
@@ -152,7 +163,7 @@ if [[ "$WOODPECKER_DRY_RUN" == 0 ]] &&
   IMAGE_NAMESPACE=${IMAGE_NAMESPACE:-$(config_value IMAGE_NAMESPACE)}
   HARBOR_IP=${HARBOR_IP:-$(config_value HARBOR_IP)}
   HARBOR_CA_SHA256=${HARBOR_CA_SHA256:-$(config_value HARBOR_CA_SHA256)}
-  unset KUBE_TOKEN RELEASE_CONFIG_JSON
+  unset KUBE_NAMESPACE KUBE_TOKEN RELEASE_CONFIG_JSON
 fi
 
 case "$SERVICE" in
@@ -176,12 +187,12 @@ done
   echo "Registry and image namespace must not be empty" >&2
   exit 1
 }
-[[ "${CI_COMMIT_SHA:-}" =~ ^[0-9a-fA-F]{7,}$ ]] || {
-  echo "CI_COMMIT_SHA must begin with at least seven hexadecimal characters" >&2
+[[ "${CI_COMMIT_SHA:-}" =~ ^[0-9a-fA-F]{40}$ ]] || {
+  echo "CI_COMMIT_SHA must be exactly 40 hexadecimal characters" >&2
   exit 1
 }
 
-IMAGE_TAG=${CI_COMMIT_SHA:0:7}
+IMAGE_TAG=${CI_COMMIT_SHA}
 IMAGE="$REGISTRY/$IMAGE_NAMESPACE/$SERVICE:$IMAGE_TAG"
 
 if [[ "$WOODPECKER_DRY_RUN" == 1 ]]; then
@@ -204,7 +215,7 @@ cleanup() {
   [[ -z "$REGISTRY_AUTH_FILE" ]] || rm -f -- "$REGISTRY_AUTH_FILE"
   [[ -z "$harbor_ca_tmp" ]] || rm -f -- "$harbor_ca_tmp"
   [[ -z "$digest_tmp" ]] || rm -f -- "$digest_tmp"
-  unset HARBOR_PASSWORD HARBOR_USERNAME SECRET_JSON KUBE_TOKEN REGISTRY_AUTH_FILE
+  unset HARBOR_PASSWORD HARBOR_USERNAME REGISTRY_AUTH_FILE
 }
 trap cleanup EXIT
 
@@ -236,18 +247,14 @@ fi
 install -m 0644 "$harbor_ca_tmp" "$HARBOR_CA_ANCHOR"
 "$UPDATE_CA_TRUST_BIN"
 
-KUBE_TOKEN=$(<"$KUBE_TOKEN_FILE")
-SECRET_JSON=$("$CURL_BIN" --fail --silent --show-error --cacert "$KUBE_CA" \
-  -H "Authorization: Bearer $KUBE_TOKEN" \
-  https://kubernetes.default.svc/api/v1/namespaces/woodpecker/secrets/woodpecker-harbor-ci)
-HARBOR_USERNAME=$(printf '%s' "$SECRET_JSON" | python3 -c \
-  'import base64,json,sys; print(base64.b64decode(json.load(sys.stdin)["data"]["HARBOR_USERNAME"]).decode())')
-HARBOR_PASSWORD=$(printf '%s' "$SECRET_JSON" | python3 -c \
-  'import base64,json,sys; print(base64.b64decode(json.load(sys.stdin)["data"]["HARBOR_PASSWORD"]).decode())')
+[[ -n "${HARBOR_USERNAME:-}" && -n "${HARBOR_PASSWORD:-}" ]] || {
+  echo "Event-restricted Harbor credentials are required" >&2
+  exit 1
+}
 
 printf '%s' "$HARBOR_PASSWORD" |
   "$BUILDAH_BIN" login --tls-verify=true -u "$HARBOR_USERNAME" --password-stdin "$REGISTRY"
-unset HARBOR_PASSWORD HARBOR_USERNAME SECRET_JSON KUBE_TOKEN
+unset HARBOR_PASSWORD HARBOR_USERNAME
 
 cache_args=()
 if [[ -n "$CACHE_REFERENCE" ]]; then

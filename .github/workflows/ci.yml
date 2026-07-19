@@ -49,7 +49,38 @@ jobs:
       - run: .woodpecker/scripts/woodpecker-promote-gitops.sh --self-test
       - run: python3 -m py_compile .woodpecker/scripts/bump-service-gitops.py
 
+  containers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: auth-gateway
+            dockerfile: services/auth-gateway/Dockerfile
+            context: .
+          - service: events
+            dockerfile: services/events/Dockerfile
+            context: .
+          - service: media
+            dockerfile: services/media/Dockerfile
+            context: .
+          - service: social
+            dockerfile: services/social/Dockerfile
+            context: .
+          - service: users
+            dockerfile: services/users/Dockerfile
+            context: .
+          - service: web
+            dockerfile: apps/web/Dockerfile
+            context: apps/web
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Build ${{ matrix.service }} image
+        run: docker build --file "${{ matrix.dockerfile }}" --tag "threshold/${{ matrix.service }}:ci" "${{ matrix.context }}"
+
   python:
+    needs: [security, containers]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

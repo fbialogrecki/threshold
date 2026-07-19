@@ -10,6 +10,7 @@ readonly GIT_BIN=${WOODPECKER_GIT_BIN:-git}
 readonly CURL_BIN=${WOODPECKER_CURL_BIN:-curl}
 readonly KUBE_TOKEN_FILE=${WOODPECKER_KUBE_TOKEN_FILE:-/var/run/secrets/kubernetes.io/serviceaccount/token}
 readonly KUBE_CA=${WOODPECKER_KUBE_CA:-/var/run/secrets/kubernetes.io/serviceaccount/ca.crt}
+readonly KUBE_NAMESPACE_FILE=${WOODPECKER_KUBE_NAMESPACE_FILE:-/var/run/secrets/kubernetes.io/serviceaccount/namespace}
 readonly RELEASE_CONFIG_NAME=${WOODPECKER_RELEASE_CONFIG_NAME:-woodpecker-release-config}
 readonly IMAGE_DIGEST_DIR=${WOODPECKER_IMAGE_DIGEST_DIR:-.woodpecker-digests}
 
@@ -139,10 +140,12 @@ self_test() {
     printf '%s\n' 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' > "$tmp/digests/$app.digest"
   done
   printf 'service-account-token\n' > "$tmp/token"
+  printf 'woodpecker-release\n' > "$tmp/namespace"
   : > "$tmp/ca"
   cat > "$tmp/curl" <<'EOF'
 #!/usr/bin/env bash
 if [[ "$*" == *"api.github.com"* ]]; then
+  [[ "$*" == *"Authorization: Bearer t"* ]] || exit 42
   if [[ "$*" == *"-X POST"* ]]; then
     echo pr-create >> "$WOODPECKER_TEST_LOG"
     printf '%s\n' '{}'
@@ -152,6 +155,7 @@ if [[ "$*" == *"api.github.com"* ]]; then
   fi
   exit 0
 fi
+[[ "$*" == *"Authorization: Bearer service-account-token"* ]] || exit 42
 echo auth >> "$WOODPECKER_TEST_LOG"
 printf '%s\n' '{"data":{"GIT_USERNAME":"dQ==","GIT_TOKEN":"dA=="}}'
 EOF
@@ -182,7 +186,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:
   - name: threshold/users
-    newName: core.harbor.domain/threshold/users
+    newName: registry.example.test/threshold/users
     newTag: old
 YAML
     echo clone >> "$WOODPECKER_TEST_LOG"
@@ -221,23 +225,27 @@ EOF
   chmod +x "$tmp/curl" "$tmp/git"
 
   : > "$tmp/sequence"
-  HOME="$tmp/home" WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
+  HOME="$tmp/home" GIT_USERNAME=u GIT_TOKEN=t \
+    WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
     WOODPECKER_IMAGE_DIGEST_DIR="$tmp/digests" \
     WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/ca" \
+    WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
     WOODPECKER_TEST_LOG="$tmp/sequence" CI_PIPELINE_EVENT=push \
     CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main CI_REPO=test/threshold \
     CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" >/dev/null
-  [[ "$(<"$tmp/sequence")" == $'auth\nfetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff' ]] ||
+  [[ "$(<"$tmp/sequence")" == $'fetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff' ]] ||
     die "self-test failed: credentials were not configured before source fetch/diff"
   [[ ! -e "$tmp/home/.git-credentials" ]] ||
     die "self-test failed: credentials were not cleaned"
 
   : > "$tmp/sequence"
-  if HOME="$tmp/home" WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
+  if HOME="$tmp/home" GIT_USERNAME=u GIT_TOKEN=t \
+    WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
     WOODPECKER_IMAGE_DIGEST_DIR="$tmp/digests" \
     WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/ca" \
+    WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
     WOODPECKER_TEST_LOG="$tmp/sequence" WOODPECKER_TEST_FAIL_DIFF=1 \
     CI_PIPELINE_EVENT=push CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
     CI_REPO=test/threshold \
@@ -246,14 +254,16 @@ EOF
     "$SCRIPT_PATH" >/dev/null 2>&1; then
     die "self-test failed: unavailable production diff was accepted"
   fi
-  [[ "$(<"$tmp/sequence")" == $'auth\nfetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff' ]] ||
+  [[ "$(<"$tmp/sequence")" == $'fetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff' ]] ||
     die "self-test failed: unavailable diff sequence or cleanup"
 
   : > "$tmp/sequence"
   rm -f "$tmp/sequence.pushes"
-  HOME="$tmp/home" WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
+  HOME="$tmp/home" GIT_USERNAME=u GIT_TOKEN=t \
+    WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
     WOODPECKER_IMAGE_DIGEST_DIR="$tmp/digests" \
     WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/ca" \
+    WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
     WOODPECKER_TEST_LOG="$tmp/sequence" WOODPECKER_TEST_FULL_PATH=1 \
     WOODPECKER_TEST_PUSH_FAILURES=1 \
     CI_PIPELINE_EVENT=push CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
@@ -264,7 +274,7 @@ EOF
 
   local full_log
   full_log=$(<"$tmp/sequence")
-  [[ "$full_log" == $'auth\nfetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush\npr-list\npr-create' ]] ||
+  [[ "$full_log" == $'fetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush\npr-list\npr-create' ]] ||
     die "self-test failed: fresh retry did not reapply selected bumps"
 
   echo "self-test passed"
@@ -276,34 +286,29 @@ git_credentials_file=
 cleanup() {
   [[ -z "$promotion_tmp" ]] || rm -rf -- "$promotion_tmp"
   unset GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0
-  unset GIT_TOKEN GIT_USERNAME SECRET_JSON KUBE_TOKEN
+  unset GIT_TOKEN GIT_USERNAME
 }
 
 configure_credentials() {
-  KUBE_TOKEN=$(<"$KUBE_TOKEN_FILE")
-  SECRET_JSON=$("$CURL_BIN" --fail --silent --show-error --cacert "$KUBE_CA" \
-    -H "Authorization: Bearer $KUBE_TOKEN" \
-    https://kubernetes.default.svc/api/v1/namespaces/woodpecker/secrets/woodpecker-github-writer)
-  GIT_USERNAME=$(printf '%s' "$SECRET_JSON" | python3 -c \
-    'import base64,json,sys; print(base64.b64decode(json.load(sys.stdin)["data"]["GIT_USERNAME"]).decode())')
-  GIT_TOKEN=$(printf '%s' "$SECRET_JSON" | python3 -c \
-    'import base64,json,sys; print(base64.b64decode(json.load(sys.stdin)["data"]["GIT_TOKEN"]).decode())')
+  [[ -n "${GIT_USERNAME:-}" && -n "${GIT_TOKEN:-}" ]] ||
+    die "Event-restricted Git credentials are required"
 
   printf 'https://%s:%s@github.com\n' "$GIT_USERNAME" "$GIT_TOKEN" > "$git_credentials_file"
   chmod 600 "$git_credentials_file"
   export GIT_CONFIG_COUNT=1
   export GIT_CONFIG_KEY_0=credential.helper
   export GIT_CONFIG_VALUE_0="store --file=$git_credentials_file"
-  unset GIT_USERNAME SECRET_JSON KUBE_TOKEN
+  unset GIT_USERNAME
 }
 
 load_release_config() {
   [[ -n "${GITOPS_REPO_SLUG:-}" && -n "${GITOPS_REPO_URL:-}" && -n "${IMAGE_REGISTRY:-}" ]] && return
-  local config_json kube_token
+  local config_json kube_namespace kube_token
   kube_token=$(<"$KUBE_TOKEN_FILE")
+  kube_namespace=$(<"$KUBE_NAMESPACE_FILE")
   config_json=$("$CURL_BIN" --fail --silent --show-error --cacert "$KUBE_CA" \
     -H "Authorization: Bearer $kube_token" \
-    "https://kubernetes.default.svc/api/v1/namespaces/woodpecker/configmaps/$RELEASE_CONFIG_NAME")
+    "https://kubernetes.default.svc/api/v1/namespaces/$kube_namespace/configmaps/$RELEASE_CONFIG_NAME")
   config_value() {
     printf '%s' "$config_json" | python3 -c \
       'import json,sys; print(json.load(sys.stdin).get("data", {}).get(sys.argv[1], ""))' "$1"
@@ -401,7 +406,7 @@ mapfile -t selected_apps < <(print_selected)
   exit 0
 }
 
-image_tag=${CI_COMMIT_SHA:0:7}
+image_tag=${CI_COMMIT_SHA}
 gitops_branch=${GITOPS_BRANCH:-main}
 gitops_repo_slug=${GITOPS_REPO_SLUG:?GITOPS_REPO_SLUG is required}
 promotion_branch="ci/promote-${CI_COMMIT_SHA:0:12}"
