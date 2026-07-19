@@ -41,6 +41,13 @@ class CheckInStatus(StrEnum):
     used = "used"
 
 
+class AccountErasureTombstone(Base):
+    __tablename__ = "account_erasure_tombstones"
+
+    user_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    erased_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
 class Event(Base):
     __tablename__ = "events"
     __table_args__ = (

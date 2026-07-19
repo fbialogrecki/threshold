@@ -15,16 +15,17 @@ from media.api.schemas import (
     StorageConfigRead,
 )
 from media.api.security import require_internal_token, require_user_id
-from media.domain.models import MediaAsset, MediaDerivative
+from media.domain.models import AccountErasureTombstone, MediaAsset, MediaDerivative
 from media.images import InvalidImageError, process_image
 from media.main_dependencies import get_object_storage, get_session, settings
 from media.storage import ObjectStorage
 from media.uploads import parse_multipart_upload, stream_request_to_file, validate_content_length
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session, selectinload
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+_OWNER_WRITE_FENCE_SEED = 42002
 
 
 def _safe_asset_path(asset_path: str) -> bool:
@@ -32,6 +33,46 @@ def _safe_asset_path(asset_path: str) -> bool:
         return False
     segments = asset_path.split("/")
     return all(unquote(segment) not in {".", ".."} for segment in segments)
+
+
+def _acquire_owner_write_lock(*, owner_user_id: str, session: Session) -> None:
+    dialect_name = session.get_bind().dialect.name
+    if dialect_name == "postgresql":
+        session.execute(
+            text("SELECT pg_advisory_xact_lock(hashtextextended(:owner, :seed))"),
+            {"owner": owner_user_id, "seed": _OWNER_WRITE_FENCE_SEED},
+        )
+    elif dialect_name == "sqlite":
+        # Serialize the tombstone check with writes for local/test SQLite databases.
+        session.execute(text("BEGIN IMMEDIATE"))
+
+
+def _owner_erasure_started(*, owner_user_id: str, session: Session) -> bool:
+    return (
+        session.scalar(
+            select(AccountErasureTombstone.owner_user_id).where(
+                AccountErasureTombstone.owner_user_id == owner_user_id
+            )
+        )
+        is not None
+    )
+
+
+def _enforce_owner_write_fence(*, owner_user_id: str, session: Session) -> None:
+    _acquire_owner_write_lock(owner_user_id=owner_user_id, session=session)
+    if _owner_erasure_started(owner_user_id=owner_user_id, session=session):
+        raise HTTPException(status_code=409, detail="account media erasure has started")
+
+
+def _delete_object_if_present(*, storage: ObjectStorage, bucket: str, key: str) -> None:
+    try:
+        storage.delete_object(bucket=bucket, key=key)
+    except KeyError:
+        return
+    except ClientError as exc:
+        if exc.response.get("Error", {}).get("Code") in {"NoSuchKey", "404", "NotFound"}:
+            return
+        raise
 
 
 def _create_asset_record(
@@ -43,6 +84,7 @@ def _create_asset_record(
     checksum_sha256: str | None,
     session: Session,
 ) -> MediaAsset:
+    _enforce_owner_write_fence(owner_user_id=owner_user_id, session=session)
     asset = MediaAsset(
         owner_user_id=owner_user_id,
         context=context,
@@ -232,6 +274,14 @@ def erase_account_data(
     session: Annotated[Session, Depends(get_session)],
     storage: Annotated[ObjectStorage, Depends(get_object_storage)],
 ) -> AccountErasureResponse:
+    # Phase 1 is committed independently so a storage outage can never reopen writes.
+    _acquire_owner_write_lock(owner_user_id=payload.user_id, session=session)
+    if not _owner_erasure_started(owner_user_id=payload.user_id, session=session):
+        session.add(AccountErasureTombstone(owner_user_id=payload.user_id))
+    session.commit()
+
+    # Phase 2 remains retryable: records retain the complete object-key inventory
+    # until every storage deletion succeeds.
     assets = list(
         session.scalars(
             select(MediaAsset)
@@ -241,9 +291,13 @@ def erase_account_data(
     )
     try:
         for asset in assets:
-            storage.delete_object(bucket=asset.bucket, key=asset.original_key)
+            _delete_object_if_present(
+                storage=storage, bucket=asset.bucket, key=asset.original_key
+            )
             for derivative in asset.derivatives:
-                storage.delete_object(bucket=derivative.bucket, key=derivative.object_key)
+                _delete_object_if_present(
+                    storage=storage, bucket=derivative.bucket, key=derivative.object_key
+                )
     except Exception as exc:
         session.rollback()
         logger.exception("media account erasure storage delete failed")

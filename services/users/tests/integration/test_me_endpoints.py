@@ -2,18 +2,28 @@ from fastapi.testclient import TestClient
 from pytest import MonkeyPatch
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from users.account_erasure import run_account_erasure_jobs
 from users.domain.models import (
     ApplicationUser,
+    AuthAuditLog,
     ContentReport,
     EmailVerificationToken,
     Follow,
     NotificationEvent,
+    NotificationPreference,
     Page,
+    PageMembership,
+    PageMembershipRole,
+    PageResidency,
     PasswordResetToken,
     SafetyAuditLog,
+    SecretLocationKeyEnvelope,
+    SecretLocationPayload,
     UserSession,
 )
 from users.main import app
+
+from users import main_dependencies
 
 
 def _get_authenticated_client(
@@ -174,15 +184,17 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
     _, other_user_id = _get_authenticated_client(session, "other@example.test", "otheruser")
     erasure_calls: list[tuple[str, str]] = []
     monkeypatch.setattr(
-        "users.api.routes.anonymize_social_author",
+        "users.account_erasure.anonymize_social_author",
         lambda _settings, called_user_id: erasure_calls.append(("social", called_user_id)),
     )
     monkeypatch.setattr(
-        "users.api.routes.erase_events_account",
-        lambda _settings, called_user_id: erasure_calls.append(("events", called_user_id)),
+        "users.account_erasure.erase_events_account",
+        lambda _settings, called_user_id, _artist_profile_ids: erasure_calls.append(
+            ("events", called_user_id)
+        ),
     )
     monkeypatch.setattr(
-        "users.api.routes.erase_media_assets",
+        "users.account_erasure.erase_media_assets",
         lambda _settings, called_user_id: erasure_calls.append(("media", called_user_id)),
     )
 
@@ -211,6 +223,12 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
         target_id=user_id,
         target_handle="deleteuser",
     )
+    legacy_handle_follow = Follow(
+        follower_user_id=other_user_id,
+        target_type="consumer",
+        target_id="legacy-target-id",
+        target_handle="deleteuser",
+    )
     report = ContentReport(
         reporter_user_id=user_id,
         target_type="profile",
@@ -225,6 +243,29 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
         target_id=user_id,
         metadata_json={"user_id": user_id, "username": "deleteuser"},
     )
+    auth_audit = AuthAuditLog(
+        user_id=user_id,
+        event_type="security.retained",
+        result="success",
+        subject_hash="subject-hash",
+        ip_hash="ip-hash",
+        user_agent_hash="ua-hash",
+        request_id="request-id",
+        metadata_json={"user_id": user_id},
+    )
+    page = Page(
+        slug="erasure-page",
+        display_name="Erasure Page",
+        avatar_media_asset_id="avatar-asset",
+        avatar_media_owner_user_id=user_id,
+    )
+    secret_payload = SecretLocationPayload(
+        event_id="event-erasure",
+        city="Berlin",
+        encrypted_payload_ciphertext="ciphertext",
+        encrypted_payload_nonce="nonce",
+        crypto_suite="test-suite",
+    )
     session.add_all(
         [
             NotificationEvent(
@@ -236,19 +277,54 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
             ),
             notification_from_deleted,
             target_follow,
+            legacy_handle_follow,
             report,
             audit,
+            auth_audit,
+            NotificationPreference(user_id=user_id),
+            page,
+            secret_payload,
         ]
     )
+    session.flush()
+    membership = PageMembership(
+        page_id=page.id,
+        user_id=user_id,
+        role=PageMembershipRole.owner,
+    )
+    residency = PageResidency(
+        page_id=page.id,
+        artist_user_id=user_id,
+        invited_by_user_id=other_user_id,
+    )
+    invited_residency = PageResidency(
+        page_id=page.id,
+        artist_user_id=other_user_id,
+        invited_by_user_id=user_id,
+    )
+    envelope = SecretLocationKeyEnvelope(
+        payload_id=secret_payload.id,
+        recipient_user_id=user_id,
+        encrypted_payload_key="encrypted-key",
+    )
+    session.add_all([membership, residency, invited_residency, envelope])
     session.commit()
     notification_from_deleted_id = notification_from_deleted.id
     target_follow_id = target_follow.id
+    legacy_handle_follow_id = legacy_handle_follow.id
     report_id = report.id
     audit_id = audit.id
+    auth_audit_id = auth_audit.id
+    page_id = page.id
+    membership_id = membership.id
+    residency_id = residency.id
+    invited_residency_id = invited_residency.id
+    envelope_id = envelope.id
 
     # Perform DELETE /v1/me
     response = client.delete("/v1/me")
-    assert response.status_code == 204
+    assert response.status_code == 202
+    assert run_account_erasure_jobs(main_dependencies.session_factory, max_jobs=1) == 1
 
     # Verify the cookies are cleared/deleted
     # Standard FastAPI TestClient keeps cookies unless cleared or response deleted them
@@ -283,6 +359,7 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
     )
     assert session.get(NotificationEvent, notification_from_deleted_id) is None
     assert session.get(Follow, target_follow_id) is None
+    assert session.get(Follow, legacy_handle_follow_id) is None
     scrubbed_report = session.get(ContentReport, report_id)
     scrubbed_audit = session.get(SafetyAuditLog, audit_id)
     assert scrubbed_report is not None
@@ -293,12 +370,29 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
     assert scrubbed_audit.actor_user_id is None
     assert scrubbed_audit.target_id == "deleted-user"
     assert scrubbed_audit.metadata_json == {"user_id": None, "username": None}
+    retained_auth_audit = session.get(AuthAuditLog, auth_audit_id)
+    assert retained_auth_audit is not None
+    assert retained_auth_audit.user_id is None
+    assert retained_auth_audit.subject_hash is None
+    assert retained_auth_audit.ip_hash is None
+    assert retained_auth_audit.user_agent_hash is None
+    assert retained_auth_audit.request_id is None
+    assert retained_auth_audit.metadata_json == {"user_id": None}
+    assert session.get(PageMembership, membership_id) is None
+    assert session.get(PageResidency, residency_id) is None
+    assert session.get(PageResidency, invited_residency_id) is None
+    assert session.get(SecretLocationKeyEnvelope, envelope_id) is None
+    retained_page = session.get(Page, page_id)
+    assert retained_page is not None
+    assert retained_page.avatar_media_asset_id is None
+    assert retained_page.avatar_media_owner_user_id is None
+    assert session.scalar(
+        select(NotificationPreference).where(NotificationPreference.user_id == user_id)
+    ) is None
 
-    # Verify all sessions are revoked
+    # Session tokens and linked IP/UA hashes are deleted immediately.
     sessions = session.scalars(select(UserSession).where(UserSession.user_id == user_id)).all()
-    for s in sessions:
-        assert s.revoked_at is not None
-        assert s.revoke_reason == "account_deleted"
+    assert sessions == []
     assert erasure_calls == [
         ("social", user_id),
         ("events", user_id),
@@ -309,41 +403,6 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
     get_me = client.get("/v1/auth/me")
     assert get_me.status_code == 401
 
-
-def test_delete_me_fails_closed_before_local_anonymization(
-    session: Session,
-    monkeypatch: MonkeyPatch,
-) -> None:
-    client, user_id = _get_authenticated_client(
-        session, "delete-failure@example.test", "deletefailure"
-    )
-    calls: list[str] = []
-
-    def social_erasure(_settings: object, _user_id: str) -> None:
-        calls.append("social")
-
-    def events_erasure(_settings: object, _user_id: str) -> None:
-        calls.append("events")
-        raise RuntimeError("events unavailable")
-
-    def media_erasure(_settings: object, _user_id: str) -> None:
-        calls.append("media")
-
-    monkeypatch.setattr("users.api.routes.anonymize_social_author", social_erasure)
-    monkeypatch.setattr("users.api.routes.erase_events_account", events_erasure)
-    monkeypatch.setattr("users.api.routes.erase_media_assets", media_erasure)
-
-    response = client.delete("/v1/me")
-
-    assert response.status_code == 503
-    assert response.json() == {"detail": "account deletion is temporarily unavailable"}
-    assert calls == ["social", "events"]
-    session.expire_all()
-    user = session.get(ApplicationUser, user_id)
-    assert user is not None
-    assert user.status == "active"
-    assert user.email == "delete-failure@example.test"
-    assert user.deleted_at is None
 
 
 def test_follow_and_unfollow_endpoints(session: Session) -> None:

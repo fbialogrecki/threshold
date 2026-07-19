@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from users.account_erasure import run_account_erasure_jobs
 from users.api import routes
 from users.domain.models import (
     ApplicationUser,
@@ -21,6 +22,8 @@ from users.domain.models import (
     UserBlock,
 )
 from users.main import app
+
+from users import main_dependencies
 
 
 def test_get_public_profile_success(session: Session, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -350,9 +353,9 @@ def test_get_public_profile_not_found(session: Session) -> None:
 
 def test_get_public_profile_deleted(session: Session, monkeypatch: pytest.MonkeyPatch) -> None:
     client = TestClient(app)
-    monkeypatch.setattr("users.api.routes.anonymize_social_author", lambda *_args: None)
-    monkeypatch.setattr("users.api.routes.erase_events_account", lambda *_args: None)
-    monkeypatch.setattr("users.api.routes.erase_media_assets", lambda *_args: None)
+    monkeypatch.setattr("users.account_erasure.anonymize_social_author", lambda *_args: None)
+    monkeypatch.setattr("users.account_erasure.erase_events_account", lambda *_args: None)
+    monkeypatch.setattr("users.account_erasure.erase_media_assets", lambda *_args: None)
 
     # Register and delete
     reg_resp = client.post(
@@ -367,7 +370,8 @@ def test_get_public_profile_deleted(session: Session, monkeypatch: pytest.Monkey
 
     # Delete account
     del_resp = client.delete("/v1/me")
-    assert del_resp.status_code == 204
+    assert del_resp.status_code == 202
+    assert run_account_erasure_jobs(main_dependencies.session_factory, max_jobs=1) == 1
 
     # Query public profile, should return 404
     response = client.get("/v1/profiles/deleteduser")

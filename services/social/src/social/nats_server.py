@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from social.domain.models import UserBlock
+from social.erasure import fenced_erased_user_ids
 from social.settings import Settings
 from threshold_common.otel_nats import get_message_headers, nats_consumer_span
 
@@ -21,12 +22,17 @@ def _string_payload(payload: dict[str, Any], key: str) -> str:
     return value.strip()
 
 
-def apply_user_block_event(session: Session, payload: dict[str, Any]) -> None:
+def apply_user_block_event(session: Session, payload: dict[str, Any]) -> bool:
     action = _string_payload(payload, "action")
+    if action not in {"blocked", "unblocked"}:
+        raise ValueError("unsupported block action")
     blocker_user_id = _string_payload(payload, "blocker_user_id")
     blocked_user_id = _string_payload(payload, "blocked_user_id")
     blocker_username = payload.get("blocker_username")
     blocked_username = payload.get("blocked_username")
+
+    if fenced_erased_user_ids(session, [blocker_user_id, blocked_user_id]):
+        return False
 
     block = session.scalar(
         select(UserBlock).where(
@@ -43,11 +49,11 @@ def apply_user_block_event(session: Session, payload: dict[str, Any]) -> None:
         block.blocker_username = blocker_username if isinstance(blocker_username, str) else None
         block.blocked_username = blocked_username if isinstance(blocked_username, str) else None
         session.add(block)
-        return
+        return True
     if action == "unblocked":
         if block is not None:
             session.delete(block)
-        return
+        return True
     raise ValueError("unsupported block action")
 
 

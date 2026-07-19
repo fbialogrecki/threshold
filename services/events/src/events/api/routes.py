@@ -39,6 +39,7 @@ from events.api.security import (
     require_write_quota,
 )
 from events.domain.models import (
+    AccountErasureTombstone,
     CheckInStatus,
     Event,
     EventAccessAuditLog,
@@ -52,6 +53,10 @@ from events.domain.models import (
     GuestlistEntryStatus,
     LocationMode,
     utc_now,
+)
+from events.erasure_write_fence import (
+    acquire_account_erasure_write_fence,
+    enforce_account_erasure_write_fence,
 )
 from events.main_dependencies import get_db_session, settings
 from events.settings import Settings
@@ -391,6 +396,7 @@ def create_event(
         raise HTTPException(status_code=403, detail="not authorized to manage this page")
     _validate_event_poster(payload.poster_media_asset_id, user.user_id)
     lineup_artist_refs = _validate_lineup_artist_refs(payload.lineup)
+    enforce_account_erasure_write_fence(session, [user.user_id])
     event = Event(
         slug=payload.slug,
         title=payload.title,
@@ -434,6 +440,7 @@ def update_event(
     role = users_client.check_page_role(settings, event.page_id, user.user_id)
     if role not in ALLOWED_ROLES:
         raise HTTPException(status_code=403, detail="not authorized to manage this page")
+    enforce_account_erasure_write_fence(session, [user.user_id])
     updates = payload.model_dump(exclude_unset=True)
     if "location_mode" in updates:
         _reject_secret_location(updates["location_mode"])
@@ -656,6 +663,11 @@ def erase_account_data(
 ) -> AccountErasureResponse:
     user_id = payload.user_id
     anonymous_user_id = "deleted-user"
+    artist_profile_ids = set(payload.artist_profile_ids)
+
+    existing_tombstones = acquire_account_erasure_write_fence(session, [user_id])
+    if user_id not in existing_tombstones:
+        session.add(AccountErasureTombstone(user_id=user_id))
 
     def scrub_user_id(value: Any) -> Any:
         if value == user_id:
@@ -673,11 +685,17 @@ def erase_account_data(
     )
     session.execute(delete(EventDoorStaff).where(EventDoorStaff.user_id == user_id))
 
-    session.execute(
-        update(Event)
-        .where(Event.created_by_user_id == user_id)
-        .values(created_by_user_id=anonymous_user_id)
-    )
+    for event in session.scalars(select(Event)):
+        if event.created_by_user_id == user_id:
+            event.created_by_user_id = anonymous_user_id
+            event.poster_media_asset_id = None
+        if artist_profile_ids:
+            event.lineup = [
+                {"name": "Deleted Artist"}
+                if item.get("artist_profile_id") in artist_profile_ids
+                else item
+                for item in event.lineup
+            ]
     session.execute(
         update(EventUpdate)
         .where(EventUpdate.author_user_id == user_id)
@@ -778,6 +796,7 @@ def create_event_update(
     role = users_client.check_page_role(settings, event.page_id, user.user_id)
     if role not in ALLOWED_ROLES:
         raise HTTPException(status_code=403, detail="not authorized to update this event")
+    enforce_account_erasure_write_fence(session, [user.user_id])
     update = EventUpdate(
         event_id=event.id,
         author_user_id=user.user_id,
@@ -1168,6 +1187,7 @@ def assign_door_staff(
     resolved = users_client.get_user_by_username(settings, door_username)
     if resolved is None:
         raise HTTPException(status_code=404, detail="user not found")
+    enforce_account_erasure_write_fence(session, [user.user_id, resolved["user_id"]])
     door_staff, created = _get_or_create_door_staff(
         session,
         event_id=event.id,
@@ -1199,6 +1219,15 @@ def revoke_door_staff(
 ) -> Response:
     event = _get_active_event(session, slug)
     _require_event_manager(event, user.user_id)
+    door_staff_user_id = session.scalar(
+        select(EventDoorStaff.user_id).where(
+            EventDoorStaff.event_id == event.id,
+            EventDoorStaff.id == assignment_id,
+        )
+    )
+    if door_staff_user_id is None:
+        return Response(status_code=204)
+    enforce_account_erasure_write_fence(session, [user.user_id, door_staff_user_id])
     door_staff = session.scalar(
         _door_staff_lock_query(event.id, assignment_id=assignment_id)
     )
@@ -1328,6 +1357,7 @@ def set_guest_quota(
     _require_lineup_artist(event, artist_profile_id)
     if users_client.get_artist_ref(settings, artist_profile_id) is None:
         raise HTTPException(status_code=404, detail="artist profile not found")
+    enforce_account_erasure_write_fence(session, [user.user_id])
     quota = session.scalar(
         select(EventGuestQuota).where(
             EventGuestQuota.event_id == event.id,
@@ -1386,6 +1416,7 @@ def add_guestlist_entry(
     guest_user_id = payload.resolved_user_id
     if not guest_user_id:
         raise HTTPException(status_code=422, detail="guest user id required")
+    enforce_account_erasure_write_fence(session, [user.user_id, guest_user_id])
     entry = session.scalar(
         _guestlist_entry_lock_query(
             event.id,
@@ -1503,6 +1534,7 @@ def remove_guestlist_entry(
 ) -> Response:
     event = _get_active_event(session, slug)
     _require_event_manager(event, user.user_id)
+    enforce_account_erasure_write_fence(session, [user.user_id, guest_user_id])
     entry = session.scalar(_guestlist_entry_lock_query(event.id, guest_user_id))
     if entry is None:
         raise HTTPException(status_code=404, detail="guestlist entry not found")
@@ -1599,7 +1631,6 @@ def check_in_guest(
     session: DbSession,
 ) -> CheckInResponse:
     event = _get_active_event(session, slug)
-    _require_check_in_access(session, event, user.user_id)
     token = session.scalar(
         select(EventCheckInToken).where(
             EventCheckInToken.event_id == event.id,
@@ -1613,6 +1644,8 @@ def check_in_guest(
     entry = session.get(EventGuestlistEntry, token.guestlist_entry_id)
     if entry is None or entry.status != GuestlistEntryStatus.active.value:
         raise HTTPException(status_code=404, detail="guestlist access not found")
+    enforce_account_erasure_write_fence(session, [user.user_id, entry.guest_user_id])
+    _require_check_in_access(session, event, user.user_id)
     now = utc_now()
     if not _claim_guestlist_entry(
         session,
@@ -1659,6 +1692,7 @@ def follow_event(
     slug: str, user: CurrentPrincipal, _: WriteQuota, session: DbSession
 ) -> EventResponse:
     event = _get_active_event(session, slug)
+    enforce_account_erasure_write_fence(session, [user.user_id])
     session.add(EventFollow(event_id=event.id, user_id=user.user_id))
     try:
         session.commit()
@@ -1691,6 +1725,7 @@ def boost_event(
     slug: str, user: CurrentPrincipal, _: WriteQuota, session: DbSession
 ) -> EventResponse:
     event = _get_active_event(session, slug)
+    enforce_account_erasure_write_fence(session, [user.user_id])
     session.add(EventBoost(event_id=event.id, user_id=user.user_id))
     try:
         session.commit()

@@ -14,6 +14,13 @@ def utc_now() -> datetime:
     return datetime.now(UTC)
 
 
+class AccountErasureTombstone(Base):
+    __tablename__ = "account_erasure_tombstones"
+
+    owner_user_id: Mapped[str] = mapped_column(String(150), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
 class MediaAsset(Base):
     __tablename__ = "media_assets"
     __table_args__ = (

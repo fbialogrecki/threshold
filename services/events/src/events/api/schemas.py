@@ -128,6 +128,7 @@ class EventBatchRequest(BaseModel):
 
 class AccountErasureRequest(BaseModel):
     user_id: str = Field(min_length=1, max_length=150)
+    artist_profile_ids: list[str] = Field(default_factory=list, max_length=10)
 
     model_config = ConfigDict(extra="forbid")
 

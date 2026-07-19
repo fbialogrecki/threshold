@@ -29,9 +29,8 @@ export async function GET() {
 }
 
 /**
- * Account deletion (GDPR) -> users DELETE /v1/me. `users` anonymizes the
- * account, revokes sessions and propagates anonymization to `social`, then
- * clears the auth cookies, which we bridge onto the browser.
+ * Account deletion (GDPR) -> users DELETE /v1/me. `users` durably queues the
+ * cross-service erasure, fences the account, and clears the auth cookies.
  */
 export async function DELETE(request: Request) {
   if (!(await assertSameOrigin(request))) {
@@ -45,9 +44,9 @@ export async function DELETE(request: Request) {
 
   const result = await deleteAccount()
   await bridgeAuthCookies(result.setCookies)
-  if (result.status !== 204 && result.status !== 200) {
+  if (result.status !== 202) {
     return Response.json({ error: "account deletion failed" }, { status: 502 })
   }
 
-  return new Response(null, { status: 204 })
+  return new Response(null, { status: 202 })
 }

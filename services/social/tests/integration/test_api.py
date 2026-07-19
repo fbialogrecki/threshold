@@ -1131,7 +1131,14 @@ def test_anonymize_removes_votes_and_emoji(session: Session) -> None:
         action="report.created",
         target_type="user",
         target_id="user-1",
+        metadata_json={
+            "blocked_username": "nightcrawler",
+            "nested": {"target_user_id": "user-1", "safe": "retained"},
+        },
     )
+    authored_post = session.get(Post, post["id"])
+    assert authored_post is not None
+    authored_post.media_asset_ids = ["asset-owned-by-user-1"]
     session.add_all([membership, block, mention, report, audit])
     session.commit()
     membership_id = membership.id
@@ -1160,6 +1167,7 @@ def test_anonymize_removes_votes_and_emoji(session: Session) -> None:
     assert scrubbed_audit is not None
     assert scrubbed_mention is not None
     assert deleted_post.author_user_id == "deleted-user"
+    assert deleted_post.media_asset_ids == []
     assert session.get(GroupMembership, membership_id) is None
     assert session.get(UserBlock, block_id) is None
     assert scrubbed_mention.target_id is None
@@ -1170,6 +1178,10 @@ def test_anonymize_removes_votes_and_emoji(session: Session) -> None:
     assert scrubbed_report.target_id == "deleted-user"
     assert scrubbed_audit.actor_user_id is None
     assert scrubbed_audit.target_id == "deleted-user"
+    assert scrubbed_audit.metadata_json == {
+        "blocked_username": None,
+        "nested": {"target_user_id": None, "safe": "retained"},
+    }
 
 
 def test_owner_can_edit_post_and_comment(session: Session) -> None:

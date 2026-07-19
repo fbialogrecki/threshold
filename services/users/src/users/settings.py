@@ -22,6 +22,9 @@ class Settings(ServiceSettings):
     social_request_timeout_seconds: float = 1.5
     events_request_timeout_seconds: float = 1.5
     media_request_timeout_seconds: float = 1.5
+    account_erasure_worker_enabled: bool = True
+    account_erasure_poll_seconds: float = Field(default=10.0, gt=0)
+    account_erasure_lease_seconds: int = Field(default=120, ge=10)
 
     auth_password_pepper_current: str = "dev-only-users-password-pepper-change-me"
     auth_password_pepper_previous: str | None = None

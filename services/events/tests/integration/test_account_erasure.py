@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 from events.domain.models import (
+    AccountErasureTombstone,
     Event,
     EventAccessAuditLog,
     EventBoost,
@@ -26,6 +27,11 @@ def test_internal_account_erasure_removes_participation_and_anonymizes_attributi
     assert event is not None
     target_user_id = "user-1"
     other_user_id = "user-2"
+    event.poster_media_asset_id = "asset-owned-by-user-1"
+    event.lineup = [
+        {"name": "Delete Me", "artist_profile_id": "artist-user-1"},
+        {"name": "Retained", "artist_profile_id": "artist-user-2"},
+    ]
 
     update = EventUpdate(
         event_id=event.id,
@@ -113,20 +119,32 @@ def test_internal_account_erasure_removes_participation_and_anonymizes_attributi
     first = client.post(
         "/internal/v1/account-erasure",
         headers=TOKEN_HEADERS,
-        json={"user_id": target_user_id},
+        json={"user_id": target_user_id, "artist_profile_ids": ["artist-user-1"]},
     )
     second = client.post(
         "/internal/v1/account-erasure",
         headers=TOKEN_HEADERS,
-        json={"user_id": target_user_id},
+        json={"user_id": target_user_id, "artist_profile_ids": ["artist-user-1"]},
     )
 
     assert first.status_code == 200
     assert first.json() == {"status": "ok"}
     assert second.status_code == 200
     session.expire_all()
-    assert session.get(Event, event_id) is not None
-    assert session.get(Event, event_id).created_by_user_id == "deleted-user"
+    tombstones = session.scalars(
+        select(AccountErasureTombstone).where(
+            AccountErasureTombstone.user_id == target_user_id
+        )
+    ).all()
+    assert len(tombstones) == 1
+    erased_event = session.get(Event, event_id)
+    assert erased_event is not None
+    assert erased_event.created_by_user_id == "deleted-user"
+    assert erased_event.poster_media_asset_id is None
+    assert erased_event.lineup == [
+        {"name": "Deleted Artist"},
+        {"name": "Retained", "artist_profile_id": "artist-user-2"},
+    ]
     assert session.get(EventUpdate, update_id) is not None
     assert session.get(EventUpdate, update_id).body == "The event content remains."
     assert session.get(EventUpdate, update_id).author_user_id == "deleted-user"
@@ -167,3 +185,113 @@ def test_internal_account_erasure_requires_internal_token() -> None:
     )
 
     assert response.status_code == 401
+
+
+def test_erased_user_cannot_create_event(session: Session) -> None:
+    client = TestClient(app)
+    erased = client.post(
+        "/internal/v1/account-erasure",
+        headers=TOKEN_HEADERS,
+        json={"user_id": "erased-creator"},
+    )
+
+    response = client.post(
+        "/v1/events",
+        headers={
+            **TOKEN_HEADERS,
+            "X-Threshold-User-Id": "erased-creator",
+            "X-Threshold-Username": "erased",
+            "X-Threshold-Display-Name": "Erased Creator",
+        },
+        json={
+            "title": "Must Not Exist",
+            "slug": "must-not-exist",
+            "starts_at": "2026-08-15T20:00:00Z",
+            "city": "Berlin",
+            "page_id": "00000000-0000-0000-0000-000000000001",
+        },
+    )
+
+    assert erased.status_code == 200
+    assert response.status_code == 409
+    assert response.json() == {"detail": "account has been erased"}
+    assert session.scalar(select(Event).where(Event.slug == "must-not-exist")) is None
+
+
+def test_guestlist_write_rejects_erased_actor_or_target(session: Session) -> None:
+    client = TestClient(app)
+    for user_id in ("erased-manager", "erased-guest"):
+        response = client.post(
+            "/internal/v1/account-erasure",
+            headers=TOKEN_HEADERS,
+            json={"user_id": user_id},
+        )
+        assert response.status_code == 200
+
+    manager_headers = {
+        **TOKEN_HEADERS,
+        "X-Threshold-User-Id": "user-1",
+        "X-Threshold-Username": "manager",
+        "X-Threshold-Display-Name": "Manager",
+    }
+    erased_manager_headers = {
+        **manager_headers,
+        "X-Threshold-User-Id": "erased-manager",
+    }
+
+    erased_target = client.post(
+        "/v1/events/warehouse-signal/guestlist",
+        headers=manager_headers,
+        json={"user_id": "erased-guest", "display_name": "Erased Guest"},
+    )
+    erased_actor = client.post(
+        "/v1/events/warehouse-signal/guestlist",
+        headers=erased_manager_headers,
+        json={"user_id": "active-guest", "display_name": "Active Guest"},
+    )
+
+    assert erased_target.status_code == 409
+    assert erased_actor.status_code == 409
+    assert session.scalars(
+        select(EventGuestlistEntry).where(
+            EventGuestlistEntry.guest_user_id.in_(["erased-guest", "active-guest"])
+        )
+    ).all() == []
+
+
+def test_erased_actor_cannot_write_update_follow_or_boost(session: Session) -> None:
+    client = TestClient(app)
+    headers = {
+        **TOKEN_HEADERS,
+        "X-Threshold-User-Id": "user-1",
+        "X-Threshold-Username": "manager",
+        "X-Threshold-Display-Name": "Manager",
+    }
+    erased = client.post(
+        "/internal/v1/account-erasure",
+        headers=TOKEN_HEADERS,
+        json={"user_id": "user-1"},
+    )
+
+    responses = [
+        client.patch(
+            "/v1/events/warehouse-signal",
+            headers=headers,
+            json={"title": "must not be retained"},
+        ),
+        client.post(
+            "/v1/events/warehouse-signal/updates",
+            headers=headers,
+            json={"body": "must not be retained"},
+        ),
+        client.post("/v1/events/warehouse-signal/follow", headers=headers),
+        client.post("/v1/events/warehouse-signal/boost", headers=headers),
+    ]
+
+    assert erased.status_code == 200
+    assert [response.status_code for response in responses] == [409, 409, 409, 409]
+    assert session.scalars(
+        select(EventUpdate).where(EventUpdate.author_user_id == "user-1")
+    ).all() == []
+    assert session.scalars(select(EventFollow).where(EventFollow.user_id == "user-1")).all() == []
+    assert session.scalars(select(EventBoost).where(EventBoost.user_id == "user-1")).all() == []
