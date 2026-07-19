@@ -1,9 +1,9 @@
 from collections.abc import Generator
+from pathlib import Path
 
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.pool import StaticPool
 from users.api.routes import reset_auth_rate_limits_for_tests
 from users.db.base import Base
 from users.main_dependencies import override_database, settings
@@ -15,15 +15,15 @@ def configure_test_settings() -> None:
     settings.threshold_internal_token = "test-internal-token"
     settings.auth_rate_limit_count = 120
     settings.auth_rate_limit_window_seconds = 60
+    settings.account_erasure_worker_enabled = False
     reset_auth_rate_limits_for_tests()
 
 
 @pytest.fixture()
-def session() -> Generator[Session]:
+def session(tmp_path: Path) -> Generator[Session]:
     engine = create_engine(
-        "sqlite+pysqlite:///:memory:",
+        f"sqlite+pysqlite:///{tmp_path / 'users.db'}",
         connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
     )
     Base.metadata.create_all(bind=engine)
     factory = sessionmaker(bind=engine, expire_on_commit=False)

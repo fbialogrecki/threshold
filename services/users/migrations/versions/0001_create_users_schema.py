@@ -9,6 +9,7 @@ from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision: str = "0001_create_users_schema"
 down_revision: str | None = None
@@ -17,14 +18,15 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    page_membership_role = sa.Enum(
-        "owner",
-        "admin",
-        "editor",
-        name="page_membership_role",
-        create_type=False,
-    )
-    page_membership_role.create(op.get_bind(), checkfirst=True)
+    if op.get_bind().dialect.name == "postgresql":
+        page_membership_role = postgresql.ENUM(
+            "owner", "admin", "editor", name="page_membership_role", create_type=False
+        )
+        page_membership_role.create(op.get_bind(), checkfirst=True)
+    else:
+        page_membership_role = sa.Enum(
+            "owner", "admin", "editor", name="page_membership_role", native_enum=False
+        )
 
     op.create_table(
         "application_users",

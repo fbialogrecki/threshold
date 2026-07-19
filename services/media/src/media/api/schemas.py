@@ -1,5 +1,17 @@
+from typing import Literal
+
 from media.main_dependencies import settings
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+class AccountErasureRequest(BaseModel):
+    user_id: str = Field(min_length=1, max_length=150)
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class AccountErasureResponse(BaseModel):
+    status: Literal["ok"] = "ok"
 
 
 class MediaAssetCreate(BaseModel):

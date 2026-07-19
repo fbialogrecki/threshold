@@ -107,7 +107,7 @@ class UsersNatsServer:
                         display_name = f.target_handle
                         if target_type in {"consumer", "artist"}:
                             target_user = session.get(ApplicationUser, f.target_id)
-                            if target_user is not None and target_user.status != "deleted":
+                            if target_user is not None and target_user.status == "active":
                                 if (
                                     target_user.consumer_profile is not None
                                     and target_user.consumer_profile.display_name

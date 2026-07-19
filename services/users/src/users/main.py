@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -10,6 +11,7 @@ from threshold_common.http_observability import instrument_http_observability
 from threshold_common.logging import configure_logging
 from threshold_common.telemetry import configure_telemetry, instrument_fastapi
 from users import main_dependencies
+from users.account_erasure import account_erasure_worker
 from users.api.routes import SessionAuthenticationError, _clear_auth_cookies, router
 from users.db.readiness import check_database_ready
 from users.main_dependencies import create_schema_for_local_sqlite, settings
@@ -26,11 +28,17 @@ if settings.environment == "production" and not settings.auth_cookie_secure:
     )
 
 nats_server: UsersNatsServer | None = None
+erasure_worker_task: asyncio.Task[None] | None = None
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    global nats_server
+    global erasure_worker_task, nats_server
+    erasure_stop = asyncio.Event()
+    if settings.account_erasure_worker_enabled:
+        erasure_worker_task = asyncio.create_task(
+            account_erasure_worker(main_dependencies.session_factory, settings, erasure_stop)
+        )
     if settings.nats_enabled:
         nats_server = UsersNatsServer(
             nats_url=settings.nats_url,
@@ -42,6 +50,10 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     try:
         yield
     finally:
+        erasure_stop.set()
+        if erasure_worker_task is not None:
+            await erasure_worker_task
+            erasure_worker_task = None
         if nats_server is not None:
             await nats_server.stop()
             nats_server = None

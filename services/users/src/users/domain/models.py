@@ -34,6 +34,7 @@ class IdentitySource(StrEnum):
 class UserStatus(StrEnum):
     active = "active"
     locked = "locked"
+    erasure_pending = "erasure_pending"
     deleted = "deleted"
 
 
@@ -154,6 +155,40 @@ class ApplicationUser(Base):
     )
     page_memberships: Mapped[list["PageMembership"]] = relationship(back_populates="user")
     sessions: Mapped[list["UserSession"]] = relationship(back_populates="user")
+
+
+class AccountErasureJob(Base):
+    __tablename__ = "account_erasure_jobs"
+    __table_args__ = (
+        Index(
+            "ix_account_erasure_jobs_due",
+            "completed_at",
+            "next_attempt_at",
+            "lease_expires_at",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("application_users.id", ondelete="CASCADE"), unique=True, nullable=False
+    )
+    current_stage: Mapped[str] = mapped_column(String(32), default="social", nullable=False)
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    next_attempt_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, nullable=False
+    )
+    lease_owner: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    lease_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_error: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class UserCredential(Base):

@@ -4,8 +4,9 @@ from collections import defaultdict, deque
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
-from sqlalchemy import delete, func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
+from users.account_erasure import enqueue_account_erasure
 from users.api.schemas import (
     ActiveUserRefResponse,
     ActiveUserRefsRequest,
@@ -78,7 +79,6 @@ from users.domain.models import (
     AuthAuditLog,
     ConsumerProfile,
     ContentReport,
-    EmailVerificationToken,
     Follow,
     NotificationEvent,
     NotificationPreference,
@@ -87,7 +87,6 @@ from users.domain.models import (
     PageMembership,
     PageMembershipRole,
     PageResidency,
-    PasswordResetToken,
     ResidencyStatus,
     SafetyAuditLog,
     UserBlock,
@@ -101,7 +100,6 @@ from users.domain.profiles import (
 from users.events import publish_user_block_changed
 from users.main_dependencies import get_db_session, settings
 from users.media_client import MediaAssetValidationError, validate_avatar_asset
-from users.social_client import anonymize_social_author
 
 router = APIRouter()
 DbSession = Annotated[Session, Depends(get_db_session)]
@@ -147,11 +145,27 @@ class SessionAuthenticationError(HTTPException):
         super().__init__(status_code=401, detail=detail)
 
 
+def _lock_active_user_write_domain(session: Session, user_id: str) -> ApplicationUser:
+    if session.bind is not None and session.bind.dialect.name == "postgresql":
+        session.execute(
+            text("select pg_advisory_xact_lock(hashtextextended(:user_id, 1431520594))"),
+            {"user_id": user_id},
+        )
+    current = session.scalar(
+        select(ApplicationUser)
+        .where(ApplicationUser.id == user_id)
+        .execution_options(populate_existing=True)
+    )
+    if current is None or current.status != "active":
+        raise SessionAuthenticationError("not authenticated")
+    return current
+
+
 def get_current_user(request: Request, session: DbSession) -> ApplicationUser:
     user = get_user_by_session_token(session, settings, request.cookies.get(SESSION_COOKIE))
     if user is None:
         raise SessionAuthenticationError("not authenticated")
-    return user
+    return _lock_active_user_write_domain(session, user.id)
 
 
 ActiveUser = Annotated[ApplicationUser, Depends(get_current_user)]
@@ -626,7 +640,7 @@ def _resolve_report_target(
         user = session.scalar(
             select(ApplicationUser).where(
                 ApplicationUser.username_normalized == normalize_username(target_handle),
-                ApplicationUser.status != "deleted",
+                ApplicationUser.status == "active",
             )
         )
         if user is None:
@@ -802,7 +816,7 @@ def resolve_profile_mention_target(
     user = session.scalar(
         select(ApplicationUser).where(
             ApplicationUser.username_normalized == normalize_username(handle),
-            ApplicationUser.status != "deleted",
+            ApplicationUser.status == "active",
         )
     )
     if user is None:
@@ -855,7 +869,7 @@ def get_internal_artist_reference(
 ) -> ArtistReferenceResponse:
     artist_profile = session.get(ArtistProfile, artist_profile_id)
     user = artist_profile.user if artist_profile is not None else None
-    if user is None or user.status == "deleted" or user.artist_profile is None:
+    if user is None or user.status != "active" or user.artist_profile is None:
         raise HTTPException(status_code=404, detail="artist profile not found")
     ref = _artist_ref(user)
     return ArtistReferenceResponse(
@@ -925,10 +939,12 @@ def create_internal_notification(
     response: Response,
 ) -> NotificationResponse:
     recipient = session.get(ApplicationUser, payload.recipient_user_id)
-    if recipient is None or recipient.status == "deleted":
+    if recipient is None or recipient.status != "active":
         raise HTTPException(status_code=404, detail="recipient not found")
-    if payload.actor_user_id and session.get(ApplicationUser, payload.actor_user_id) is None:
-        raise HTTPException(status_code=404, detail="actor not found")
+    if payload.actor_user_id:
+        actor = session.get(ApplicationUser, payload.actor_user_id)
+        if actor is None or actor.status != "active":
+            raise HTTPException(status_code=404, detail="actor not found")
     dedupe_key = payload.dedupe_key or _default_notification_dedupe_key(
         recipient_user_id=payload.recipient_user_id,
         event_type=payload.type,
@@ -1207,60 +1223,15 @@ def create_or_update_artist_profile(
     return _profile_response(user)
 
 
-@router.delete("/v1/me", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/v1/me", status_code=status.HTTP_202_ACCEPTED)
 def delete_me_account(
     user: ActiveUser,
     response: Response,
     session: DbSession,
 ) -> Response:
-    try:
-        anonymize_social_author(settings, user.id)
-    except Exception as exc:
-        raise HTTPException(
-            status_code=503,
-            detail="account deletion is temporarily unavailable",
-        ) from exc
-
-    now = utc_now()
-    user.status = "deleted"
-    user.deleted_at = now
-
-    user.credential = None
-    user.email = None
-    user.email_normalized = None
-    user.email_verified_at = None
-    user.username = None
-    user.username_normalized = None
-    user.authentik_subject = None
-
-    if user.consumer_profile is not None:
-        user.consumer_profile.display_name = "Deleted User"
-        user.consumer_profile.bio = None
-        user.consumer_profile.avatar_media_asset_id = None
-    else:
-        user.consumer_profile = ConsumerProfile(display_name="Deleted User", bio=None)
-    user.artist_profile = None
-    user.onboarding_preferences = None
-
-    for s in user.sessions:
-        if s.revoked_at is None:
-            s.revoked_at = now
-            s.revoke_reason = "account_deleted"
-
-    session.execute(delete(EmailVerificationToken).where(EmailVerificationToken.user_id == user.id))
-    session.execute(delete(PasswordResetToken).where(PasswordResetToken.user_id == user.id))
-    session.execute(delete(NotificationEvent).where(NotificationEvent.user_id == user.id))
-    session.execute(
-        delete(UserBlock).where(
-            (UserBlock.blocker_user_id == user.id) | (UserBlock.blocked_user_id == user.id)
-        )
-    )
-    session.execute(delete(Follow).where(Follow.follower_user_id == user.id))
-    session.add(user)
-    session.commit()
-
+    enqueue_account_erasure(session, user)
     _clear_auth_cookies(response)
-    response.status_code = status.HTTP_204_NO_CONTENT
+    response.status_code = status.HTTP_202_ACCEPTED
     return response
 
 
@@ -1279,7 +1250,7 @@ def follow_target(
         target_user = session.scalar(
             select(ApplicationUser).where(ApplicationUser.username_normalized == norm_handle)
         )
-        if target_user is None or target_user.status == "deleted":
+        if target_user is None or target_user.status != "active":
             raise HTTPException(status_code=404, detail="target consumer not found")
         target_id = target_user.id
         target_handle = target_user.username or target_handle
@@ -1290,7 +1261,7 @@ def follow_target(
         )
         if (
             target_user is None
-            or target_user.status == "deleted"
+            or target_user.status != "active"
             or target_user.artist_profile is None
         ):
             raise HTTPException(status_code=404, detail="target artist not found")
@@ -1417,7 +1388,7 @@ def get_followed_targets(
         display_name = f.target_handle
         if target_type in {"consumer", "artist"}:
             target_user = session.get(ApplicationUser, f.target_id)
-            if target_user is not None and target_user.status != "deleted":
+            if target_user is not None and target_user.status == "active":
                 if (
                     target_user.consumer_profile is not None
                     and target_user.consumer_profile.display_name
@@ -1452,7 +1423,7 @@ def block_user(
     target = session.scalar(
         select(ApplicationUser).where(
             ApplicationUser.username_normalized == normalize_username(payload.username),
-            ApplicationUser.status != "deleted",
+            ApplicationUser.status == "active",
         )
     )
     if target is None:
@@ -1482,7 +1453,7 @@ def unblock_user(username: str, user: ActiveUser, session: DbSession) -> Respons
     target = session.scalar(
         select(ApplicationUser).where(
             ApplicationUser.username_normalized == normalize_username(username),
-            ApplicationUser.status != "deleted",
+            ApplicationUser.status == "active",
         )
     )
     if target is None:
@@ -1665,7 +1636,7 @@ def get_public_profile(username: str, session: DbSession) -> PublicUserProfileRe
     user = session.scalar(
         select(ApplicationUser).where(
             ApplicationUser.username_normalized == norm_username,
-            ApplicationUser.status != "deleted",
+            ApplicationUser.status == "active",
         )
     )
     if user is None:
@@ -1848,7 +1819,7 @@ def invite_page_residency(
     artist = session.scalar(
         select(ApplicationUser).where(
             ApplicationUser.username_normalized == normalize_username(username),
-            ApplicationUser.status != "deleted",
+            ApplicationUser.status == "active",
         )
     )
     if artist is None or artist.artist_profile is None:
@@ -2067,7 +2038,7 @@ def upsert_page_member(
             ApplicationUser.username_normalized == normalize_username(username)
         )
     )
-    if target is None or target.status == "deleted":
+    if target is None or target.status != "active":
         raise HTTPException(status_code=404, detail="user not found")
     membership = session.scalar(
         select(PageMembership).where(
@@ -2169,7 +2140,7 @@ def search_entities(q: str, session: DbSession, type: str | None = None) -> list
             select(ApplicationUser)
             .outerjoin(ConsumerProfile)
             .where(
-                ApplicationUser.status != "deleted",
+                ApplicationUser.status == "active",
                 (
                     ApplicationUser.username.icontains(q_clean)
                     | ConsumerProfile.display_name.icontains(q_clean)

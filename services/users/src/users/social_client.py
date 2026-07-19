@@ -20,5 +20,5 @@ def anonymize_social_author(settings: Settings, user_id: str) -> None:
         )
         response.raise_for_status()
     except Exception:
-        logger.exception("social anonymize request failed", extra={"user_id": user_id})
+        logger.exception("social anonymize request failed")
         raise

@@ -38,6 +38,7 @@ from social.api.security import (
     require_write_quota,
 )
 from social.domain.models import (
+    AccountErasureTombstone,
     Comment,
     CommentMention,
     CommentReaction,
@@ -53,6 +54,7 @@ from social.domain.models import (
     UserBlock,
     utc_now,
 )
+from social.erasure import fenced_erased_user_ids
 from social.events import publish_event
 from social.main_dependencies import get_db_session, settings
 from social.mentions import MentionCandidate, extract_mention_candidates
@@ -78,6 +80,11 @@ WriteQuota = Annotated[None, Depends(require_write_quota)]
 
 MAX_DISTINCT_EMOJI_PER_POST = 20
 MAX_MENTIONS_PER_ITEM = 10
+
+
+def _fence_user_write(session: Session, *user_ids: str | None) -> None:
+    if fenced_erased_user_ids(session, user_ids):
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="account erased")
 
 
 @router.get("/internal/v1/capabilities", response_model=SocialCapabilitiesResponse)
@@ -636,6 +643,7 @@ def get_group(slug: str, session: DbSession) -> GroupResponse:
 def join_group(
     slug: str, user: CurrentPrincipal, _: WriteQuota, session: DbSession
 ) -> MembershipResponse:
+    _fence_user_write(session, user.user_id)
     group = session.scalar(select(Group).where(Group.slug == slug))
     if group is None:
         raise HTTPException(status_code=404, detail="group not found")
@@ -655,6 +663,7 @@ def join_group(
 def leave_group(
     slug: str, user: CurrentPrincipal, _: WriteQuota, session: DbSession, response: Response
 ) -> Response:
+    _fence_user_write(session, user.user_id)
     group = session.scalar(select(Group).where(Group.slug == slug))
     if group is not None:
         membership = session.scalar(
@@ -687,6 +696,7 @@ def create_event_announcement(
     session: DbSession,
     http_response: Response,
 ) -> EventAnnouncementResponse:
+    _fence_user_write(session, payload.actor_user_id)
     existing = session.scalar(
         select(EventAnnouncement).where(EventAnnouncement.event_id == payload.event_id)
     )
@@ -895,6 +905,11 @@ async def _create_post(
         ):
             raise HTTPException(status_code=403, detail="blocked user cannot mention blocker")
     _validate_post_media_assets(payload.media_asset_ids, user.user_id)
+    _fence_user_write(
+        session,
+        user.user_id,
+        *(mention.recipient_user_id for mention in resolved_mentions),
+    )
     post = Post(
         author_user_id=user.user_id,
         author_username=user.username,
@@ -1001,6 +1016,11 @@ async def update_post(
     _reject_blocked_resolved_mentions(
         session, author_user_id=user.user_id, mentions=resolved_mentions
     )
+    _fence_user_write(
+        session,
+        user.user_id,
+        *(mention.recipient_user_id for mention in resolved_mentions),
+    )
     post.body = payload.body
     post.edited_at = utc_now()
     session.execute(delete(PostMention).where(PostMention.post_id == post.id))
@@ -1027,6 +1047,7 @@ def delete_post(
     user: CurrentPrincipal,
     session: DbSession,
 ) -> Response:
+    _fence_user_write(session, user.user_id)
     post = session.get(Post, post_id)
     if post is None:
         raise HTTPException(status_code=404, detail="post not found")
@@ -1060,6 +1081,11 @@ async def update_comment(
     _reject_blocked_resolved_mentions(
         session, author_user_id=user.user_id, mentions=resolved_mentions
     )
+    _fence_user_write(
+        session,
+        user.user_id,
+        *(mention.recipient_user_id for mention in resolved_mentions),
+    )
     comment.body = payload.body
     comment.edited_at = utc_now()
     session.execute(delete(CommentMention).where(CommentMention.comment_id == comment.id))
@@ -1086,6 +1112,7 @@ def delete_comment(
     user: CurrentPrincipal,
     session: DbSession,
 ) -> Response:
+    _fence_user_write(session, user.user_id)
     comment = session.get(Comment, comment_id)
     if comment is None:
         raise HTTPException(status_code=404, detail="comment not found")
@@ -1193,6 +1220,11 @@ async def create_comment(
     _reject_blocked_resolved_mentions(
         session, author_user_id=user.user_id, mentions=resolved_mentions
     )
+    _fence_user_write(
+        session,
+        user.user_id,
+        *(mention.recipient_user_id for mention in resolved_mentions),
+    )
     comment = _build_comment(post, payload, user)
     session.add(comment)
     _attach_comment_mentions(comment, resolved_mentions)
@@ -1238,6 +1270,7 @@ def vote_post(
     _: WriteQuota,
     session: DbSession,
 ) -> SimpleStatusResponse:
+    _fence_user_write(session, user.user_id)
     _visible_post(session, post_id)
     reaction = session.scalar(
         select(Reaction).where(Reaction.post_id == post_id, Reaction.user_id == user.user_id)
@@ -1249,6 +1282,7 @@ def vote_post(
         except IntegrityError:
             # Concurrent insert won the unique race: update the existing row instead.
             session.rollback()
+            _fence_user_write(session, user.user_id)
             reaction = session.scalar(
                 select(Reaction).where(
                     Reaction.post_id == post_id, Reaction.user_id == user.user_id
@@ -1267,6 +1301,7 @@ def vote_post(
 def remove_post_vote(
     post_id: str, user: CurrentPrincipal, _: WriteQuota, session: DbSession, response: Response
 ) -> Response:
+    _fence_user_write(session, user.user_id)
     _visible_post(session, post_id)
     reaction = session.scalar(
         select(Reaction).where(Reaction.post_id == post_id, Reaction.user_id == user.user_id)
@@ -1286,6 +1321,7 @@ def vote_comment(
     _: WriteQuota,
     session: DbSession,
 ) -> SimpleStatusResponse:
+    _fence_user_write(session, user.user_id)
     _visible_comment(session, comment_id)
     reaction = session.scalar(
         select(CommentReaction).where(
@@ -1299,6 +1335,7 @@ def vote_comment(
             session.commit()
         except IntegrityError:
             session.rollback()
+            _fence_user_write(session, user.user_id)
             reaction = session.scalar(
                 select(CommentReaction).where(
                     CommentReaction.comment_id == comment_id,
@@ -1322,6 +1359,7 @@ def remove_comment_vote(
     session: DbSession,
     response: Response,
 ) -> Response:
+    _fence_user_write(session, user.user_id)
     _visible_comment(session, comment_id)
     reaction = session.scalar(
         select(CommentReaction).where(
@@ -1344,6 +1382,7 @@ def add_emoji_reaction(
     _: WriteQuota,
     session: DbSession,
 ) -> SimpleStatusResponse:
+    _fence_user_write(session, user.user_id)
     _visible_post(session, post_id)
     existing = session.scalar(
         select(PostEmojiReaction).where(
@@ -1379,6 +1418,7 @@ def remove_emoji_reaction(
     response: Response,
     emoji: Annotated[str, Query(min_length=1, max_length=32)],
 ) -> Response:
+    _fence_user_write(session, user.user_id)
     _visible_post(session, post_id)
     reaction = session.scalar(
         select(PostEmojiReaction).where(
@@ -1404,6 +1444,7 @@ def block_user(
 ) -> BlockResponse:
     if blocked_user_id == user.user_id:
         raise HTTPException(status_code=422, detail="cannot block yourself")
+    _fence_user_write(session, user.user_id, blocked_user_id)
     block = _block_row(session, user.user_id, blocked_user_id)
     if block is None:
         block = UserBlock(
@@ -1438,6 +1479,7 @@ def unblock_user(
     session: DbSession,
     response: Response,
 ) -> Response:
+    _fence_user_write(session, user.user_id, blocked_user_id)
     block = _block_row(session, user.user_id, blocked_user_id)
     if block is not None:
         session.delete(block)
@@ -1463,6 +1505,7 @@ def create_report(
     _: WriteQuota,
     session: DbSession,
 ) -> ReportResponse:
+    _fence_user_write(session, user.user_id)
     _ensure_report_target_exists(session, payload)
     report = SafetyReport(
         reporter_user_id=user.user_id,
@@ -1548,6 +1591,7 @@ def decide_report(
     _: WriteQuota,
     session: DbSession,
 ) -> ReportResponse:
+    _fence_user_write(session, user.user_id)
     report = session.get(SafetyReport, report_id)
     if report is None:
         raise HTTPException(status_code=404, detail="report not found")
@@ -1657,15 +1701,81 @@ def search_groups(q: str, session: DbSession) -> list[GroupResponse]:
 
 @router.post("/v1/internal/anonymize-author", response_model=SimpleStatusResponse)
 def anonymize_author(payload: AnonymizeAuthorRequest, session: DbSession) -> SimpleStatusResponse:
+    erased_user_ids = fenced_erased_user_ids(session, [payload.user_id])
+    if payload.user_id not in erased_user_ids:
+        session.add(AccountErasureTombstone(user_id=payload.user_id))
+        session.flush()
+
     posts = session.scalars(select(Post).where(Post.author_user_id == payload.user_id)).all()
     comments = session.scalars(
         select(Comment).where(Comment.author_user_id == payload.user_id)
     ).all()
     items: list[Post | Comment] = [*posts, *comments]
     for item in items:
+        item.author_user_id = "deleted-user"
         item.author_username = "deleted-user"
         item.author_display_name = "Deleted User"
         session.add(item)
+    for post in posts:
+        post.media_asset_ids = []
+
+    session.execute(delete(GroupMembership).where(GroupMembership.user_id == payload.user_id))
+    session.execute(
+        delete(UserBlock).where(
+            (UserBlock.blocker_user_id == payload.user_id)
+            | (UserBlock.blocked_user_id == payload.user_id)
+        )
+    )
+    for mention in session.scalars(
+        select(PostMention).where(PostMention.target_id == payload.user_id)
+    ):
+        mention.target_id = None
+        mention.target_handle = "deleted-user"
+        mention.display_name = "Deleted User"
+        mention.target_url = None
+    for comment_mention in session.scalars(
+        select(CommentMention).where(CommentMention.target_id == payload.user_id)
+    ):
+        comment_mention.target_id = None
+        comment_mention.target_handle = "deleted-user"
+        comment_mention.display_name = "Deleted User"
+        comment_mention.target_url = None
+    for report in session.scalars(
+        select(SafetyReport).where(
+            (SafetyReport.reporter_user_id == payload.user_id)
+            | (SafetyReport.target_id == payload.user_id)
+        )
+    ):
+        if report.reporter_user_id == payload.user_id:
+            report.reporter_user_id = "deleted-user"
+        if report.target_id == payload.user_id:
+            report.target_id = "deleted-user"
+    for audit_log in session.scalars(
+        select(SafetyAuditLog).where(
+            (SafetyAuditLog.actor_user_id == payload.user_id)
+            | (SafetyAuditLog.target_id == payload.user_id)
+        )
+    ):
+        def scrub_audit_metadata(value: Any, key: str | None = None) -> Any:
+            if key and (key.endswith("_username") or key.endswith("_handle")):
+                return None
+            if value == payload.user_id:
+                return None
+            if isinstance(value, dict):
+                return {
+                    item_key: scrub_audit_metadata(item, item_key)
+                    for item_key, item in value.items()
+                }
+            if isinstance(value, list):
+                return [scrub_audit_metadata(item) for item in value]
+            return value
+
+        if audit_log.actor_user_id == payload.user_id:
+            audit_log.actor_user_id = None
+        if audit_log.target_id == payload.user_id:
+            audit_log.target_id = "deleted-user"
+        audit_log.metadata_json = scrub_audit_metadata(audit_log.metadata_json)
+
     # GDPR: votes and emoji reactions are personal data keyed by user_id — hard delete.
     session.execute(delete(Reaction).where(Reaction.user_id == payload.user_id))
     session.execute(delete(CommentReaction).where(CommentReaction.user_id == payload.user_id))

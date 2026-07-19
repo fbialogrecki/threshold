@@ -14,12 +14,17 @@ class Settings(ServiceSettings):
     users_list_following_subject: str = "users.follow.list_following.v1"
     user_block_changed_subject: str = "users.block.changed.v1"
     social_service_url: str | None = None
+    events_service_url: str | None = None
     media_service_url: str | None = None
     threshold_internal_token: str | None = Field(
         default=None, validation_alias="THRESHOLD_INTERNAL_TOKEN"
     )
     social_request_timeout_seconds: float = 1.5
+    events_request_timeout_seconds: float = 1.5
     media_request_timeout_seconds: float = 1.5
+    account_erasure_worker_enabled: bool = True
+    account_erasure_poll_seconds: float = Field(default=10.0, gt=0)
+    account_erasure_lease_seconds: int = Field(default=120, ge=10)
 
     auth_password_pepper_current: str = "dev-only-users-password-pepper-change-me"
     auth_password_pepper_previous: str | None = None
