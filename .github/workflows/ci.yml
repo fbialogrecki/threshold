@@ -44,10 +44,10 @@ jobs:
           echo "${TRIVY_SHA256}  /tmp/${archive}" | sha256sum --check --strict
           tar -xzf "/tmp/${archive}" -C /usr/local/bin trivy
       - run: trivy fs --scanners vuln,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .
-      - run: bash -n .woodpecker/scripts/*.sh
-      - run: .woodpecker/scripts/woodpecker-build-push.sh --self-test
-      - run: .woodpecker/scripts/woodpecker-promote-gitops.sh --self-test
-      - run: python3 -m py_compile .woodpecker/scripts/bump-service-gitops.py
+      - run: bash -n ci/woodpecker/*.sh
+      - run: ci/woodpecker/woodpecker-build-push.sh --self-test
+      - run: ci/woodpecker/woodpecker-promote-gitops.sh --self-test
+      - run: python3 -m py_compile ci/woodpecker/bump-service-gitops.py
 
   containers:
     runs-on: ubuntu-latest

@@ -51,7 +51,7 @@ map_path() {
     libs/py/*|pyproject.toml|uv.lock|.python-version|.woodpecker/python-quality.yml)
       select_backends
       ;;
-    .woodpecker/scripts/woodpecker-build-push.sh|.woodpecker/scripts/woodpecker-promote-gitops.sh|.woodpecker/scripts/bump-service-gitops.py|.woodpecker/release.yml)
+    ci/woodpecker/woodpecker-build-push.sh|ci/woodpecker/woodpecker-promote-gitops.sh|ci/woodpecker/bump-service-gitops.py|.woodpecker/release.yml)
       select_all
       ;;
     .woodpecker/auth-gateway.yml|.woodpecker/events.yml|.woodpecker/media.yml|.woodpecker/social.yml|.woodpecker/users.yml|.woodpecker/web.yml)
@@ -101,7 +101,7 @@ self_test() {
   printf 'libs/py/threshold_common/nats.py\n' > "$tmp/libs-py"
   assert_output libs-py "$tmp/libs-py" $'auth-gateway\nevents\nmedia\nsocial\nusers'
 
-  printf '.woodpecker/scripts/woodpecker-build-push.sh\n' > "$tmp/build-helper"
+  printf 'ci/woodpecker/woodpecker-build-push.sh\n' > "$tmp/build-helper"
   assert_output build-helper "$tmp/build-helper" $'auth-gateway\nevents\nmedia\nsocial\nusers\nweb'
 
   printf '.woodpecker/users.yml\n' > "$tmp/workflow"
@@ -110,7 +110,7 @@ self_test() {
   printf '.woodpecker/python-quality.yml\n' > "$tmp/python-quality"
   assert_output python-quality "$tmp/python-quality" $'auth-gateway\nevents\nmedia\nsocial\nusers'
 
-  for fixture in .woodpecker/scripts/woodpecker-promote-gitops.sh .woodpecker/scripts/bump-service-gitops.py .woodpecker/release.yml; do
+  for fixture in ci/woodpecker/woodpecker-promote-gitops.sh ci/woodpecker/bump-service-gitops.py .woodpecker/release.yml; do
     printf '%s\n' "$fixture" > "$tmp/all-control"
     assert_output "$fixture" "$tmp/all-control" $'auth-gateway\nevents\nmedia\nsocial\nusers\nweb'
   done
