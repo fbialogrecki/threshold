@@ -54,7 +54,7 @@ libs/py/                  Shared Python package
 libs/proto/               Protobuf source schemas
 libs/generated/           Generated Protobuf code
 .github/workflows/         Public GitHub validation
-.woodpecker/               Optional self-hosted validation pipelines
+.woodpecker/               Self-hosted validation and trusted release pipelines
 Taskfile.yml               Local quality command contract
 ----
 
@@ -117,7 +117,11 @@ Focused issues and pull requests are welcome. Keep changes inside the stated MVP
 
 Untrusted pull-request jobs run without release, registry-push, signing, Kubernetes, or GitOps credentials.
 
+The manual trusted release pipeline builds from the exact public commit, pushes immutable image digests, and opens a digest-only change in the private GitOps repository. Product source is never synchronized through a private mirror. Release credentials and environment-specific values are configured only in the trusted Woodpecker installation.
+
 == Security
+
+See link:SECURITY.md[Security Policy] for supported versions, scope, safe harbor, and private reporting instructions.
 
 Do not report suspected vulnerabilities in a public issue. Use GitHub private vulnerability reporting for this repository or the repository owner's verified private contact channel.
 

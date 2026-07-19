@@ -9,6 +9,7 @@ graphify-out/
 /docs/
 /documents/
 *.[mM][dD]
+!/SECURITY.md
 /.audit/
 /reports/
 *.sarif

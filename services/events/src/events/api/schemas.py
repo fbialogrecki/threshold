@@ -126,6 +126,16 @@ class EventBatchRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+class AccountErasureRequest(BaseModel):
+    user_id: str = Field(min_length=1, max_length=150)
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class AccountErasureResponse(BaseModel):
+    status: Literal["ok"] = "ok"
+
+
 EventId = Annotated[str, Field(strict=True, min_length=1, max_length=36)]
 
 

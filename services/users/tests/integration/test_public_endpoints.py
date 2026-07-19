@@ -351,6 +351,8 @@ def test_get_public_profile_not_found(session: Session) -> None:
 def test_get_public_profile_deleted(session: Session, monkeypatch: pytest.MonkeyPatch) -> None:
     client = TestClient(app)
     monkeypatch.setattr("users.api.routes.anonymize_social_author", lambda *_args: None)
+    monkeypatch.setattr("users.api.routes.erase_events_account", lambda *_args: None)
+    monkeypatch.setattr("users.api.routes.erase_media_assets", lambda *_args: None)
 
     # Register and delete
     reg_resp = client.post(

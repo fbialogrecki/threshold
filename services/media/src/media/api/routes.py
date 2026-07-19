@@ -7,6 +7,8 @@ from urllib.parse import unquote
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from media.api.schemas import (
+    AccountErasureRequest,
+    AccountErasureResponse,
     MediaAssetCreate,
     MediaAssetRead,
     MediaAssetValidationRead,
@@ -218,6 +220,39 @@ def read_asset_metadata(
     if asset is None:
         raise HTTPException(status_code=404, detail="asset not found")
     return asset
+
+
+@router.post(
+    "/internal/v1/account-erasure",
+    response_model=AccountErasureResponse,
+    dependencies=[Depends(require_internal_token)],
+)
+def erase_account_data(
+    payload: AccountErasureRequest,
+    session: Annotated[Session, Depends(get_session)],
+    storage: Annotated[ObjectStorage, Depends(get_object_storage)],
+) -> AccountErasureResponse:
+    assets = list(
+        session.scalars(
+            select(MediaAsset)
+            .where(MediaAsset.owner_user_id == payload.user_id)
+            .options(selectinload(MediaAsset.derivatives))
+        )
+    )
+    try:
+        for asset in assets:
+            storage.delete_object(bucket=asset.bucket, key=asset.original_key)
+            for derivative in asset.derivatives:
+                storage.delete_object(bucket=derivative.bucket, key=derivative.object_key)
+    except Exception as exc:
+        session.rollback()
+        logger.exception("media account erasure storage delete failed")
+        raise HTTPException(status_code=503, detail="media storage unavailable") from exc
+
+    for asset in assets:
+        session.delete(asset)
+    session.commit()
+    return AccountErasureResponse()
 
 
 @router.get("/media/assets/{asset_path:path}", dependencies=[Depends(require_internal_token)])

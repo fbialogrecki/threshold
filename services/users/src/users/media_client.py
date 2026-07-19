@@ -1,12 +1,31 @@
+import logging
 from dataclasses import dataclass
 
 import httpx
 
 from users.settings import Settings
 
+logger = logging.getLogger(__name__)
+
 
 class MediaAssetValidationError(Exception):
     pass
+
+
+def erase_media_assets(settings: Settings, user_id: str) -> None:
+    if not settings.media_service_url or not settings.threshold_internal_token:
+        raise RuntimeError("media erasure config is missing")
+    try:
+        response = httpx.post(
+            f"{settings.media_service_url.rstrip('/')}/internal/v1/account-erasure",
+            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token},
+            json={"user_id": user_id},
+            timeout=settings.media_request_timeout_seconds,
+        )
+        response.raise_for_status()
+    except Exception:
+        logger.exception("media account erasure request failed")
+        raise
 
 
 @dataclass(frozen=True)

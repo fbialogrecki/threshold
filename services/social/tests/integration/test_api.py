@@ -5,7 +5,9 @@ from social.api import routes
 from social.domain.models import (
     EventAnnouncement,
     Group,
+    GroupMembership,
     Post,
+    PostMention,
     SafetyAuditLog,
     SafetyReport,
     UserBlock,
@@ -1106,6 +1108,38 @@ def test_anonymize_removes_votes_and_emoji(session: Session) -> None:
     )
     client.put(f"/v1/posts/{post['id']}/emoji", headers=USER_HEADERS, json={"emoji": "🖤"})
 
+    group = session.scalar(select(Group).where(Group.slug == "techno-warsaw"))
+    assert group is not None
+    membership = GroupMembership(group_id=group.id, user_id="user-1")
+    block = UserBlock(blocker_user_id="user-1", blocked_user_id="user-2")
+    mention = PostMention(
+        post_id=post["id"],
+        mention_type="profile",
+        target_handle="nightcrawler",
+        target_id="user-1",
+        display_name="Night Crawler",
+        target_url="/nightcrawler",
+    )
+    report = SafetyReport(
+        reporter_user_id="user-1",
+        target_type="user",
+        target_id="user-1",
+        reason="test",
+    )
+    audit = SafetyAuditLog(
+        actor_user_id="user-1",
+        action="report.created",
+        target_type="user",
+        target_id="user-1",
+    )
+    session.add_all([membership, block, mention, report, audit])
+    session.commit()
+    membership_id = membership.id
+    block_id = block.id
+    mention_id = mention.id
+    report_id = report.id
+    audit_id = audit.id
+
     anonymized = client.post(
         "/v1/internal/anonymize-author", headers=TOKEN_HEADERS, json={"user_id": "user-1"}
     )
@@ -1116,6 +1150,26 @@ def test_anonymize_removes_votes_and_emoji(session: Session) -> None:
     assert body["emoji_reactions"] == []
     comments = client.get(f"/v1/posts/{post['id']}/comments", headers=USER_HEADERS).json()
     assert comments[0]["down_count"] == 0
+    session.expire_all()
+    deleted_post = session.get(Post, post["id"])
+    scrubbed_report = session.get(SafetyReport, report_id)
+    scrubbed_audit = session.get(SafetyAuditLog, audit_id)
+    scrubbed_mention = session.get(PostMention, mention_id)
+    assert deleted_post is not None
+    assert scrubbed_report is not None
+    assert scrubbed_audit is not None
+    assert scrubbed_mention is not None
+    assert deleted_post.author_user_id == "deleted-user"
+    assert session.get(GroupMembership, membership_id) is None
+    assert session.get(UserBlock, block_id) is None
+    assert scrubbed_mention.target_id is None
+    assert scrubbed_mention.target_handle == "deleted-user"
+    assert scrubbed_mention.display_name == "Deleted User"
+    assert scrubbed_mention.target_url is None
+    assert scrubbed_report.reporter_user_id == "deleted-user"
+    assert scrubbed_report.target_id == "deleted-user"
+    assert scrubbed_audit.actor_user_id is None
+    assert scrubbed_audit.target_id == "deleted-user"
 
 
 def test_owner_can_edit_post_and_comment(session: Session) -> None:

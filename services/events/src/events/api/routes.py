@@ -4,9 +4,11 @@ import hashlib
 import secrets
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Annotated
+from typing import Annotated, Any
 
 from events.api.schemas import (
+    AccountErasureRequest,
+    AccountErasureResponse,
     CheckInRequest,
     CheckInResponse,
     CheckInTokenResponse,
@@ -54,7 +56,7 @@ from events.domain.models import (
 from events.main_dependencies import get_db_session, settings
 from events.settings import Settings
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response, status
-from sqlalchemy import Select, String, and_, false, func, or_, select, update
+from sqlalchemy import Select, String, and_, delete, false, func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import ColumnElement
@@ -645,6 +647,79 @@ def get_events_batch(payload: EventBatchRequest, session: DbSession) -> list[Eve
         boost_counts={event.id: boosts for event, _, boosts in rows},
         enrich_lineup=False,
     )
+
+
+@router.post("/internal/v1/account-erasure", response_model=AccountErasureResponse)
+def erase_account_data(
+    payload: AccountErasureRequest,
+    session: DbSession,
+) -> AccountErasureResponse:
+    user_id = payload.user_id
+    anonymous_user_id = "deleted-user"
+
+    def scrub_user_id(value: Any) -> Any:
+        if value == user_id:
+            return None
+        if isinstance(value, dict):
+            return {key: scrub_user_id(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [scrub_user_id(item) for item in value]
+        return value
+
+    session.execute(delete(EventFollow).where(EventFollow.user_id == user_id))
+    session.execute(delete(EventBoost).where(EventBoost.user_id == user_id))
+    session.execute(
+        delete(EventGuestlistEntry).where(EventGuestlistEntry.guest_user_id == user_id)
+    )
+    session.execute(delete(EventDoorStaff).where(EventDoorStaff.user_id == user_id))
+
+    session.execute(
+        update(Event)
+        .where(Event.created_by_user_id == user_id)
+        .values(created_by_user_id=anonymous_user_id)
+    )
+    session.execute(
+        update(EventUpdate)
+        .where(EventUpdate.author_user_id == user_id)
+        .values(author_user_id=anonymous_user_id)
+    )
+    session.execute(
+        update(EventGuestlistEntry)
+        .where(EventGuestlistEntry.added_by_user_id == user_id)
+        .values(added_by_user_id=anonymous_user_id)
+    )
+    session.execute(
+        update(EventGuestlistEntry)
+        .where(EventGuestlistEntry.checked_in_by_user_id == user_id)
+        .values(checked_in_by_user_id=None)
+    )
+    session.execute(
+        update(EventGuestQuota)
+        .where(EventGuestQuota.assigned_by_user_id == user_id)
+        .values(assigned_by_user_id=anonymous_user_id)
+    )
+    session.execute(
+        update(EventDoorStaff)
+        .where(EventDoorStaff.assigned_by_user_id == user_id)
+        .values(assigned_by_user_id=anonymous_user_id)
+    )
+    session.execute(
+        update(EventAccessAuditLog)
+        .where(EventAccessAuditLog.actor_user_id == user_id)
+        .values(actor_user_id=None)
+    )
+    session.execute(
+        update(EventAccessAuditLog)
+        .where(EventAccessAuditLog.target_id == user_id)
+        .values(target_id=anonymous_user_id)
+    )
+    for audit_log in session.scalars(select(EventAccessAuditLog)):
+        scrubbed = scrub_user_id(audit_log.metadata_json)
+        if scrubbed != audit_log.metadata_json:
+            audit_log.metadata_json = scrubbed
+
+    session.commit()
+    return AccountErasureResponse()
 
 
 @router.get("/v1/events/{slug}", response_model=EventResponse)

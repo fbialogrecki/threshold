@@ -1,0 +1,44 @@
+when:
+  - event: manual
+
+steps:
+  build-images:
+    image: quay.io/buildah/stable@sha256:ca4edbaabf71ca330ec9b2714bf8e06c726a6e85ae215cfb1474d2e2c832aacb
+    environment:
+      STORAGE_DRIVER: vfs
+      BUILDAH_ISOLATION: chroot
+    commands:
+      - .woodpecker/scripts/woodpecker-build-push.sh auth-gateway services/auth-gateway/Dockerfile .
+      - .woodpecker/scripts/woodpecker-build-push.sh events services/events/Dockerfile .
+      - .woodpecker/scripts/woodpecker-build-push.sh media services/media/Dockerfile .
+      - .woodpecker/scripts/woodpecker-build-push.sh social services/social/Dockerfile .
+      - .woodpecker/scripts/woodpecker-build-push.sh users services/users/Dockerfile .
+      - .woodpecker/scripts/woodpecker-build-push.sh web apps/web/Dockerfile apps/web
+    backend_options:
+      kubernetes:
+        serviceAccountName: woodpecker-harbor-ci-reader
+        resources:
+          requests:
+            cpu: "1"
+            memory: 2Gi
+          limits:
+            cpu: "4"
+            memory: 6Gi
+
+  promote-gitops:
+    image: python:3.13-alpine
+    depends_on:
+      - build-images
+    commands:
+      - apk add --no-cache bash git curl
+      - .woodpecker/scripts/woodpecker-promote-gitops.sh
+    backend_options:
+      kubernetes:
+        serviceAccountName: woodpecker-github-writer-reader
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi

@@ -1663,9 +1663,53 @@ def anonymize_author(payload: AnonymizeAuthorRequest, session: DbSession) -> Sim
     ).all()
     items: list[Post | Comment] = [*posts, *comments]
     for item in items:
+        item.author_user_id = "deleted-user"
         item.author_username = "deleted-user"
         item.author_display_name = "Deleted User"
         session.add(item)
+
+    session.execute(delete(GroupMembership).where(GroupMembership.user_id == payload.user_id))
+    session.execute(
+        delete(UserBlock).where(
+            (UserBlock.blocker_user_id == payload.user_id)
+            | (UserBlock.blocked_user_id == payload.user_id)
+        )
+    )
+    for mention in session.scalars(
+        select(PostMention).where(PostMention.target_id == payload.user_id)
+    ):
+        mention.target_id = None
+        mention.target_handle = "deleted-user"
+        mention.display_name = "Deleted User"
+        mention.target_url = None
+    for comment_mention in session.scalars(
+        select(CommentMention).where(CommentMention.target_id == payload.user_id)
+    ):
+        comment_mention.target_id = None
+        comment_mention.target_handle = "deleted-user"
+        comment_mention.display_name = "Deleted User"
+        comment_mention.target_url = None
+    for report in session.scalars(
+        select(SafetyReport).where(
+            (SafetyReport.reporter_user_id == payload.user_id)
+            | (SafetyReport.target_id == payload.user_id)
+        )
+    ):
+        if report.reporter_user_id == payload.user_id:
+            report.reporter_user_id = "deleted-user"
+        if report.target_id == payload.user_id:
+            report.target_id = "deleted-user"
+    for audit_log in session.scalars(
+        select(SafetyAuditLog).where(
+            (SafetyAuditLog.actor_user_id == payload.user_id)
+            | (SafetyAuditLog.target_id == payload.user_id)
+        )
+    ):
+        if audit_log.actor_user_id == payload.user_id:
+            audit_log.actor_user_id = None
+        if audit_log.target_id == payload.user_id:
+            audit_log.target_id = "deleted-user"
+
     # GDPR: votes and emoji reactions are personal data keyed by user_id — hard delete.
     session.execute(delete(Reaction).where(Reaction.user_id == payload.user_id))
     session.execute(delete(CommentReaction).where(CommentReaction.user_id == payload.user_id))

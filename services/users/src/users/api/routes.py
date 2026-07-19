@@ -99,8 +99,9 @@ from users.domain.profiles import (
     update_onboarding_preferences,
 )
 from users.events import publish_user_block_changed
+from users.events_client import erase_events_account
 from users.main_dependencies import get_db_session, settings
-from users.media_client import MediaAssetValidationError, validate_avatar_asset
+from users.media_client import MediaAssetValidationError, erase_media_assets, validate_avatar_asset
 from users.social_client import anonymize_social_author
 
 router = APIRouter()
@@ -1215,6 +1216,8 @@ def delete_me_account(
 ) -> Response:
     try:
         anonymize_social_author(settings, user.id)
+        erase_events_account(settings, user.id)
+        erase_media_assets(settings, user.id)
     except Exception as exc:
         raise HTTPException(
             status_code=503,
@@ -1222,6 +1225,7 @@ def delete_me_account(
         ) from exc
 
     now = utc_now()
+    deleted_username = user.username
     user.status = "deleted"
     user.deleted_at = now
 
@@ -1249,13 +1253,47 @@ def delete_me_account(
 
     session.execute(delete(EmailVerificationToken).where(EmailVerificationToken.user_id == user.id))
     session.execute(delete(PasswordResetToken).where(PasswordResetToken.user_id == user.id))
-    session.execute(delete(NotificationEvent).where(NotificationEvent.user_id == user.id))
+    session.execute(
+        delete(NotificationEvent).where(
+            (NotificationEvent.user_id == user.id)
+            | (NotificationEvent.actor_user_id == user.id)
+        )
+    )
     session.execute(
         delete(UserBlock).where(
             (UserBlock.blocker_user_id == user.id) | (UserBlock.blocked_user_id == user.id)
         )
     )
-    session.execute(delete(Follow).where(Follow.follower_user_id == user.id))
+    session.execute(
+        delete(Follow).where(
+            (Follow.follower_user_id == user.id) | (Follow.target_id == user.id)
+        )
+    )
+    for report in session.scalars(
+        select(ContentReport).where(
+            (ContentReport.reporter_user_id == user.id)
+            | (ContentReport.target_id == user.id)
+        )
+    ):
+        if report.reporter_user_id == user.id:
+            report.reporter_user_id = None
+        if report.target_id == user.id:
+            report.target_id = "deleted-user"
+            report.target_handle = "deleted-user"
+    for audit_log in session.scalars(
+        select(SafetyAuditLog).where(
+            (SafetyAuditLog.actor_user_id == user.id)
+            | (SafetyAuditLog.target_id == user.id)
+        )
+    ):
+        if audit_log.actor_user_id == user.id:
+            audit_log.actor_user_id = None
+        if audit_log.target_id == user.id:
+            audit_log.target_id = "deleted-user"
+        audit_log.metadata_json = {
+            key: None if value in {user.id, deleted_username} else value
+            for key, value in audit_log.metadata_json.items()
+        }
     session.add(user)
     session.commit()
 

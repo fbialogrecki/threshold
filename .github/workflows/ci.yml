@@ -13,6 +13,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+      - name: Install Gitleaks
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl --fail --silent --show-error --location \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}" \
+            --output "/tmp/${archive}"
+          echo "${GITLEAKS_SHA256}  /tmp/${archive}" | sha256sum --check --strict
+          tar -xzf "/tmp/${archive}" -C /usr/local/bin gitleaks
+      - run: gitleaks git --redact --verbose
+      - name: Install Trivy
+        env:
+          TRIVY_VERSION: 0.72.0
+          TRIVY_SHA256: bbb64b9695866ce4a7a8f5c9592002c5961cab378577fa3f8a040df362b9b2ea
+        run: |
+          archive="trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          curl --fail --silent --show-error --location \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/${archive}" \
+            --output "/tmp/${archive}"
+          echo "${TRIVY_SHA256}  /tmp/${archive}" | sha256sum --check --strict
+          tar -xzf "/tmp/${archive}" -C /usr/local/bin trivy
+      - run: trivy fs --scanners vuln,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .
+      - run: bash -n .woodpecker/scripts/*.sh
+      - run: .woodpecker/scripts/woodpecker-build-push.sh --self-test
+      - run: .woodpecker/scripts/woodpecker-promote-gitops.sh --self-test
+      - run: python3 -m py_compile .woodpecker/scripts/bump-service-gitops.py
+
   python:
     runs-on: ubuntu-latest
     timeout-minutes: 20

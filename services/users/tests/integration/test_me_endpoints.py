@@ -4,11 +4,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from users.domain.models import (
     ApplicationUser,
+    ContentReport,
     EmailVerificationToken,
     Follow,
     NotificationEvent,
     Page,
     PasswordResetToken,
+    SafetyAuditLog,
     UserSession,
 )
 from users.main import app
@@ -169,10 +171,19 @@ def test_post_me_artist_invalid_links(session: Session) -> None:
 
 def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
     client, user_id = _get_authenticated_client(session, "delete@example.test", "deleteuser")
-    anonymized_ids: list[str] = []
+    _, other_user_id = _get_authenticated_client(session, "other@example.test", "otheruser")
+    erasure_calls: list[tuple[str, str]] = []
     monkeypatch.setattr(
         "users.api.routes.anonymize_social_author",
-        lambda _settings, called_user_id: anonymized_ids.append(called_user_id),
+        lambda _settings, called_user_id: erasure_calls.append(("social", called_user_id)),
+    )
+    monkeypatch.setattr(
+        "users.api.routes.erase_events_account",
+        lambda _settings, called_user_id: erasure_calls.append(("events", called_user_id)),
+    )
+    monkeypatch.setattr(
+        "users.api.routes.erase_media_assets",
+        lambda _settings, called_user_id: erasure_calls.append(("media", called_user_id)),
     )
 
     # Add artist profile & preferences to check they aren't completely broken
@@ -186,16 +197,54 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
     )
     client.put("/v1/me/onboarding", json={"city": "Berlin", "preferred_scenes": "Techno"})
     client.post("/v1/auth/password/reset/request", json={"email": "delete@example.test"})
-    session.add(
-        NotificationEvent(
-            user_id=user_id,
-            event_type="follow.created",
-            target_type="user",
-            target_id="actor-1",
-            title="Someone followed you",
-        )
+    notification_from_deleted = NotificationEvent(
+        user_id=other_user_id,
+        actor_user_id=user_id,
+        event_type="follow.created",
+        target_type="user",
+        target_id=user_id,
+        title="Delete User followed you",
+    )
+    target_follow = Follow(
+        follower_user_id=other_user_id,
+        target_type="consumer",
+        target_id=user_id,
+        target_handle="deleteuser",
+    )
+    report = ContentReport(
+        reporter_user_id=user_id,
+        target_type="profile",
+        target_id=user_id,
+        target_handle="deleteuser",
+        reason="test",
+    )
+    audit = SafetyAuditLog(
+        actor_user_id=user_id,
+        action="report.created",
+        target_type="profile",
+        target_id=user_id,
+        metadata_json={"user_id": user_id, "username": "deleteuser"},
+    )
+    session.add_all(
+        [
+            NotificationEvent(
+                user_id=user_id,
+                event_type="follow.created",
+                target_type="user",
+                target_id="actor-1",
+                title="Someone followed you",
+            ),
+            notification_from_deleted,
+            target_follow,
+            report,
+            audit,
+        ]
     )
     session.commit()
+    notification_from_deleted_id = notification_from_deleted.id
+    target_follow_id = target_follow.id
+    report_id = report.id
+    audit_id = audit.id
 
     # Perform DELETE /v1/me
     response = client.delete("/v1/me")
@@ -232,17 +281,69 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
         session.scalars(select(NotificationEvent).where(NotificationEvent.user_id == user_id)).all()
         == []
     )
+    assert session.get(NotificationEvent, notification_from_deleted_id) is None
+    assert session.get(Follow, target_follow_id) is None
+    scrubbed_report = session.get(ContentReport, report_id)
+    scrubbed_audit = session.get(SafetyAuditLog, audit_id)
+    assert scrubbed_report is not None
+    assert scrubbed_report.reporter_user_id is None
+    assert scrubbed_report.target_id == "deleted-user"
+    assert scrubbed_report.target_handle == "deleted-user"
+    assert scrubbed_audit is not None
+    assert scrubbed_audit.actor_user_id is None
+    assert scrubbed_audit.target_id == "deleted-user"
+    assert scrubbed_audit.metadata_json == {"user_id": None, "username": None}
 
     # Verify all sessions are revoked
     sessions = session.scalars(select(UserSession).where(UserSession.user_id == user_id)).all()
     for s in sessions:
         assert s.revoked_at is not None
         assert s.revoke_reason == "account_deleted"
-    assert anonymized_ids == [user_id]
+    assert erasure_calls == [
+        ("social", user_id),
+        ("events", user_id),
+        ("media", user_id),
+    ]
 
     # Try GET /v1/auth/me should return 401
     get_me = client.get("/v1/auth/me")
     assert get_me.status_code == 401
+
+
+def test_delete_me_fails_closed_before_local_anonymization(
+    session: Session,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    client, user_id = _get_authenticated_client(
+        session, "delete-failure@example.test", "deletefailure"
+    )
+    calls: list[str] = []
+
+    def social_erasure(_settings: object, _user_id: str) -> None:
+        calls.append("social")
+
+    def events_erasure(_settings: object, _user_id: str) -> None:
+        calls.append("events")
+        raise RuntimeError("events unavailable")
+
+    def media_erasure(_settings: object, _user_id: str) -> None:
+        calls.append("media")
+
+    monkeypatch.setattr("users.api.routes.anonymize_social_author", social_erasure)
+    monkeypatch.setattr("users.api.routes.erase_events_account", events_erasure)
+    monkeypatch.setattr("users.api.routes.erase_media_assets", media_erasure)
+
+    response = client.delete("/v1/me")
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "account deletion is temporarily unavailable"}
+    assert calls == ["social", "events"]
+    session.expire_all()
+    user = session.get(ApplicationUser, user_id)
+    assert user is not None
+    assert user.status == "active"
+    assert user.email == "delete-failure@example.test"
+    assert user.deleted_at is None
 
 
 def test_follow_and_unfollow_endpoints(session: Session) -> None:
