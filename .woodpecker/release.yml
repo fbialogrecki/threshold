@@ -24,12 +24,12 @@ steps:
       HARBOR_CA_SHA256:
         from_secret: release_harbor_ca_sha256
     commands:
-      - .woodpecker/scripts/woodpecker-build-push.sh auth-gateway services/auth-gateway/Dockerfile .
-      - .woodpecker/scripts/woodpecker-build-push.sh events services/events/Dockerfile .
-      - .woodpecker/scripts/woodpecker-build-push.sh media services/media/Dockerfile .
-      - .woodpecker/scripts/woodpecker-build-push.sh social services/social/Dockerfile .
-      - .woodpecker/scripts/woodpecker-build-push.sh users services/users/Dockerfile .
-      - .woodpecker/scripts/woodpecker-build-push.sh web apps/web/Dockerfile apps/web
+      - ci/woodpecker/woodpecker-build-push.sh auth-gateway services/auth-gateway/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh events services/events/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh media services/media/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh social services/social/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh users services/users/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh web apps/web/Dockerfile apps/web
     backend_options:
       kubernetes:
         resources:
@@ -57,7 +57,7 @@ steps:
         from_secret: release_image_registry
     commands:
       - apk add --no-cache bash git curl
-      - .woodpecker/scripts/woodpecker-promote-gitops.sh
+      - ci/woodpecker/woodpecker-promote-gitops.sh
     backend_options:
       kubernetes:
         resources:
