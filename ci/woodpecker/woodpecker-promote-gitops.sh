@@ -79,7 +79,7 @@ assert_output() {
 }
 
 self_test() {
-  local tmp output
+  local tmp output resolved_digest_dir
   export GITOPS_REPO_SLUG=test/threshold-gitops
   export GITOPS_REPO_URL=https://github.com/test/threshold-gitops.git
   export IMAGE_REGISTRY=registry.example.test/threshold
@@ -139,6 +139,9 @@ self_test() {
   for app in "${APPLICATIONS[@]}"; do
     printf '%s\n' 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' > "$tmp/digests/$app.digest"
   done
+  resolved_digest_dir=$(cd "$tmp" && resolve_digest_dir digests)
+  [[ "$resolved_digest_dir" == "$tmp/digests" ]] ||
+    die "self-test failed: relative digest directory was not anchored to the workspace"
   printf 'service-account-token\n' > "$tmp/token"
   printf 'woodpecker-release\n' > "$tmp/namespace"
   : > "$tmp/ca"
@@ -282,6 +285,14 @@ EOF
 
 promotion_tmp=
 git_credentials_file=
+image_digest_dir=
+
+resolve_digest_dir() {
+  case "$1" in
+    /*) printf '%s\n' "$1" ;;
+    *) printf '%s/%s\n' "$PWD" "$1" ;;
+  esac
+}
 
 cleanup() {
   [[ -z "$promotion_tmp" ]] || rm -rf -- "$promotion_tmp"
@@ -385,6 +396,8 @@ trap cleanup EXIT
 promotion_tmp=$(mktemp -d)
 git_credentials_file="$promotion_tmp/git-credentials"
 [[ -f "$BUMP_HELPER" ]] || die "Missing release bump helper: $BUMP_HELPER"
+image_digest_dir=$(resolve_digest_dir "$IMAGE_DIGEST_DIR")
+[[ -d "$image_digest_dir" ]] || die "Missing image digest directory: $image_digest_dir"
 load_release_config
 configure_credentials
 
@@ -436,7 +449,7 @@ promote_attempt() {
       }
       allowed_targets["$target"]=1
       targets+=("$target")
-      digest=$(<"$IMAGE_DIGEST_DIR/$app.digest") || exit 1
+      digest=$(<"$image_digest_dir/$app.digest") || exit 1
       [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || {
         echo "Missing or invalid digest for $app" >&2
         exit 1
