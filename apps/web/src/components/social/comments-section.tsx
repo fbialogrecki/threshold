@@ -445,9 +445,11 @@ export function CommentsSection({
     else segments.push({ depth: row.depth, rows: [row] })
   }
 
+  // Half indent below sm: at 390px the full ladder leaves too little width and
+  // the deepest identity row wraps its name away from its timestamp.
   const INDENT: Record<number, string> = {
-    1: "ml-8 border-l border-border-gray pl-3",
-    2: "ml-16 border-l border-border-gray pl-3",
+    1: "ml-4 border-l border-border-gray pl-3 sm:ml-8",
+    2: "ml-8 border-l border-border-gray pl-3 sm:ml-16",
   }
 
   function renderRow(row: Row): ReactNode {
