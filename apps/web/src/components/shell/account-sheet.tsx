@@ -95,7 +95,7 @@ export function AccountSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="absolute inset-x-0 bottom-0 border-t-2 border-acid bg-pitch pb-[env(safe-area-inset-bottom)]"
+        className="absolute inset-x-0 bottom-0 overscroll-contain border-t-2 border-acid bg-pitch pb-[env(safe-area-inset-bottom)]"
       >
         <div className="flex items-center justify-between border-b border-border-gray px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">

@@ -158,7 +158,7 @@ export default async function PageProfileView({
                   <a
                     key={resident.handle}
                     href={`/u/${resident.handle}`}
-                    className="font-mono text-xs uppercase tracking-label text-cyan hover:underline"
+                    className="font-mono text-xs uppercase tracking-label text-raw-white hover:text-acid"
                   >
                     {resident.displayName} / {t("confirmed")}
                   </a>
@@ -181,7 +181,7 @@ export default async function PageProfileView({
                     href={link.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-mono text-xs uppercase tracking-label text-cyan hover:underline"
+                    className="font-mono text-xs uppercase tracking-label text-raw-white hover:text-acid"
                   >
                     {link.label} ↗
                   </a>

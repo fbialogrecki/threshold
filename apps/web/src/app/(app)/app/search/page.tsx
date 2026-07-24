@@ -1,10 +1,4 @@
-import {
-  Buildings,
-  CalendarDots,
-  MagnifyingGlass,
-  UserCircle,
-  UsersThree,
-} from "@phosphor-icons/react/ssr"
+import { Buildings, CalendarDots, UserCircle, UsersThree } from "@phosphor-icons/react/ssr"
 import type { Metadata } from "next"
 import { getLocale, getTranslations } from "next-intl/server"
 import Link from "next/link"
@@ -60,14 +54,8 @@ export default async function SearchPage({
   const suggestions = searchSuggestions()
 
   return (
-    <div className="flex flex-col gap-6">
-      <header className="border-b border-border-gray pb-4">
-        <h1 className="flex items-center gap-3 font-display text-4xl tracking-wide text-raw-white">
-          <MagnifyingGlass size={34} weight="bold" aria-hidden />
-          {t("title")}
-        </h1>
-        <MonoLabel tone="muted" className="mt-1 block">{t("subtitle")}</MonoLabel>
-      </header>
+    <div className="flex flex-col gap-5">
+      <h1 className="sr-only">{t("title")}</h1>
       <SearchBar initialQuery={q} />
 
       <nav aria-label={t("filterLabel")} className="flex flex-wrap gap-1">
@@ -141,15 +129,15 @@ export default async function SearchPage({
                   {t(`groups.${group.id}`)}
                 </span>
               </MonoLabel>
-              <ul className="divide-y divide-border-gray border border-border-gray bg-graphite">
+              <ul className="divide-y divide-border-gray border border-border-gray">
                 {group.items.map((result) => (
                   <li key={`${result.type}-${result.href}`}>
                     <Link
                       href={result.href}
-                      className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-raised"
+                      className="flex items-center justify-between gap-4 px-4 py-3 hover:text-acid"
                     >
                       <span>
-                        <span className="font-display text-lg tracking-wide text-raw-white">
+                        <span className="font-display text-lg text-raw-white">
                           {result.title}
                         </span>
                         <span className="ml-2 font-mono text-[11px] uppercase tracking-label text-muted">

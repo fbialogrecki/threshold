@@ -88,15 +88,16 @@ export default async function GroupDetailPage({
           </span>
         </Link>
 
-        <header className="mt-6 flex flex-col gap-4 border-b border-border-gray pb-6 sm:flex-row sm:items-start sm:justify-between">
+        <header className="mt-6 flex flex-col gap-4 border-b border-border-gray pb-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <span className="flex items-center gap-2">
-              <h1 className="font-display text-5xl tracking-wide">{group.name}</h1>
+              <h1 className="font-display text-4xl">{group.name}</h1>
               {group.official ? <MonoLabel tone="acid">{t("official")}</MonoLabel> : null}
             </span>
-            <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-violet">
+            {/* City and scene are metadata, not a status: no hue. */}
+            <MonoLabel size="sm" className="mt-1 block">
               {[cityLabel(group.city, locale), group.sceneTag].filter(Boolean).join(" / ")}
-            </p>
+            </MonoLabel>
           </div>
           <JoinButton slug={group.slug} isAuthenticated initialJoined={joined} />
         </header>
@@ -107,20 +108,19 @@ export default async function GroupDetailPage({
           </div>
         ) : null}
 
-        <div className="mt-6 flex flex-col gap-4">
+        <div className="mt-6">
           {postResult.items.length === 0 ? (
-            <div className="border border-dashed border-border-gray bg-graphite p-8">
-              <h2 className="font-display text-2xl tracking-wide text-dim-white">
-                {t("emptyTitle")}
-              </h2>
-              <p className="mt-2 max-w-md text-sm leading-7 text-muted">
-                {joined
-                  ? t("emptyJoined")
-                  : t("emptyNotJoined")}
-              </p>
-            </div>
+            <EmptyState
+              title={t("emptyTitle")}
+              body={joined ? t("emptyJoined") : t("emptyNotJoined")}
+              eyebrow={t("emptyEyebrow")}
+            />
           ) : (
-            postResult.items.map((post) => <PostCard key={post.id} post={post} />)
+            <div className="divide-y divide-border-gray border-y border-border-gray">
+              {postResult.items.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
           )}
         </div>
       </div>

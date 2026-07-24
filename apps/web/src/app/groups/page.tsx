@@ -1,4 +1,4 @@
-import { ArrowRight, UsersThree } from "@phosphor-icons/react/ssr"
+import { ArrowRight } from "@phosphor-icons/react/ssr"
 import type { Metadata } from "next"
 import { getLocale, getTranslations } from "next-intl/server"
 import Link from "next/link"
@@ -30,18 +30,11 @@ export default async function GroupsPage() {
   return (
     <AppShell session={session}>
       <div className="text-raw-white">
-        <header className="border-b border-border-gray pb-4">
-          <h1 className="flex items-center gap-3 font-display text-5xl tracking-wide">
-            <UsersThree size={40} weight="bold" aria-hidden />
-            {t("title")}
-          </h1>
-          <MonoLabel tone="muted" className="mt-1 block">
-            {t("subtitle")}
-          </MonoLabel>
-        </header>
+        {/* Named by the nav, so the visible title would only repeat it. */}
+        <h1 className="sr-only">{t("title")}</h1>
 
         {result.error ? (
-          <div className="mt-6">
+          <div>
             <EmptyState
               title={t("loadErrorTitle")}
               body={t("loadErrorBody")}
@@ -51,7 +44,7 @@ export default async function GroupsPage() {
             />
           </div>
         ) : result.items.length === 0 ? (
-          <div className="mt-6">
+          <div>
             <EmptyState
               title={t("emptyTitle")}
               body={t("emptyBody")}
@@ -61,18 +54,16 @@ export default async function GroupsPage() {
             />
           </div>
         ) : (
-          <ul className="mt-6 divide-y divide-border-gray border border-border-gray bg-graphite">
+          <ul className="divide-y divide-border-gray border border-border-gray">
             {result.items.map((group) => (
               <li key={group.id}>
                 <Link
                   href={`/groups/${group.slug}`}
-                  className="flex items-center justify-between gap-4 px-4 py-4 hover:bg-raised"
+                  className="flex items-center justify-between gap-4 px-4 py-4 hover:text-acid"
                 >
                   <span>
                     <span className="flex items-center gap-2">
-                      <span className="font-display text-xl tracking-wide text-raw-white">
-                        {group.name}
-                      </span>
+                      <span className="font-display text-xl text-raw-white">{group.name}</span>
                       {group.official ? (
                         <MonoLabel tone="acid">{t("official")}</MonoLabel>
                       ) : null}

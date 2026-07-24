@@ -347,7 +347,7 @@ export function QuotaControls({
                   max="500"
                   required
                   defaultValue={quota?.quota ?? 0}
-                  className="mt-1 block w-24 border border-border-gray bg-graphite p-2 text-sm text-raw-white"
+                  className="mt-1 block w-24 border border-border-gray p-2 text-sm text-raw-white"
                 />
               </label>
               <Button type="submit" disabled={!!pendingArtistId}>

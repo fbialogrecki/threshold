@@ -121,7 +121,7 @@ export default async function EventPage({ params }: { params: Params }) {
   return (
     <article className="mx-auto w-full max-w-event-detail">
       <header className="grid gap-6 border-b border-border-gray pb-8 md:grid-cols-[minmax(17rem,0.88fr)_minmax(0,1.12fr)] md:items-start">
-        <div className="border border-border-gray bg-graphite">
+        <div className="border border-border-gray">
           {posterUrl ? (
             <Image
               src={posterUrl}
@@ -163,7 +163,7 @@ export default async function EventPage({ params }: { params: Params }) {
               </div>
             </div>
             <div className="flex items-start gap-3 py-3">
-              <MapPin size={19} weight="bold" className="mt-0.5 shrink-0 text-cyan" aria-hidden />
+              <MapPin size={19} weight="bold" className="mt-0.5 shrink-0 text-muted" aria-hidden />
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-label text-muted">{t("city")}</dt>
                 <dd className="mt-0.5 text-sm text-raw-white">{city}</dd>
@@ -229,7 +229,7 @@ export default async function EventPage({ params }: { params: Params }) {
                   <span key={`${name}-${index}`}>
                     {index > 0 ? " / " : null}
                     {targetUrl ? (
-                      <Link href={targetUrl} className="text-cyan hover:underline">{name}</Link>
+                      <Link href={targetUrl} className="text-raw-white hover:text-acid">{name}</Link>
                     ) : name}
                   </span>
                 )
@@ -306,7 +306,7 @@ export default async function EventPage({ params }: { params: Params }) {
           {updates.length > 0 ? (
             updates.map((update) => <EventUpdateCard key={update.id} update={update} />)
           ) : (
-            <p className="border border-border-gray bg-graphite p-4 text-sm text-muted">
+            <p className="border border-border-gray p-4 text-sm text-muted">
               {t("updates.empty")}
             </p>
           )}

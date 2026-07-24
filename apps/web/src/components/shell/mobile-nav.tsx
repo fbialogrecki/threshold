@@ -42,7 +42,7 @@ export function MobileNav() {
           aria-current={composeActive ? "page" : undefined}
           aria-label={navigation("post")}
           className={cn(
-            "flex h-10 w-10 items-center justify-center border transition-colors focus-visible:outline-2 focus-visible:outline-acid",
+            "flex h-10 w-10 touch-manipulation items-center justify-center border transition-colors focus-visible:outline-2 focus-visible:outline-acid",
             composeActive
               ? "border-acid bg-acid text-pitch"
               : "border-acid text-acid hover:bg-acid hover:text-pitch",
@@ -76,7 +76,7 @@ function NavItem({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex min-w-0 flex-1 flex-col items-center gap-1 py-2 font-mono text-[10px] uppercase tracking-label focus-visible:outline-2 focus-visible:outline-acid",
+        "flex min-w-0 flex-1 touch-manipulation flex-col items-center gap-1 py-2 font-mono text-[10px] uppercase tracking-label focus-visible:outline-2 focus-visible:outline-acid",
         active ? "text-acid" : "text-muted",
       )}
     >

@@ -156,8 +156,8 @@ function SectionCard({
       id={id}
       aria-labelledby={`${id}-heading`}
       className={cn(
-        "scroll-mt-24 border bg-graphite",
-        tone === "danger" ? "border-error/40" : "border-border-gray",
+        "scroll-mt-24 border",
+        tone === "danger" ? "border-error" : "border-border-gray",
       )}
     >
       <header className="border-b border-border-gray px-5 py-4">

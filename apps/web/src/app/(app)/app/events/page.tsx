@@ -1,10 +1,8 @@
-import { CalendarDots } from "@phosphor-icons/react/ssr"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
 import { EventCard } from "@/components/cards/event-card"
 import { EmptyState } from "@/components/ui/empty-state"
-import { MonoLabel } from "@/components/ui/mono-label"
 import { listEventsResult } from "@/lib/api/events"
 
 export const dynamic = "force-dynamic"
@@ -20,17 +18,11 @@ export default async function AppEventsPage() {
     getTranslations("eventsCatalog"),
   ])
 
+  // The nav already names this route, so the visible title is redundant; the
+  // heading stays for screen readers navigating by landmark.
   return (
-    <div className="flex flex-col gap-6">
-      <header className="border-b border-border-gray pb-4">
-        <h1 className="flex items-center gap-3 font-display text-4xl tracking-wide text-raw-white">
-          <CalendarDots size={36} weight="bold" aria-hidden />
-          {t("title")}
-        </h1>
-        <MonoLabel tone="muted" className="mt-1 block">
-          {t("subtitle")}
-        </MonoLabel>
-      </header>
+    <div className="flex flex-col gap-5">
+      <h1 className="sr-only">{t("title")}</h1>
 
       {result.error ? (
         <EmptyState

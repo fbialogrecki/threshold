@@ -20,7 +20,7 @@ export async function FeedList({ items, suggestions = [] }: { items: FeedItem[];
           eyebrow={t("emptyEyebrow")}
         />
         {suggestions.length > 0 ? (
-          <ul className="border border-border-gray bg-graphite p-4 font-mono text-[11px] uppercase tracking-label text-muted">
+          <ul className="border border-border-gray p-4 font-mono text-[11px] uppercase tracking-label text-muted">
             {suggestions.map((suggestion) => (
               <li key={suggestion} className="py-1 text-dim-white">
                 {suggestion}

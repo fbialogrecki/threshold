@@ -37,7 +37,7 @@ export function EventUpdateForm({ slug }: { slug: string }) {
   }
 
   return (
-    <form id="event-update-form" action={submit} className="mt-6 border border-border-gray bg-graphite p-4">
+    <form id="event-update-form" action={submit} className="mt-6 border border-border-gray p-4">
       <h2 className="flex items-center gap-2 font-display text-2xl text-raw-white">
         <Megaphone size={19} weight="bold" aria-hidden />
         {t("formTitle")}
@@ -53,7 +53,7 @@ export function EventUpdateForm({ slug }: { slug: string }) {
         placeholder={t("formPlaceholder")}
         className="mt-4 min-h-28 w-full border border-border-gray bg-pitch p-3 text-sm text-raw-white"
       />
-      {error ? <p className="mt-2 font-mono text-xs uppercase tracking-label text-alert">{error}</p> : null}
+      {error ? <p className="mt-2 font-mono text-xs uppercase tracking-label text-error">{error}</p> : null}
       <Button type="submit" className="mt-3" disabled={pending}>
         {pending ? t("publishing") : t("publish")}
       </Button>

@@ -119,7 +119,7 @@ export function GuestAccessCard({
         ref={dialogRef}
         aria-labelledby="guest-qr-title"
         onClose={clearQr}
-        className="m-auto w-[min(92vw,28rem)] border border-border-gray bg-graphite p-0 text-raw-white backdrop:bg-black/85"
+        className="m-auto w-[min(92vw,28rem)] border border-border-gray p-0 text-raw-white backdrop:bg-black/85"
       >
         <div className="flex items-center justify-between border-b border-border-gray px-4 py-3">
           <h2 id="guest-qr-title" className="font-display text-3xl tracking-wide">

@@ -22,7 +22,7 @@ export function LocaleSwitcher({ className }: { className?: string }) {
     <div
       role="group"
       aria-label={t("label")}
-      className={cn("inline-flex border border-border-gray bg-graphite", className)}
+      className={cn("inline-flex border border-border-gray", className)}
     >
       {LOCALES.slice().reverse().map((nextLocale) => {
         const active = nextLocale === locale
@@ -39,7 +39,7 @@ export function LocaleSwitcher({ className }: { className?: string }) {
               "px-2 py-1 font-mono text-[10px] uppercase tracking-label transition-colors",
               active
                 ? "bg-status-neutral-border text-raw-white"
-                : "text-muted hover:bg-raised hover:text-raw-white",
+                : "text-muted hover:text-raw-white",
             )}
           >
             {nextLocale}

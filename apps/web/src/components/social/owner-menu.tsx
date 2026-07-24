@@ -50,17 +50,15 @@ export function OwnerMenu({
         type="button"
         onClick={() => setMode((value) => (value === "closed" ? "actions" : "closed"))}
         aria-expanded={open}
-        aria-haspopup="menu"
         aria-label={t("ownerActions")}
         className="flex h-7 w-7 items-center justify-center text-muted transition-colors hover:text-raw-white focus-visible:text-raw-white"
       >
         <DotsThree size={20} weight="bold" aria-hidden />
       </button>
       {open ? (
-        <div
-          role="menu"
-          className="absolute right-0 top-8 z-20 w-40 border border-border-gray bg-pitch"
-        >
+        // A plain disclosure, not role="menu": that role promises arrow-key
+        // navigation, and buttons already work with Tab and Enter.
+        <div className="absolute right-0 top-8 z-20 w-40 border border-border-gray bg-pitch">
           {mode === "confirm" ? (
             <>
               <p className="border-b border-border-gray px-3 py-2.5 font-mono text-[11px] uppercase tracking-label text-error">
@@ -68,7 +66,6 @@ export function OwnerMenu({
               </p>
               <button
                 type="button"
-                role="menuitem"
                 onClick={onDelete}
                 disabled={pending}
                 className={`${itemClass} text-error hover:text-raw-white disabled:opacity-50`}
@@ -78,7 +75,6 @@ export function OwnerMenu({
               </button>
               <button
                 type="button"
-                role="menuitem"
                 onClick={() => setMode("actions")}
                 className={`${itemClass} border-t border-border-gray text-dim-white hover:text-raw-white`}
               >
@@ -89,7 +85,6 @@ export function OwnerMenu({
             <>
               <button
                 type="button"
-                role="menuitem"
                 onClick={() => {
                   setMode("closed")
                   onEdit()
@@ -101,7 +96,6 @@ export function OwnerMenu({
               </button>
               <button
                 type="button"
-                role="menuitem"
                 onClick={() => setMode("confirm")}
                 className={`${itemClass} border-t border-border-gray text-error hover:text-raw-white`}
               >

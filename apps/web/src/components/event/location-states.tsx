@@ -18,7 +18,7 @@ export async function LocationStates({ event }: { event: ThresholdEvent }) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <MapPin size={18} weight="bold" className="text-cyan" aria-hidden />
+            <MapPin size={18} weight="bold" className="text-muted" aria-hidden />
             <h2 className="font-display text-2xl tracking-wide">{t("title")}</h2>
           </div>
           <StatusBadge status="public" label={t("public")} />

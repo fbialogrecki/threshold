@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/empty-state"
 import { MonoLabel } from "@/components/ui/mono-label"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { cn } from "@/lib/cn"
@@ -91,17 +92,14 @@ export function NotificationInbox({
       </div>
 
       {error ? (
-        <p role="alert" className="border border-error/50 bg-error/10 p-3 text-sm text-error">
+        <p role="alert" className="border border-error p-3 text-sm text-error">
           {error}
         </p>
       ) : null}
       <p aria-live="polite" className="sr-only">{status}</p>
 
       {items.length === 0 ? (
-        <div className="border border-border-gray bg-graphite p-6">
-          <MonoLabel tone="dim">{t("emptyEyebrow")}</MonoLabel>
-          <p className="mt-2 text-sm text-muted">{t("emptyBody")}</p>
-        </div>
+        <EmptyState eyebrow={t("emptyEyebrow")} title={t("emptyTitle")} body={t("emptyBody")} />
       ) : (
         <ol className="space-y-3">
           {items.map((item) => {
@@ -115,16 +113,16 @@ export function NotificationInbox({
               <li key={item.id}>
                 <article
                   className={cn(
-                    "border bg-graphite p-4 transition-colors",
-                    unread ? "border-cyan" : "border-border-gray opacity-75",
+                    "border p-4 transition-colors",
+                    unread ? "border-acid" : "border-border-gray opacity-75",
                   )}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <MonoLabel tone={unread ? "cyan" : "dim"}>
+                      <MonoLabel tone={unread ? "acid" : "dim"}>
                         {t(`types.${notificationTypeKey(item.type)}`)}
                       </MonoLabel>
-                      <h2 className="mt-1 font-display text-xl tracking-wide text-raw-white">
+                      <h2 className="mt-1 font-display text-xl text-raw-white">
                         {message.localized && message.titleKey
                           ? t(`messages.${message.titleKey}`, values)
                           : item.title}
@@ -146,7 +144,7 @@ export function NotificationInbox({
                     {href ? (
                       <Link
                         href={href}
-                        className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-label text-cyan hover:underline"
+                        className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-label text-acid hover:text-raw-white"
                       >
                         {t("open")}
                         <ArrowSquareOut size={14} weight="bold" aria-hidden />

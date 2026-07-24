@@ -119,7 +119,9 @@ export function PostBody({
             className="w-full resize-none border border-border-gray p-2 text-sm leading-6 text-raw-white focus:border-acid focus:outline-none"
           />
           {error ? (
-            <p className="mt-1 text-sm text-error">{error}</p>
+            <p aria-live="polite" className="mt-1 text-sm text-error">
+              {error}
+            </p>
           ) : null}
           <div className="mt-1.5 flex items-center gap-3">
             <button type="submit" disabled={pending} className={actionClass}>
@@ -147,7 +149,11 @@ export function PostBody({
               </span>
             ) : null}
           </p>
-          {error ? <p className="mt-1 text-sm text-error">{error}</p> : null}
+          {error ? (
+            <p aria-live="polite" className="mt-1 text-sm text-error">
+              {error}
+            </p>
+          ) : null}
         </div>
       )}
     </>
