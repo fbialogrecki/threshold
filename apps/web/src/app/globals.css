@@ -20,6 +20,7 @@
 
   /* Status / access colors (use sparingly) */
   --color-acid: #c6ff00;
+  --color-acid-bright: #d4ff3a;
   --color-violet: #8f00ff;
   --color-orange: #ff5a1f;
   --color-cyan: #00f0ff;
@@ -32,15 +33,15 @@
   --container-event-detail: 61.25rem;
 
   /* Fonts (wired in layout.tsx via next/font) */
-  --font-display: var(--font-bebas), "Arial Narrow", sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
 
   /*
     Letter-spacing scale. Two values only:
     - label: mono metadata, statuses, tags
     - cta: buttons, section headers, primary actions
-    Display (Bebas) tracking stays per-element art direction.
+    Display tracking stays per-element art direction.
   */
   --tracking-label: 0.14em;
   --tracking-cta: 0.2em;
@@ -74,6 +75,21 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/*
+  Display type marks entity titles: events, groups, pages, section headings.
+  Bebas had no lowercase, so every display string took its caps from the
+  typeface itself. Archivo has a full case range, so caps and weight must be
+  stated here instead. Tracking stays out of this rule so per-element
+  utilities keep winning.
+
+  Author names deliberately do not use this: a username shows the case its
+  owner chose.
+*/
+.font-display {
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 /* Visible focus state for keyboard navigation (a11y) */

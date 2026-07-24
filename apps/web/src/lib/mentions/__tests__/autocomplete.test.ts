@@ -45,8 +45,15 @@ describe("activeMentionTrigger", () => {
     expect(activeMentionTrigger("abc@dj", 6)).toBeNull()
   })
 
-  it("rejects token chars outside handle alphabet", () => {
-    expect(activeMentionTrigger("hi @dj.one", 10)).toBeNull()
+  it("accepts dotted handles and rejects chars outside the alphabet", () => {
+    // Usernames allow dots, so autocomplete must keep tracking past one.
+    expect(activeMentionTrigger("hi @dj.one", 10)).toEqual({
+      marker: "@",
+      query: "dj.one",
+      start: 3,
+      end: 10,
+    })
+    expect(activeMentionTrigger("hi @dj!one", 10)).toBeNull()
   })
 })
 

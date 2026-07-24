@@ -18,7 +18,7 @@ export function EmptyState({
   children?: ReactNode
 }) {
   return (
-    <div className="flex flex-col items-start gap-4 border border-dashed border-border-gray bg-graphite p-8">
+    <div className="flex flex-col items-start gap-4 border border-dashed border-border-gray p-8">
       <p className="font-mono text-[10px] uppercase tracking-cta text-muted">
         {eyebrow}
       </p>

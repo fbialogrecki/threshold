@@ -104,8 +104,8 @@ export function SearchBar({
       <div
         className={
           compact
-            ? "flex items-center gap-1.5 border border-border-gray bg-raised px-2 py-1.5 focus-within:border-acid"
-            : "flex items-center gap-2 border border-border-gray bg-raised px-3 py-2 focus-within:border-acid"
+            ? "flex items-center gap-1.5 border border-border-gray px-2 py-1.5 focus-within:border-acid"
+            : "flex items-center gap-2 border border-border-gray px-3 py-2 focus-within:border-acid"
         }
       >
         <MagnifyingGlass size={16} weight="bold" className="shrink-0 text-muted" aria-hidden />
@@ -168,7 +168,7 @@ export function SearchBar({
         <div
           id="threshold-search-suggestions"
           role="listbox"
-          className="absolute left-0 right-0 top-full z-30 mt-1 border border-border-gray bg-raised shadow-xl"
+          className="absolute left-0 right-0 top-full z-30 mt-1 border border-border-gray bg-pitch"
         >
           {suggestions.map((suggestion, index) => (
             <button
@@ -181,7 +181,7 @@ export function SearchBar({
               onClick={() => goToSuggestion(suggestion)}
               className={cn(
                 "flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm",
-                index === activeIndex ? "bg-acid text-pitch" : "text-raw-white hover:bg-graphite",
+                index === activeIndex ? "bg-acid text-pitch" : "text-raw-white hover:text-acid",
               )}
             >
               <span>

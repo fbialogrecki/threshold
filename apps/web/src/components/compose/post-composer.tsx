@@ -32,6 +32,9 @@ export function PostComposer({
 }) {
   const t = useTranslations("composer")
   const router = useRouter()
+  // The dedicated /app/compose page is already a compose surface, so it opens
+  // expanded; in the feed the composer starts as a one-line trigger.
+  const [open, setOpen] = useState(!compact)
   const [body, setBody] = useState("")
   const [files, setFiles] = useState<File[]>([])
   const [eventSlug, setEventSlug] = useState("")
@@ -129,8 +132,42 @@ export function PostComposer({
     })
   }
 
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex w-full items-center gap-3 border border-border-gray px-3 py-3 text-left transition-colors hover:border-acid"
+      >
+        <span className="flex-1 truncate text-sm text-muted">{t("placeholder")}</span>
+        <span className="font-mono text-[11px] uppercase tracking-label text-acid">
+          {t("publish")}
+        </span>
+      </button>
+    )
+  }
+
+  // The counter is noise until the limit is actually in reach.
+  const remaining = MAX_POST_BODY - body.length
+  const iconActionClass = "p-2 text-muted transition-colors hover:text-acid focus-within:text-acid"
+
   return (
-    <form onSubmit={onSubmit} className="border border-border-gray bg-graphite p-3 sm:p-4">
+    <form onSubmit={onSubmit} className="border border-border-gray focus-within:border-acid">
+      {compact ? (
+        <div className="flex items-center justify-between border-b border-border-gray px-3 py-2">
+          <span className="font-mono text-[10px] uppercase tracking-label text-muted">
+            {t("title")}
+          </span>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="font-mono text-[10px] uppercase tracking-label text-muted hover:text-raw-white"
+          >
+            {t("close")}
+          </button>
+        </div>
+      ) : null}
+
       <label className="sr-only" htmlFor={compact ? "feed-compose-body" : "compose-body"}>
         {t("textLabel")}
       </label>
@@ -138,16 +175,23 @@ export function PostComposer({
         id={compact ? "feed-compose-body" : "compose-body"}
         value={body}
         onChangeValue={setBody}
-        rows={compact ? 3 : 6}
+        rows={compact ? 4 : 6}
         maxLength={MAX_POST_BODY}
+        autoFocus={compact}
         placeholder={t("placeholder")}
-        className="w-full resize-none border border-transparent bg-pitch p-3 text-sm leading-7 text-raw-white placeholder:text-muted focus:border-acid focus:outline-none"
+        className="w-full resize-none bg-transparent p-3 text-[15px] leading-7 text-raw-white placeholder:text-muted focus:outline-none"
       />
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        <label className="flex cursor-pointer items-center gap-2 border border-dashed border-border-gray bg-pitch px-3 py-2 font-mono text-[11px] uppercase tracking-label text-muted hover:border-acid hover:text-acid">
-          <ImageSquare size={17} aria-hidden />
-          <span>{files.length > 0 ? t("imagesSelected", { count: files.length }) : t("attachImages")}</span>
+      {fileNotice ? <p className="px-3 pb-2 text-sm text-orange">{fileNotice}</p> : null}
+      {eventError ? <p className="px-3 pb-2 text-sm text-orange">{eventError}</p> : null}
+      {error ? <p className="px-3 pb-2 text-sm text-error">{error}</p> : null}
+
+      <div className="flex items-center gap-1 border-t border-border-gray px-2 py-2">
+        <label className={`flex cursor-pointer items-center gap-1.5 ${iconActionClass}`}>
+          <ImageSquare size={18} aria-hidden />
+          <span className={files.length > 0 ? "font-mono text-[10px] tabular-nums" : "sr-only"}>
+            {files.length > 0 ? files.length : t("attachImages")}
+          </span>
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp"
@@ -165,8 +209,9 @@ export function PostComposer({
             }}
           />
         </label>
-        <label className="relative flex items-center gap-2 border border-border-gray bg-pitch px-3 py-2 text-muted focus-within:border-acid">
-          <CalendarBlank size={17} className="shrink-0" aria-hidden />
+
+        <label className={`flex items-center gap-1.5 ${iconActionClass}`}>
+          <CalendarBlank size={18} className="shrink-0" aria-hidden />
           <span className="sr-only">{t("eventLabel")}</span>
           <select
             value={eventSlug}
@@ -178,7 +223,7 @@ export function PostComposer({
                 setFileNotice(null)
               }
             }}
-            className="min-w-0 flex-1 bg-pitch font-mono text-[11px] uppercase tracking-label text-dim-white focus:outline-none"
+            className="max-w-28 bg-transparent font-mono text-[10px] uppercase tracking-label text-current focus:outline-none"
           >
             <option value="">{t("noEvent")}</option>
             {events.map((event) => (
@@ -186,27 +231,21 @@ export function PostComposer({
             ))}
           </select>
         </label>
-      </div>
 
-      {fileNotice ? (
-        <p className="mt-2 font-mono text-[11px] uppercase tracking-label text-orange">
-          {fileNotice}
-        </p>
-      ) : null}
-      {eventError ? (
-        <p className="mt-2 font-mono text-[11px] uppercase tracking-label text-orange">
-          {eventError}
-        </p>
-      ) : null}
-      {error ? (
-        <p className="mt-2 font-mono text-[11px] uppercase tracking-label text-error">{error}</p>
-      ) : null}
-      <div className="mt-3 flex items-center justify-between">
-        <span className="font-mono text-[11px] uppercase tracking-label text-muted">
-          {body.length}/{MAX_POST_BODY}
-        </span>
-        <Button type="submit" variant="primary" disabled={pending || !canSubmitPost({ body })}>
-          <PaperPlaneTilt size={16} aria-hidden />
+        <span className="flex-1" />
+
+        {remaining < 400 ? (
+          <span className="font-mono text-[10px] uppercase tracking-label tabular-nums text-orange">
+            {remaining}
+          </span>
+        ) : null}
+        <Button
+          type="submit"
+          variant="primary"
+          className="px-3 py-1.5 text-[11px]"
+          disabled={pending || !canSubmitPost({ body })}
+        >
+          <PaperPlaneTilt size={14} aria-hidden />
           {pending ? t("publishing") : t("publish")}
         </Button>
       </div>

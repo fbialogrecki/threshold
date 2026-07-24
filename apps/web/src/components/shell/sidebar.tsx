@@ -15,9 +15,15 @@ import { cityLabel } from "@/lib/cities"
 import { mediaDerivativeUrl } from "@/lib/media/urls"
 import type { LocationMode } from "@/lib/types"
 
-const LOCATION_TONE: Record<LocationMode, "cyan" | "violet" | "orange"> = {
-  public_location: "cyan",
-  secret_location: "violet",
+/*
+  Location modes under the revised colour doctrine: a known address is not a
+  status and gets no hue, a missing one is flagged orange, and a withheld one
+  reads from full contrast plus the padlock on its badge. Violet is reserved
+  for the vote axis.
+*/
+const LOCATION_TONE: Record<LocationMode, "muted" | "protected" | "orange"> = {
+  public_location: "muted",
+  secret_location: "protected",
   tba: "orange",
 }
 
@@ -42,8 +48,9 @@ export async function Sidebar({
 
   const storedCity = session.onboarding_preferences?.city?.trim()
   const city = storedCity ? cityLabel(storedCity, locale) : null
-  const displayName =
-    session.consumer_profile?.display_name?.trim() || session.user.username || ""
+  // One public name per person: the unique username.
+  const name =
+    session.user.username?.trim() || session.consumer_profile?.display_name?.trim() || ""
   const avatarMediaAssetId = session.consumer_profile?.avatar_media_asset_id ?? null
 
   // Approved access first: unlocked doors outrank waiting rooms.
@@ -54,23 +61,29 @@ export async function Sidebar({
   return (
     <aside
       aria-label={t("primaryNavigation")}
-      className="sticky top-0 hidden h-screen w-[280px] shrink-0 flex-col overflow-hidden border-r border-border-gray bg-graphite lg:flex"
+      className="sticky top-0 hidden h-screen w-[280px] shrink-0 flex-col overflow-hidden border-r border-border-gray lg:flex"
     >
       <div className="min-h-0 flex-1 overflow-y-auto p-5">
         <LeftNav unreadCount={unreadCount} />
 
-        <div className="mt-10 flex flex-col gap-8 border-t-2 border-border-gray pt-6">
-          <Section title={t("privateAccess")}>
-            {sortedAccess.length === 0 ? (
-              <EmptyHint>{t("privateAccessEmpty")}</EmptyHint>
-            ) : (
-              sortedAccess.map((item) => (
+        {/*
+          Empty sections collapse instead of drawing a titled box around a
+          bordered hint. The rail should not charge 280px for two placeholders.
+        */}
+        <div className="mt-8 flex flex-col gap-7 border-t border-border-gray pt-5">
+          {sortedAccess.length > 0 ? (
+            <Section title={t("privateAccess")}>
+              {sortedAccess.map((item) => (
                 <Link
                   key={item.event.slug}
                   href={`/events/${item.event.slug}`}
-                  className="block border-l-2 border-border-gray pl-3 hover:border-acid"
+                  className={
+                    item.state === "approved"
+                      ? "block border-l-2 border-raw-white pl-3 hover:border-acid"
+                      : "block border-l-2 border-status-neutral-border pl-3 hover:border-acid"
+                  }
                 >
-                  <p className="font-display text-base leading-tight tracking-wide text-raw-white">
+                  <p className="font-display text-base leading-tight text-raw-white">
                     {item.event.title}
                   </p>
                   <MonoLabel size="xs" className="mt-0.5 block">
@@ -78,44 +91,44 @@ export async function Sidebar({
                   </MonoLabel>
                   <StatusBadge className="mt-1.5" status={item.state} />
                 </Link>
-              ))
-            )}
-          </Section>
+              ))}
+            </Section>
+          ) : null}
 
-          <Section
-            title={city ? `${t("tonight")} / ${city}` : t("tonight")}
-            href="/app/events"
-            hrefLabel={t("all")}
-          >
-            {tonight.length === 0 ? (
-              <EmptyHint>{t("tonightEmpty")}</EmptyHint>
-            ) : (
-              tonight.map((item) => (
-                <Link
-                  key={item.event.slug}
-                  href={`/events/${item.event.slug}`}
-                  className="block"
-                >
+          {tonight.length > 0 ? (
+            <Section
+              title={city ? `${t("tonight")} / ${city}` : t("tonight")}
+              href="/app/events"
+              hrefLabel={t("all")}
+            >
+              {tonight.map((item) => (
+                <Link key={item.event.slug} href={`/events/${item.event.slug}`} className="block">
                   <MonoLabel size="xs" tone={LOCATION_TONE[item.locationMode]}>
                     {t(`location.${item.locationMode}`)}
                   </MonoLabel>
-                  <p className="mt-0.5 font-display text-base leading-tight tracking-wide text-raw-white">
+                  <p className="mt-0.5 font-display text-base leading-tight text-raw-white">
                     {item.event.title}
                   </p>
                   <MonoLabel size="xs" className="block">
                     {item.venueText}
                   </MonoLabel>
                 </Link>
-              ))
-            )}
-          </Section>
+              ))}
+            </Section>
+          ) : null}
+
+          {sortedAccess.length === 0 && tonight.length === 0 ? (
+            <MonoLabel size="xs" className="block leading-relaxed">
+              {t("railQuiet")}
+            </MonoLabel>
+          ) : null}
         </div>
       </div>
 
-      <div className="shrink-0 border-t-2 border-border-gray bg-pitch/40 p-4">
+      <div className="shrink-0 border-t border-border-gray p-4">
         <div className="flex items-center gap-3">
           <Avatar
-            name={displayName}
+            name={name}
             imageUrl={
               avatarMediaAssetId
                 ? mediaDerivativeUrl(avatarMediaAssetId, "avatar_256")
@@ -123,9 +136,7 @@ export async function Sidebar({
             }
           />
           <div className="min-w-0 flex-1">
-            <p className="truncate font-display text-lg tracking-wide text-raw-white">
-              {displayName}
-            </p>
+            <p className="truncate text-[15px] font-semibold text-raw-white">{name}</p>
             {city ? (
               <p className="truncate font-mono text-[10px] uppercase tracking-label text-muted">
                 {city}
@@ -177,13 +188,5 @@ function Section({
       </div>
       <div className="mt-3 flex flex-col gap-3.5">{children}</div>
     </section>
-  )
-}
-
-function EmptyHint({ children }: { children: ReactNode }) {
-  return (
-    <p className="border-l-2 border-border-gray pl-3 font-mono text-[10px] uppercase leading-relaxed tracking-label text-muted">
-      {children}
-    </p>
   )
 }

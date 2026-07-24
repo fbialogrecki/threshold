@@ -430,17 +430,14 @@ export function SettingsForm({
         >
           <form onSubmit={saveProfile} className="flex flex-col gap-5">
             {/* Live identity preview: feedback before committing changes. */}
-            <div className="flex items-center gap-3 border border-border-gray bg-pitch px-4 py-3">
+            <div className="flex items-center gap-3 border border-border-gray px-4 py-3">
               <Avatar
-                name={displayName || username || "?"}
+                name={username || "?"}
                 imageUrl={avatarMediaAssetId ? mediaDerivativeUrl(avatarMediaAssetId, "avatar_256") : null}
               />
               <div className="min-w-0">
-                <p className="truncate font-display text-lg tracking-wide text-raw-white">
-                  {displayName || t("profile.previewName")}
-                </p>
-                <p className="truncate font-mono text-[11px] text-muted">
-                  @{username || t("profile.previewUsername")}
+                <p className="truncate text-[15px] font-semibold text-raw-white">
+                  {username || t("profile.previewUsername")}
                 </p>
               </div>
               <label className="ml-auto cursor-pointer border border-border-gray px-3 py-2 font-mono text-[11px] uppercase tracking-label text-muted hover:border-acid hover:text-acid">
@@ -459,35 +456,25 @@ export function SettingsForm({
               </label>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field
-                id="set-display"
-                label={t("profile.displayName")}
-                counter={{ value: displayName.length, max: 120 }}
-              >
-                <input
-                  id="set-display"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  className={inputClass}
-                  maxLength={120}
-                />
-              </Field>
-              <Field
+            {/*
+              The username is the only public name now, so the separate display
+              name field is gone. Its value stays in state and in the payload
+              until the field is retired from the users service.
+            */}
+            <Field
+              id="set-username"
+              label={t("profile.username")}
+              hint={t("profile.publicAddress", { username: username || "…" })}
+            >
+              <input
                 id="set-username"
-                label={t("profile.username")}
-                hint={t("profile.publicAddress", { username: username || "…" })}
-              >
-                <input
-                  id="set-username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className={inputClass}
-                  maxLength={30}
-                  autoComplete="username"
-                />
-              </Field>
-            </div>
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={inputClass}
+                maxLength={30}
+                autoComplete="username"
+              />
+            </Field>
 
             <Field
               id="set-bio"

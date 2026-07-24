@@ -127,20 +127,7 @@ export function EmojiReactionBar({
   if (items.length === 0 && atLimit) return null
 
   return (
-    <div className="relative flex flex-wrap items-center justify-start gap-1.5">
-      {/* "+" leads the row so reactions grow to the right from a fixed left anchor. */}
-      {atLimit ? null : (
-        <button
-          type="button"
-          onClick={() => setPickerOpen((open) => !open)}
-          aria-expanded={pickerOpen}
-          aria-label={t("addReaction")}
-          className="inline-flex items-center border border-dashed border-border-gray bg-graphite px-2 py-0.5 font-mono text-xs text-muted transition-colors hover:border-acid hover:text-acid"
-        >
-          +
-        </button>
-      )}
-
+    <>
       {items.map((item) => (
         <button
           key={item.emoji}
@@ -154,7 +141,7 @@ export function EmojiReactionBar({
             "inline-flex items-center gap-1.5 border px-2 py-0.5 font-mono text-xs transition-colors",
             item.viewerReacted
               ? "border-acid bg-acid/15 text-acid"
-              : "border-border-gray bg-graphite text-dim-white hover:border-acid",
+              : "border-border-gray text-dim-white hover:border-acid",
           )}
         >
           <span>{item.emoji}</span>
@@ -162,43 +149,61 @@ export function EmojiReactionBar({
         </button>
       ))}
 
-      {pickerOpen ? (
-        <div
-          ref={pickerRef}
-          className="absolute right-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] border border-border-gray bg-pitch p-3 shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
-        >
-          <div className="grid grid-cols-8 gap-1">
-            {QUICK_PICKS.map((emoji) => (
-              <button
-                key={emoji}
-                type="button"
-                onClick={() => onPick(emoji)}
-                aria-label={t("reactWith", { emoji })}
-                className="flex h-7 w-7 items-center justify-center text-base hover:bg-graphite"
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
-          <form onSubmit={onCustomSubmit} className="mt-2 flex gap-1">
-            <input
-              value={custom}
-              onChange={(event) => setCustom(event.target.value)}
-              maxLength={32}
-              placeholder={t("customEmojiPlaceholder")}
-              aria-label={t("customEmoji")}
-              className="min-w-0 flex-1 border border-border-gray bg-graphite px-2 py-1 text-sm text-raw-white placeholder:text-muted focus:border-acid focus:outline-none"
-            />
-            <button
-              type="submit"
-              disabled={!custom.trim()}
-              className="border border-border-gray px-2 py-1 font-mono text-[11px] uppercase tracking-label text-dim-white hover:border-acid hover:text-acid disabled:opacity-40"
+      {/*
+        "+" trails the row, which is right-aligned next to the votes, so it
+        stays anchored to that edge while reactions grow leftwards.
+      */}
+      {atLimit ? null : (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setPickerOpen((open) => !open)}
+            aria-expanded={pickerOpen}
+            aria-label={t("addReaction")}
+            className="inline-flex items-center border border-dashed border-border-gray px-2 py-0.5 font-mono text-xs text-muted transition-colors hover:border-acid hover:text-acid"
+          >
+            +
+          </button>
+
+          {pickerOpen ? (
+            <div
+              ref={pickerRef}
+              className="absolute right-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] border border-border-gray bg-pitch p-3"
             >
-              {t("add")}
-            </button>
-          </form>
+              <div className="grid grid-cols-8 gap-1">
+                {QUICK_PICKS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => onPick(emoji)}
+                    aria-label={t("reactWith", { emoji })}
+                    className="flex h-7 w-7 items-center justify-center text-base hover:border hover:border-acid"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+              <form onSubmit={onCustomSubmit} className="mt-2 flex gap-1">
+                <input
+                  value={custom}
+                  onChange={(event) => setCustom(event.target.value)}
+                  maxLength={32}
+                  placeholder={t("customEmojiPlaceholder")}
+                  aria-label={t("customEmoji")}
+                  className="min-w-0 flex-1 border border-border-gray px-2 py-1 text-sm text-raw-white placeholder:text-muted focus:border-acid focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={!custom.trim()}
+                  className="border border-border-gray px-2 py-1 font-mono text-[11px] uppercase tracking-label text-dim-white hover:border-acid hover:text-acid disabled:opacity-40"
+                >
+                  {t("add")}
+                </button>
+              </form>
+            </div>
+          ) : null}
         </div>
-      ) : null}
-    </div>
+      )}
+    </>
   )
 }
