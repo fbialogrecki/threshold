@@ -38,15 +38,17 @@ export function OnboardingWizard({
       setError(null)
       setNicknameInvalid(false)
       try {
+        // The username is the only public name, so this step adjusts it rather
+        // than writing a second name nothing displays.
         const name = nickname.trim().replace(/^@/, "")
         if (name) {
           const profileResponse = await fetch("/api/me/profile", {
             method: "PATCH",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ display_name: name }),
+            body: JSON.stringify({ username: name }),
           })
           if (!profileResponse.ok) {
-            setError(t("errors.profile"))
+            setError(t(profileResponse.status === 409 ? "errors.nameTaken" : "errors.profile"))
             setNicknameInvalid(true)
             return
           }

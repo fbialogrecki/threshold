@@ -213,6 +213,7 @@
     "saving": "Zapisywanie…",
     "errors": {
       "profile": "Nie udało się zapisać pseudonimu. Spróbuj ponownie.",
+      "nameTaken": "Ta nazwa jest już zajęta. Wybierz inną.",
       "save": "Nie udało się zapisać konfiguracji lub dołączyć do oficjalnej grupy miasta. Spróbuj ponownie.",
       "network": "Nie udało się połączyć z siecią. Spróbuj ponownie."
     }
@@ -251,6 +252,7 @@
   },
   "publicProfile": {
     "notFound": "Nie znaleziono profilu",
+    "deletedAccount": "Konto usunięte",
     "metadataFallback": "@{username} w Threshold",
     "followers": "{count, plural, one {# obserwujący} few {# obserwujących} other {# obserwujących}}",
     "bio": "Bio",

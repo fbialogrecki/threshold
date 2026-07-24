@@ -12,11 +12,11 @@ describe("registration validation", () => {
     password: "Supersecret1!",
   }
 
-  it("accepts valid input and normalizes the username", () => {
+  it("keeps the username in the case its owner typed", () => {
     const result = validateRegistration(valid)
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.value.username).toBe("nightcrawler")
+      expect(result.value.username).toBe("NightCrawler")
       expect(result.value.email).toBe("user@domain.xyz")
     }
   })
@@ -29,10 +29,23 @@ describe("registration validation", () => {
 
   it("matches backend username characters and reserved names", () => {
     expect(validateRegistration({ ...valid, username: "Night.Crawler-01" }).ok).toBe(true)
+    expect(validateRegistration({ ...valid, username: "Żaba_Wrocław" }).ok).toBe(true)
     expect(validateRegistration({ ...valid, username: ".Admin-" })).toEqual({
       ok: false,
       error: "reservedUsername",
     })
+  })
+
+  it("folds diacritics before the reserved check so lookalikes cannot claim a name", () => {
+    expect(validateRegistration({ ...valid, username: "ądmin" })).toEqual({
+      ok: false,
+      error: "reservedUsername",
+    })
+  })
+
+  it("rejects alphabets outside the explicit set", () => {
+    // Cyrillic lookalikes are the impersonation route folding exists to close.
+    expect(validateRegistration({ ...valid, username: "Реregrin" }).ok).toBe(false)
   })
 
   it("rejects invalid emails", () => {

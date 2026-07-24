@@ -1,5 +1,22 @@
-const USERNAME_RE = /^[a-z0-9_.-]{3,30}$/
+/*
+  The username is the only public name a person has, so it keeps the case its
+  owner types. The set is explicit rather than \p{L}: a broad class would admit
+  Cyrillic and Greek lookalikes, which is the impersonation route the server's
+  diacritic folding exists to close.
+*/
+export const USERNAME_PATTERN = "[A-Za-z0-9_.\\-ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]{3,30}"
+const USERNAME_RE = new RegExp(`^${USERNAME_PATTERN}$`)
 const RESERVED_USERNAMES = new Set(["admin", "root", "support", "threshold"])
+
+/** Mirrors `fold_username` in the users service: case and diacritics folded. */
+function foldUsername(username: string): string {
+  return username
+    .trim()
+    .toLowerCase()
+    .replaceAll("ł", "l")
+    .normalize("NFKD")
+    .replace(/\p{Mn}/gu, "")
+}
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export const MIN_PASSWORD = 12
 export const MAX_PASSWORD = 1024
@@ -83,8 +100,7 @@ export function validateRegistration(raw: {
   password?: unknown
   displayName?: unknown
 }): RegistrationCheck {
-  const username =
-    typeof raw.username === "string" ? raw.username.trim().toLowerCase() : ""
+  const username = typeof raw.username === "string" ? raw.username.trim() : ""
   const email = typeof raw.email === "string" ? raw.email.trim() : ""
   const password = typeof raw.password === "string" ? raw.password : ""
   const displayName =
@@ -93,7 +109,8 @@ export function validateRegistration(raw: {
   if (!USERNAME_RE.test(username)) {
     return { ok: false, error: "username" }
   }
-  if (RESERVED_USERNAMES.has(username.replace(/^[_.-]+|[_.-]+$/g, ""))) {
+  // Folded before the check, so `ądmin` cannot claim the normalised `admin`.
+  if (RESERVED_USERNAMES.has(foldUsername(username).replace(/^[_.-]+|[_.-]+$/g, ""))) {
     return { ok: false, error: "reservedUsername" }
   }
   if (!EMAIL_RE.test(email)) {

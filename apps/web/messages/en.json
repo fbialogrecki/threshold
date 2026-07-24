@@ -213,6 +213,7 @@
     "saving": "Saving…",
     "errors": {
       "profile": "Your nickname could not be saved. Try again.",
+      "nameTaken": "That name is taken. Pick another one.",
       "save": "Setup or the official city group could not be saved. Try again.",
       "network": "Could not reach the network. Try again."
     }
@@ -251,6 +252,7 @@
   },
   "publicProfile": {
     "notFound": "Profile not found",
+    "deletedAccount": "Deleted account",
     "metadataFallback": "@{username} on Threshold",
     "followers": "{count, plural, one {# follower} other {# followers}}",
     "bio": "Bio",

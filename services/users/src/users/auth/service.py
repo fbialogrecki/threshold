@@ -14,6 +14,7 @@ from users.auth.hashing import (
     verify_password,
 )
 from users.auth.tokens import generate_opaque_token, keyed_hash, stable_hash
+from users.domain.identity import normalize_email, normalize_username
 from users.domain.models import (
     ApplicationUser,
     AuthAuditLog,
@@ -114,14 +115,6 @@ class AuthError(ValueError):
 
 class DuplicateIdentityError(AuthError):
     pass
-
-
-def normalize_email(email: str) -> str:
-    return email.strip().lower()
-
-
-def normalize_username(username: str) -> str:
-    return username.strip().lower()
 
 
 def _hash_token(token: str, settings: Settings) -> str:
@@ -386,19 +379,30 @@ def authenticate_user(
     ip: str | None = None,
     user_agent: str | None = None,
 ) -> tuple[ApplicationUser, str, str]:
-    subject = email_or_username.strip().lower()
+    # The two identifiers normalise differently: usernames fold diacritics so
+    # lookalikes cannot coexist, emails must not because that would merge
+    # distinct addresses. One shared `subject` would silently lock out every
+    # account whose name contains a diacritic.
+    email_subject = normalize_email(email_or_username)
+    username_subject = normalize_username(email_or_username)
     user = session.scalar(
         select(ApplicationUser).where(
             (
-                (ApplicationUser.email_normalized == subject)
-                | (ApplicationUser.username_normalized == subject)
+                (ApplicationUser.email_normalized == email_subject)
+                | (ApplicationUser.username_normalized == username_subject)
             )
             & (ApplicationUser.identity_source == IdentitySource.product.value)
         )
     )
     if user is None or user.credential is None or user.status != "active":
         _dummy_verify_password(settings, password)
-        audit(session, settings, event_type="user.login_failed", result="invalid", subject=subject)
+        audit(
+            session,
+            settings,
+            event_type="user.login_failed",
+            result="invalid",
+            subject=email_subject,
+        )
         session.commit()
         raise AuthError("invalid credentials")
     valid = verify_password(
@@ -418,7 +422,13 @@ def authenticate_user(
             user.credential.password_hash_params = new_hash.params
             user.credential.pepper_version = new_hash.pepper_version
     if not valid:
-        audit(session, settings, event_type="user.login_failed", result="invalid", subject=subject)
+        audit(
+            session,
+            settings,
+            event_type="user.login_failed",
+            result="invalid",
+            subject=email_subject,
+        )
         session.commit()
         raise AuthError("invalid credentials")
     session_token, refresh_token, _ = create_session(
@@ -430,7 +440,7 @@ def authenticate_user(
         event_type="user.login_succeeded",
         result="success",
         user_id=user.id,
-        subject=subject,
+        subject=email_subject,
         ip=ip,
         user_agent=user_agent,
     )
