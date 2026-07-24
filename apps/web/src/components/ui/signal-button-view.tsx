@@ -33,7 +33,7 @@ export function SignalButtonView({
       aria-label={ariaLabel}
       aria-describedby={ariaDescribedBy}
       className={cn(
-        "group inline-flex items-center gap-2 border bg-graphite px-3 py-1.5 font-mono text-xs uppercase tracking-label transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        "group inline-flex items-center gap-2 border px-3 py-1.5 font-mono text-xs uppercase tracking-label transition-colors disabled:cursor-not-allowed disabled:opacity-50",
         active
           ? "border-acid bg-acid text-pitch"
           : "border-border-gray text-dim-white hover:border-acid",

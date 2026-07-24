@@ -12,7 +12,7 @@ function Tag({
   className?: string
 }) {
   const classes = cn(
-    "inline-block border border-border-gray bg-raised px-2 py-0.5 font-mono text-[11px] uppercase tracking-label text-dim-white",
+    "inline-block border border-border-gray px-2 py-0.5 font-mono text-[11px] uppercase tracking-label text-dim-white",
     href && "hover:border-violet hover:text-violet",
     className,
   )

@@ -31,7 +31,7 @@ export function Avatar({
     <span
       aria-hidden
       className={cn(
-        "inline-flex shrink-0 items-center justify-center overflow-hidden border border-border-gray bg-raised font-mono uppercase tracking-[0.1em] text-dim-white",
+        "inline-flex shrink-0 items-center justify-center overflow-hidden border border-border-gray font-mono uppercase tracking-[0.1em] text-dim-white",
         sizeClass,
         className,
       )}

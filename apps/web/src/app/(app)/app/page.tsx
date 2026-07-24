@@ -3,7 +3,6 @@ import { getLocale, getTranslations } from "next-intl/server"
 import { auth } from "@/auth"
 import { FeedComposer } from "@/components/feed/feed-composer"
 import { FeedList } from "@/components/feed/feed-list"
-import { MonoLabel } from "@/components/ui/mono-label"
 import { getFeed } from "@/lib/api/feed"
 import { cityLabel } from "@/lib/cities"
 
@@ -28,19 +27,11 @@ export default async function FeedPage() {
     displayCity ? t("suggestionCityEvents", { city: displayCity }) : t("suggestionEvents"),
   ]
 
+  // The visible title is gone: the active nav state and the brand mark already
+  // say where you are. Screen readers still need the landmark, so it stays.
   return (
-    <div className="flex flex-col gap-6">
-      <header className="border-b border-border-gray pb-4">
-        <div>
-          <h1 className="font-display text-4xl tracking-wide text-raw-white">
-            {t("title")}
-          </h1>
-          <MonoLabel tone="muted" className="mt-1 block">
-            {t("newest")}
-          </MonoLabel>
-        </div>
-      </header>
-
+    <div className="flex flex-col gap-5">
+      <h1 className="sr-only">{t("title")}</h1>
       <FeedComposer />
       <FeedList items={items} suggestions={suggestions} />
     </div>

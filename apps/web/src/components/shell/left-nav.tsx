@@ -55,8 +55,8 @@ export function LeftNav({ unreadCount = 0 }: { unreadCount?: number }) {
                   className={cn(
                     "flex items-center gap-3 border-l-2 px-3 py-2 font-mono text-sm uppercase tracking-label transition-colors",
                     active
-                      ? "border-acid bg-raised text-acid"
-                      : "border-transparent text-dim-white hover:bg-raised hover:text-raw-white",
+                      ? "border-acid text-acid"
+                      : "border-transparent text-dim-white hover:text-raw-white",
                   )}
                 >
                   <Icon size={18} weight={active ? "fill" : "regular"} aria-hidden />

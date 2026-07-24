@@ -1,23 +1,19 @@
-import {
-  CalendarBlank,
-  MapPin,
-  UsersThree,
-} from "@phosphor-icons/react/ssr"
 import { getLocale, getTranslations } from "next-intl/server"
 import Link from "next/link"
 
+import { EventFacts } from "@/components/event/event-facts"
 import { CommentsSection } from "@/components/social/comments-section"
 import { EmojiReactionBar } from "@/components/social/emoji-reaction-bar"
 import { PostBody } from "@/components/social/post-body"
 import { VoteButtons } from "@/components/social/vote-buttons"
 import { Avatar } from "@/components/ui/avatar"
-import { Card } from "@/components/ui/card"
 import { MonoLabel } from "@/components/ui/mono-label"
 import { TagRow } from "@/components/ui/tag"
 import { cityLabel } from "@/lib/cities"
 import { formatRelative } from "@/lib/format"
 import { mediaDerivativeUrl } from "@/lib/media/urls"
 import { profileHref } from "@/lib/profile-href"
+import { profileName } from "@/lib/profile-name"
 import { safeInternalHref } from "@/lib/safe-href"
 import type { Comment, ThresholdEvent, Post } from "@/lib/types"
 
@@ -42,6 +38,8 @@ function FeedEventWidget({
   event: ThresholdEvent
   locale: string
   labels: {
+    date: string
+    location: string
     lineup: string
     locationTba: string
     secretLocation: string
@@ -52,17 +50,13 @@ function FeedEventWidget({
     ? mediaDerivativeUrl(event.poster_media_asset_id, "post_1280")
     : null
   const city = event.city ? cityLabel(event.city, locale) : null
-  const location = event.location_mode === "secret_location"
-    ? labels.secretLocation
-    : event.location_mode === "tba"
-      ? labels.locationTba
-      : [event.venue_name, event.address, city].filter(Boolean).join(" · ")
+  const venue = [event.venue_name, event.address, city].filter(Boolean).join(" · ")
 
   return (
-    <section className="mt-4 overflow-hidden border border-border-gray bg-pitch">
+    <section className="mt-4 overflow-hidden border border-border-gray">
       <div className="grid sm:grid-cols-[minmax(0,2fr)_minmax(15rem,1fr)]">
         {posterUrl ? (
-          <Link href={`/events/${event.slug}`} className="block min-h-64 bg-raised">
+          <Link href={`/events/${event.slug}`} className="block min-h-64">
             <img
               src={posterUrl}
               alt={event.title}
@@ -76,7 +70,7 @@ function FeedEventWidget({
         ) : (
           <Link
             href={`/events/${event.slug}`}
-            className="flex min-h-64 items-end bg-raised p-5"
+            className="flex min-h-64 items-end border-b border-border-gray p-5 sm:border-b-0 sm:border-r"
           >
             <span className="font-display text-5xl leading-[0.9] tracking-wide text-raw-white">
               {event.title}
@@ -93,34 +87,33 @@ function FeedEventWidget({
                 {event.title}
               </Link>
             ) : null}
-            <dl className="mt-4 grid gap-3 text-sm text-dim-white">
-              <div className="flex gap-2">
-                <CalendarBlank size={18} className="mt-0.5 shrink-0 text-violet" aria-hidden />
-                <dd>{eventDate(event.starts_at, locale)}</dd>
-              </div>
-              <div className="flex gap-2">
-                <MapPin size={18} className="mt-0.5 shrink-0 text-violet" aria-hidden />
-                <dd>{location || labels.locationTba}</dd>
-              </div>
-              {event.lineup.length > 0 ? (
-                <div className="flex gap-2">
-                  <UsersThree size={18} className="mt-0.5 shrink-0 text-violet" aria-hidden />
-                  <dd>
-                    <span className="sr-only">{labels.lineup}: </span>
-                    {event.lineup.map((item, index) => {
+            <EventFacts
+              className="mt-4"
+              date={eventDate(event.starts_at, locale)}
+              locationMode={event.location_mode}
+              venue={venue}
+              labels={labels}
+              lineup={
+                event.lineup.length > 0
+                  ? event.lineup.map((item, index) => {
                       const name = typeof item === "string" ? item : item.display_name ?? item.name
                       const href = typeof item === "string" ? null : safeInternalHref(item.target_url)
                       return (
                         <span key={`${name}-${index}`}>
                           {index > 0 ? " / " : null}
-                          {href ? <Link href={href} className="text-cyan hover:underline">{name}</Link> : name}
+                          {href ? (
+                            <Link href={href} className="text-raw-white hover:text-acid">
+                              {name}
+                            </Link>
+                          ) : (
+                            name
+                          )}
                         </span>
                       )
-                    })}
-                  </dd>
-                </div>
-              ) : null}
-            </dl>
+                    })
+                  : null
+              }
+            />
           </div>
           <Link
             href={`/events/${event.slug}`}
@@ -147,12 +140,13 @@ export async function PostCard({
 }) {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("post")])
   const href = profileHref(post.author)
+  const name = profileName(post.author)
 
   return (
-    <Card as="article">
-      <div className="flex gap-3 px-4 py-4">
+    <article className="px-4 py-5">
+      <div className="flex gap-3">
         <Link href={href}>
-          <Avatar name={post.author.displayName} imageUrl={post.author.avatarUrl} />
+          <Avatar name={name} imageUrl={post.author.avatarUrl} />
         </Link>
         <div className="min-w-0 flex-1">
           <PostBody
@@ -162,21 +156,18 @@ export async function PostCard({
             editedAtIso={post.editedAtIso}
             viewerIsAuthor={post.viewerIsAuthor && !post.systemOwned}
             redirectHomeOnDelete={redirectHomeOnDelete}
-            header={(
-              <div className="min-w-0">
+            identity={(
+              <div className="flex min-w-0 flex-wrap items-baseline gap-x-2">
                 <Link
                   href={href}
-                  className="block truncate font-display text-xl tracking-wide text-raw-white hover:text-acid"
+                  className="truncate text-[15px] font-semibold text-raw-white hover:text-acid"
                 >
-                  {post.author.displayName}
+                  {name}
                 </Link>
-                <p className="truncate font-mono text-[11px] text-muted">@{post.author.handle}</p>
+                <Link href={`/posts/${post.id}`} className="hover:text-acid">
+                  <MonoLabel size="xs">{formatRelative(post.createdAtIso, locale)}</MonoLabel>
+                </Link>
               </div>
-            )}
-            age={(
-              <Link href={`/posts/${post.id}`} className="hover:text-acid">
-                <MonoLabel size="xs">{formatRelative(post.createdAtIso, locale)}</MonoLabel>
-              </Link>
             )}
           />
 
@@ -202,6 +193,8 @@ export async function PostCard({
               event={post.linkedEvent}
               locale={locale}
               labels={{
+                date: t("dateLabel"),
+                location: t("locationLabel"),
                 lineup: t("lineup"),
                 locationTba: t("locationTba"),
                 secretLocation: t("secretLocation"),
@@ -229,6 +222,6 @@ export async function PostCard({
           />
         </div>
       </div>
-    </Card>
+    </article>
   )
 }

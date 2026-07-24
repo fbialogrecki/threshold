@@ -13,7 +13,9 @@ export type MentionSuggestion = SearchResult & {
   handle: string
 }
 
-const TOKEN_RE = /^[A-Za-z0-9_-]{0,64}$/
+// Usernames may contain dots, so a token without them stopped autocomplete
+// mid-name for anyone called e.g. `marcin.wro`.
+const TOKEN_RE = /^[A-Za-z0-9_.-]{0,64}$/
 
 export function activeMentionTrigger(text: string, caret: number): MentionTrigger | null {
   const safeCaret = Math.max(0, Math.min(caret, text.length))

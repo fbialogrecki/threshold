@@ -1,19 +1,14 @@
 import { cn } from "@/lib/cn"
 
-/** Brutalist skeleton: flat pulsing blocks, no rounded corners. */
+/** Brutalist skeleton: outlined pulsing blocks, no fills, no rounded corners. */
 function Skeleton({ className }: { className?: string }) {
-  return (
-    <div
-      aria-hidden
-      className={cn("animate-pulse border border-border-gray bg-raised", className)}
-    />
-  )
+  return <div aria-hidden className={cn("animate-pulse border border-border-gray", className)} />
 }
 
 /** Card-shaped placeholder roughly matching feed card heights. */
 function SkeletonCard() {
   return (
-    <div className="border border-border-gray bg-graphite p-4">
+    <div className="border border-border-gray p-4">
       <div className="flex gap-3">
         <Skeleton className="h-10 w-10 shrink-0" />
         <div className="flex-1 space-y-2">

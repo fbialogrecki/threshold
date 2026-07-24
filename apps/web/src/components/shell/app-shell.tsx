@@ -4,6 +4,7 @@ import { getLocale } from "next-intl/server"
 import { RefreshKeeper } from "@/components/auth/refresh-keeper"
 import { MobileNav } from "@/components/shell/mobile-nav"
 import { Sidebar } from "@/components/shell/sidebar"
+import { TopBar } from "@/components/shell/top-bar"
 import { notificationUnreadCount as fetchNotificationUnreadCount } from "@/lib/auth/product-auth"
 import type { Session } from "@/lib/auth/session"
 import { cityLabel } from "@/lib/cities"
@@ -33,8 +34,10 @@ export async function AppShell({
   const unreadCount = unreadResult?.status === 200
     ? notificationUnreadCount(unreadResult.body)
     : 0
-  const displayName =
-    session.consumer_profile?.display_name?.trim() || session.user.username || ""
+  // One public name per person: the unique username. The profile display name
+  // survives only as a fallback for accounts that never had a username.
+  const name =
+    session.user.username?.trim() || session.consumer_profile?.display_name?.trim() || ""
   const avatarMediaAssetId = session.consumer_profile?.avatar_media_asset_id ?? null
   const storedCity = session.onboarding_preferences?.city?.trim()
   const city = storedCity ? cityLabel(storedCity, locale) : null
@@ -43,19 +46,22 @@ export async function AppShell({
     <div className="flex min-h-screen bg-pitch">
       <RefreshKeeper />
       <Sidebar session={session} unreadCount={unreadCount} />
-      <main className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 sm:px-6 lg:px-10 lg:pb-8">
-        {banner}
-        <div className={wide ? "mx-auto w-full max-w-event-detail" : "mx-auto w-full max-w-feed"}>
-          {children}
-        </div>
-      </main>
-      <MobileNav
-        username={session.user.username}
-        displayName={displayName}
-        avatarMediaAssetId={avatarMediaAssetId}
-        city={city}
-        unreadCount={unreadCount}
-      />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar
+          username={session.user.username}
+          name={name}
+          avatarMediaAssetId={avatarMediaAssetId}
+          city={city}
+          unreadCount={unreadCount}
+        />
+        <main className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-10 lg:pb-8 lg:pt-6">
+          {banner}
+          <div className={wide ? "mx-auto w-full max-w-event-detail" : "mx-auto w-full max-w-feed"}>
+            {children}
+          </div>
+        </main>
+      </div>
+      <MobileNav />
     </div>
   )
 }

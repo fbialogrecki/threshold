@@ -1,17 +1,18 @@
 "use client"
 
-import { PencilSimple, Trash } from "@phosphor-icons/react"
 import { useLocale, useTranslations } from "next-intl"
 import Link from "next/link"
 import type { FormEvent, ReactNode } from "react"
 import { useState, useTransition } from "react"
 
 import { CommentComposer } from "@/components/social/comment-composer"
+import { OwnerMenu } from "@/components/social/owner-menu"
 import { RichText } from "@/components/social/rich-text"
 import { VoteButtons } from "@/components/social/vote-buttons"
 import { Avatar } from "@/components/ui/avatar"
 import { formatRelative } from "@/lib/format"
 import { profileHref } from "@/lib/profile-href"
+import { profileName } from "@/lib/profile-name"
 import type { Comment, ProfileRef } from "@/lib/types"
 
 type RawComment = {
@@ -107,7 +108,7 @@ const MAX_DEPTH = 2
 const COMMENT_ACTION_CLASS =
   "font-mono text-[10px] uppercase tracking-label text-muted hover:text-acid"
 
-type CommentMode = "view" | "edit" | "confirm-delete"
+type CommentMode = "view" | "edit"
 
 function CommentItem({
   comment,
@@ -176,72 +177,42 @@ function CommentItem({
         onDeleted(comment.id)
       } catch {
         setError(t("commentDeleteError"))
-        setMode("view")
       }
     })
   }
 
+  const name = profileName(comment.author)
+
   return (
     <div className="flex gap-2.5">
       <Link href={profileHref(comment.author)}>
-        <Avatar name={comment.author.displayName} size="sm" />
+        <Avatar name={name} size="sm" />
       </Link>
       <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-3">
-          <Link
-            href={profileHref(comment.author)}
-            className="min-w-0 truncate font-display text-base tracking-wide text-raw-white hover:text-acid"
-          >
-            {comment.author.displayName}
-          </Link>
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-            <span className="font-mono text-[11px] text-muted">
+        {/* Row height matches the small avatar, same rule as the post row. */}
+        <div className="flex min-h-8 items-center gap-3">
+          <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-2">
+            <Link
+              href={profileHref(comment.author)}
+              className="truncate text-[13.5px] font-semibold text-raw-white hover:text-acid"
+            >
+              {name}
+            </Link>
+            <span className="font-mono text-[10px] uppercase tracking-label text-muted">
               {formatRelative(comment.createdAtIso, locale)}
               {comment.editedAtIso ? ` · ${t("edited")}` : ""}
             </span>
-            {comment.viewerIsAuthor && mode !== "edit" ? (
-              mode === "confirm-delete" ? (
-                <>
-                  <span className="font-mono text-[10px] uppercase tracking-label text-error">
-                    {t("deleteConfirm")}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={confirmDelete}
-                    disabled={pending}
-                    className="font-mono text-[10px] uppercase tracking-label text-error hover:text-raw-white"
-                  >
-                    {pending ? "…" : t("yes")}
-                  </button>
-                  <button type="button" onClick={() => setMode("view")} className={COMMENT_ACTION_CLASS}>
-                    {t("no")}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDraft(comment.body)
-                      setMode("edit")
-                    }}
-                    className={`${COMMENT_ACTION_CLASS} inline-flex items-center gap-1`}
-                  >
-                    <PencilSimple size={12} aria-hidden />
-                    {t("edit")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMode("confirm-delete")}
-                    className={`${COMMENT_ACTION_CLASS} inline-flex items-center gap-1`}
-                  >
-                    <Trash size={12} aria-hidden />
-                    {t("delete")}
-                  </button>
-                </>
-              )
-            ) : null}
           </div>
+          {comment.viewerIsAuthor && mode !== "edit" ? (
+            <OwnerMenu
+              pending={pending}
+              onEdit={() => {
+                setDraft(comment.body)
+                setMode("edit")
+              }}
+              onDelete={confirmDelete}
+            />
+          ) : null}
         </div>
 
         {mode === "edit" ? (
@@ -261,11 +232,7 @@ function CommentItem({
           </p>
         )}
 
-        {error ? (
-          <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-error">
-            {error}
-          </p>
-        ) : null}
+        {error ? <p className="mt-1 text-sm text-error">{error}</p> : null}
 
         {mode !== "edit" ? (
           <CommentActions
@@ -302,7 +269,7 @@ function CommentEditForm({
         maxLength={1000}
         autoFocus
         aria-label={t("editComment")}
-        className="w-full resize-none border border-border-gray bg-pitch p-2 text-sm leading-6 text-raw-white focus:border-acid focus:outline-none"
+        className="w-full resize-none border border-border-gray p-2 text-sm leading-6 text-raw-white focus:border-acid focus:outline-none"
       />
       <div className="mt-1 flex items-center gap-3">
         <button type="submit" disabled={pending} className={COMMENT_ACTION_CLASS}>
@@ -326,8 +293,12 @@ function CommentActions({
   onReply: (target: ReplyTarget) => void
 }) {
   const t = useTranslations("post")
+  // Same split as the post row: navigation left, evaluation right.
   return (
-    <div className="mt-1.5 flex items-center gap-3">
+    <div className="mt-2 flex items-center justify-between gap-3">
+      <button type="button" onClick={() => onReply(replyTarget)} className={COMMENT_ACTION_CLASS}>
+        {t("reply")}
+      </button>
       <VoteButtons
         targetType="comment"
         targetId={comment.id}
@@ -336,9 +307,6 @@ function CommentActions({
         viewerVote={comment.viewerVote}
         size="sm"
       />
-      <button type="button" onClick={() => onReply(replyTarget)} className={COMMENT_ACTION_CLASS}>
-        {t("reply")}
-      </button>
     </div>
   )
 }
@@ -505,20 +473,30 @@ export function CommentsSection({
   }
 
   return (
-    <div className="mt-3">
-      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mt-4">
+      {/*
+        One row at every width. The comments toggle used to be a block-level
+        button in a flex column below `sm`, so its label rendered centred by
+        default and looked accidental. Left is navigation into the thread,
+        right is evaluation.
+      */}
+      <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={toggleOpen}
           aria-expanded={open}
-          className="font-mono text-[11px] uppercase tracking-label text-muted hover:text-acid"
+          className="shrink-0 font-mono text-[11px] uppercase tracking-label text-muted hover:text-acid"
         >
           {t("commentCount", { count })} {open ? "▴" : "▾"}
         </button>
-        <div className="flex min-w-0 items-center justify-between gap-3 sm:flex-1 sm:justify-end">
-          {reactions ? <div className="min-w-0 flex-1 sm:flex-none">{reactions}</div> : null}
-          {votes}
-        </div>
+        {reactions ? (
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1.5">
+            {reactions}
+          </div>
+        ) : (
+          <span className="flex-1" />
+        )}
+        {votes}
       </div>
 
       {open ? (
@@ -530,11 +508,7 @@ export function CommentsSection({
               {t("commentsLoading")}
             </p>
           ) : null}
-          {error ? (
-            <p className="font-mono text-[11px] uppercase tracking-label text-error">
-              {error}
-            </p>
-          ) : null}
+          {error ? <p className="text-sm text-error">{error}</p> : null}
 
           {comments !== null && topLevel.length === 0 ? (
             <p className="text-sm leading-6 text-muted">

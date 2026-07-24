@@ -91,7 +91,7 @@ export function VoteButtons({
         aria-pressed={state.vote === "up"}
         aria-label={state.vote === "up" ? t("removeUpvote") : t("upvote")}
         className={cn(
-          "inline-flex items-center gap-1 border bg-graphite transition-colors",
+          "inline-flex items-center gap-1 border transition-colors",
           compact ? "px-1.5 py-0.5" : "px-2 py-1",
           state.vote === "up"
             ? "border-acid bg-acid/15 text-acid"
@@ -107,7 +107,7 @@ export function VoteButtons({
         aria-pressed={state.vote === "down"}
         aria-label={state.vote === "down" ? t("removeDownvote") : t("downvote")}
         className={cn(
-          "inline-flex items-center gap-1 border bg-graphite transition-colors",
+          "inline-flex items-center gap-1 border transition-colors",
           compact ? "px-1.5 py-0.5" : "px-2 py-1",
           state.vote === "down"
             ? "border-violet bg-violet/15 text-violet"

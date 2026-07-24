@@ -82,8 +82,8 @@ export function CommentComposer({
       onSubmit={onSubmit}
       className={
         compact
-          ? "border border-border-gray bg-graphite p-2 focus-within:border-acid"
-          : "border border-border-gray bg-graphite p-4 focus-within:border-acid"
+          ? "border border-border-gray p-2 focus-within:border-acid"
+          : "border border-border-gray p-4 focus-within:border-acid"
       }
     >
       <label className="sr-only" htmlFor={`comment-body-${postId}-${parentId ?? "top"}`}>
@@ -99,15 +99,11 @@ export function CommentComposer({
         placeholder={parentId ? t("replyPlaceholder") : t("commentPlaceholder")}
         className={
           compact
-            ? "w-full resize-none bg-pitch p-2 text-sm leading-6 text-raw-white placeholder:text-muted focus:outline-none"
-            : "w-full resize-none bg-pitch p-3 text-sm leading-7 text-raw-white placeholder:text-muted focus:outline-none"
+            ? "w-full resize-none bg-transparent p-2 text-sm leading-6 text-raw-white placeholder:text-muted focus:outline-none"
+            : "w-full resize-none bg-transparent p-3 text-sm leading-7 text-raw-white placeholder:text-muted focus:outline-none"
         }
       />
-      {error ? (
-        <p className="mt-2 font-mono text-[11px] uppercase tracking-label text-error">
-          {error}
-        </p>
-      ) : null}
+      {error ? <p className="mt-2 text-sm text-error">{error}</p> : null}
       {!compact || active ? (
         <div className={compact ? "mt-2 flex items-center justify-between" : "mt-3 flex items-center justify-between"}>
           <span className="font-mono text-[11px] uppercase tracking-label text-muted">

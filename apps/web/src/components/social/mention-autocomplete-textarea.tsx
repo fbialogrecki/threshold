@@ -121,7 +121,7 @@ export function MentionAutocompleteTextarea({
         className={className}
       />
       {open && trigger ? (
-        <div className="absolute left-0 right-0 top-full z-30 mt-1 border border-border-gray bg-raised shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-30 mt-1 border border-border-gray bg-pitch">
           {suggestions.map((suggestion, index) => (
             <button
               key={`${suggestion.type}:${suggestion.handle}`}
@@ -130,7 +130,7 @@ export function MentionAutocompleteTextarea({
               onClick={() => selectSuggestion(suggestion)}
               className={cn(
                 "flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm",
-                index === activeIndex ? "bg-acid text-pitch" : "text-raw-white hover:bg-graphite",
+                index === activeIndex ? "bg-acid text-pitch" : "text-raw-white hover:text-acid",
               )}
             >
               <span>

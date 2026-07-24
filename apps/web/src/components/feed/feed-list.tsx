@@ -32,8 +32,9 @@ export async function FeedList({ items, suggestions = [] }: { items: FeedItem[];
     )
   }
 
+  // Full-bleed stream: rows separated by one rule, no cards, no gaps.
   return (
-    <div className="flex flex-col gap-4">
+    <div className="divide-y divide-border-gray border-y border-border-gray">
       {items.map((item) => {
         switch (item.kind) {
           case "post":
