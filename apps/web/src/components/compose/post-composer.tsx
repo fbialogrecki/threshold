@@ -3,10 +3,11 @@
 import { CalendarBlank, ImageSquare, PaperPlaneTilt } from "@phosphor-icons/react"
 import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 
 import { MentionAutocompleteTextarea } from "@/components/social/mention-autocomplete-textarea"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/cn"
 import { buildPostPayload, canSubmitPost, MAX_POST_BODY, MAX_POST_IMAGES } from "@/lib/social/post-create"
 
 type EventOption = { slug: string; title: string; starts_at: string }
@@ -43,6 +44,28 @@ export function PostComposer({
   const [eventError, setEventError] = useState<string | null>(null)
   const [fileNotice, setFileNotice] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  const formRef = useRef<HTMLFormElement>(null)
+
+  // The feed composer has no close control: clicking away or pressing Escape
+  // collapses it. A prevented Escape belongs to the mention dropdown, which
+  // closes itself first and must not also collapse the composer.
+  useEffect(() => {
+    if (!open || !compact) return
+
+    function onPointerDown(event: PointerEvent) {
+      if (!formRef.current?.contains(event.target as Node)) setOpen(false)
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && !event.defaultPrevented) setOpen(false)
+    }
+
+    document.addEventListener("pointerdown", onPointerDown)
+    document.addEventListener("keydown", onKeyDown)
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown)
+      document.removeEventListener("keydown", onKeyDown)
+    }
+  }, [open, compact])
 
   useEffect(() => {
     let active = true
@@ -133,13 +156,18 @@ export function PostComposer({
   }
 
   if (!open) {
+    // Collapsing keeps the draft in state, so the trigger shows it back rather
+    // than the placeholder; otherwise the text looks discarded.
+    const draft = body.trim()
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
         className="flex w-full items-center gap-3 border border-border-gray px-3 py-3 text-left transition-colors hover:border-acid"
       >
-        <span className="flex-1 truncate text-sm text-muted">{t("placeholder")}</span>
+        <span className={cn("flex-1 truncate text-sm", draft ? "text-dim-white" : "text-muted")}>
+          {draft || t("placeholder")}
+        </span>
         <span className="font-mono text-[11px] uppercase tracking-label text-acid">
           {t("publish")}
         </span>
@@ -152,22 +180,11 @@ export function PostComposer({
   const iconActionClass = "p-2 text-muted transition-colors hover:text-acid focus-within:text-acid"
 
   return (
-    <form onSubmit={onSubmit} className="border border-border-gray focus-within:border-acid">
-      {compact ? (
-        <div className="flex items-center justify-between border-b border-border-gray px-3 py-2">
-          <span className="font-mono text-[10px] uppercase tracking-label text-muted">
-            {t("title")}
-          </span>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="font-mono text-[10px] uppercase tracking-label text-muted hover:text-raw-white"
-          >
-            {t("close")}
-          </button>
-        </div>
-      ) : null}
-
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      className="border border-border-gray focus-within:border-acid"
+    >
       <label className="sr-only" htmlFor={compact ? "feed-compose-body" : "compose-body"}>
         {t("textLabel")}
       </label>

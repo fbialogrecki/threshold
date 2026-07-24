@@ -490,6 +490,7 @@
       "profile": "Profil",
       "artist": "Artysta",
       "notifications": "Powiadomienia",
+      "language": "Język",
       "account": "Konto"
     },
     "status": {
@@ -575,6 +576,10 @@
       "saveError": "Nie udało się zapisać preferencji.",
       "retry": "Spróbuj ponownie",
       "retrying": "Ponawianie…"
+    },
+    "language": {
+      "title": "Język",
+      "description": "Działa od razu po wybraniu. Twoje treści nie są tłumaczone."
     },
     "account": {
       "title": "Konto",
@@ -708,7 +713,6 @@
     "noEvent": "Bez wydarzenia",
     "publish": "Opublikuj",
     "publishing": "Publikowanie…",
-    "close": "Zamknij",
     "sessionExpired": "Sesja wygasła. Zaloguj się ponownie.",
     "publishError": "Nie udało się opublikować. Spróbuj ponownie.",
     "networkError": "Nie udało się połączyć z siecią. Spróbuj ponownie.",

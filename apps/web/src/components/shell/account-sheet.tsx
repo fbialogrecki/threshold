@@ -6,14 +6,13 @@ import { useTranslations } from "next-intl"
 import { useEffect, useId, useRef } from "react"
 
 import { LogoutButton } from "@/components/auth/logout-button"
-import { LocaleSwitcher } from "@/components/i18n/locale-switcher"
 import { Avatar } from "@/components/ui/avatar"
 import { mediaDerivativeUrl } from "@/lib/media/urls"
 
 /**
- * Account actions on mobile: profile, settings, language and logout. This is
- * the only place a phone can reach logout and the locale switcher, so it stays
- * a sheet with its own focus trap; only its trigger moved to the top bar.
+ * Account actions on mobile: profile, settings and logout. Language moved into
+ * Settings, so this is the only place a phone can reach logout; it stays a
+ * sheet with its own focus trap and only its trigger moved to the top bar.
  * Escape and backdrop click close it; focus is restored on unmount.
  */
 export function AccountSheet({
@@ -117,17 +116,14 @@ export function AccountSheet({
               ) : null}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <LocaleSwitcher />
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label={actions("close")}
-              className="p-2 text-muted hover:text-raw-white focus-visible:text-raw-white"
-            >
-              <X size={18} weight="bold" aria-hidden />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={actions("close")}
+            className="p-2 text-muted hover:text-raw-white focus-visible:text-raw-white"
+          >
+            <X size={18} weight="bold" aria-hidden />
+          </button>
         </div>
         <nav aria-label={shell("accountNavigation")}>
           {username ? (
