@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useTransition } from "react"
 
+import { LocaleSwitcher } from "@/components/i18n/locale-switcher"
 import { AvatarCropModal } from "@/components/media/avatar-crop-modal"
 import { NotificationPreferencesForm } from "@/components/settings/notification-preferences-form"
 import { Avatar } from "@/components/ui/avatar"
@@ -38,6 +39,7 @@ const SECTIONS = [
   "profile",
   "artist",
   "notifications",
+  "language",
   "account",
 ] as const
 
@@ -630,6 +632,15 @@ export function SettingsForm({
           description={t("notifications.description")}
         >
           <NotificationPreferencesForm initial={notificationPreferences} />
+        </SectionCard>
+
+        {/* Applies on selection, so it stays out of the explicit-save forms. */}
+        <SectionCard
+          id="language"
+          title={t("language.title")}
+          description={t("language.description")}
+        >
+          <LocaleSwitcher />
         </SectionCard>
 
         {/* ------------------------------------------------------ account */}

@@ -1,10 +1,8 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { GearSix } from "@phosphor-icons/react/ssr"
 import { getLocale, getTranslations } from "next-intl/server"
 
-import { LogoutButton } from "@/components/auth/logout-button"
-import { LocaleSwitcher } from "@/components/i18n/locale-switcher"
+import { DockActions } from "@/components/shell/dock-actions"
 import { LeftNav } from "@/components/shell/left-nav"
 import { Avatar } from "@/components/ui/avatar"
 import { MonoLabel } from "@/components/ui/mono-label"
@@ -38,11 +36,10 @@ export async function Sidebar({
   session: Session
   unreadCount: number
 }) {
-  const [yourAccess, tonight, t, navigation, locale] = await Promise.all([
+  const [yourAccess, tonight, t, locale] = await Promise.all([
     getYourAccess(),
     getTonight(),
     getTranslations("shell"),
-    getTranslations("navigation"),
     getLocale(),
   ])
 
@@ -64,7 +61,7 @@ export async function Sidebar({
       className="sticky top-0 hidden h-screen w-[280px] shrink-0 flex-col overflow-hidden border-r border-border-gray lg:flex"
     >
       <div className="min-h-0 flex-1 overflow-y-auto p-5">
-        <LeftNav unreadCount={unreadCount} />
+        <LeftNav />
 
         {/*
           Empty sections collapse instead of drawing a titled box around a
@@ -126,9 +123,10 @@ export async function Sidebar({
       </div>
 
       <div className="shrink-0 border-t border-border-gray p-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Avatar
             name={name}
+            size="sm"
             imageUrl={
               avatarMediaAssetId
                 ? mediaDerivativeUrl(avatarMediaAssetId, "avatar_256")
@@ -136,24 +134,14 @@ export async function Sidebar({
             }
           />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[15px] font-semibold text-raw-white">{name}</p>
+            <p className="truncate text-sm font-semibold text-raw-white">{name}</p>
             {city ? (
               <p className="truncate font-mono text-[10px] uppercase tracking-label text-muted">
                 {city}
               </p>
             ) : null}
           </div>
-          <Link
-            href="/app/settings"
-            aria-label={navigation("settings")}
-            className="p-2 text-muted transition-colors hover:text-acid focus-visible:text-acid"
-          >
-            <GearSix size={20} weight="bold" aria-hidden />
-          </Link>
-        </div>
-        <div className="mt-3 flex items-center justify-between">
-          <LocaleSwitcher />
-          <LogoutButton />
+          <DockActions unreadCount={unreadCount} />
         </div>
       </div>
     </aside>

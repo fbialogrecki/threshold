@@ -490,6 +490,7 @@
       "profile": "Profile",
       "artist": "Artist",
       "notifications": "Notifications",
+      "language": "Language",
       "account": "Account"
     },
     "status": {
@@ -575,6 +576,10 @@
       "saveError": "Preferences could not be saved.",
       "retry": "Try again",
       "retrying": "Retrying…"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Applies as soon as you pick it. Your content is never translated."
     },
     "account": {
       "title": "Account",
@@ -708,7 +713,6 @@
     "noEvent": "No linked event",
     "publish": "Post",
     "publishing": "Posting…",
-    "close": "Close",
     "sessionExpired": "Your session expired. Log in again to post.",
     "publishError": "Could not publish. Try again.",
     "networkError": "Could not reach the network. Try again.",

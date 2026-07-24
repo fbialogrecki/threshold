@@ -2,15 +2,24 @@
 
 import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 
 import { cn } from "@/lib/cn"
 
 /**
  * Logs out via the product-auth BFF (revokes the session in `users` and clears
  * the bridged cookies), then sends the user back to the public login screen.
+ *
+ * Pass children to render a glyph instead of the word; the label then moves to
+ * `aria-label` so the control stays announceable.
  */
-export function LogoutButton({ className }: { className?: string }) {
+export function LogoutButton({
+  className,
+  children,
+}: {
+  className?: string
+  children?: ReactNode
+}) {
   const router = useRouter()
   const t = useTranslations("auth")
   const [pending, setPending] = useState(false)
@@ -35,12 +44,15 @@ export function LogoutButton({ className }: { className?: string }) {
       type="button"
       onClick={onClick}
       disabled={pending}
+      aria-label={children ? t("logout") : undefined}
       className={cn(
-        "font-mono text-[11px] uppercase tracking-label text-muted transition-colors hover:text-orange disabled:opacity-50",
+        children
+          ? "transition-colors disabled:opacity-50"
+          : "font-mono text-[11px] uppercase tracking-label text-muted transition-colors hover:text-orange disabled:opacity-50",
         className,
       )}
     >
-      {pending ? "…" : t("logout")}
+      {children ?? (pending ? "…" : t("logout"))}
     </button>
   )
 }
