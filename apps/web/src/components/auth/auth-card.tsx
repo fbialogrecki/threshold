@@ -13,6 +13,7 @@ import {
   MIN_PASSWORD,
   passwordStrength,
   type PasswordStrength,
+  USERNAME_PATTERN,
 } from "@/lib/validation"
 
 type Mode = "login" | "register"
@@ -80,7 +81,7 @@ export function AuthCard({
             autoComplete="username"
             required
             maxLength={isRegister ? 30 : 320}
-            pattern={isRegister ? "[A-Za-z0-9_.-]{3,30}" : undefined}
+            pattern={isRegister ? USERNAME_PATTERN : undefined}
             ariaInvalid={errorField === "username" || errorField === "credentials"}
             errorId={
               error && (errorField === "username" || errorField === "credentials")

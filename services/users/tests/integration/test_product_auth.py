@@ -164,6 +164,40 @@ def test_register_rejects_duplicate_identity_with_audit(session: Session) -> Non
     assert audit_log is not None
 
 
+def test_login_accepts_a_username_with_diacritics(session: Session) -> None:
+    """The username column folds diacritics; login must fold the same way.
+
+    Comparing a merely lowercased subject against a folded column would lock out
+    every account whose name contains a Polish character.
+    """
+    client = TestClient(app)
+    register = client.post(
+        "/v1/auth/register",
+        json={
+            "email": "zaba@example.test",
+            "username": "Żaba_Wrocław",
+            "password": "StrongPass123!",
+        },
+    )
+    assert register.status_code == 201, register.text
+    client.cookies.clear()
+
+    stored = session.scalar(
+        select(ApplicationUser).where(ApplicationUser.email_normalized == "zaba@example.test")
+    )
+    assert stored is not None
+    assert stored.username == "Żaba_Wrocław"
+    assert stored.username_normalized == "zaba_wroclaw"
+
+    for subject in ("Żaba_Wrocław", "żaba_wrocław", "Zaba_Wroclaw"):
+        client.cookies.clear()
+        login = client.post(
+            "/v1/auth/login",
+            json={"email_or_username": subject, "password": "StrongPass123!"},
+        )
+        assert login.status_code == 200, f"{subject} could not log in: {login.text}"
+
+
 def test_login_me_refresh_and_logout_use_opaque_hashed_cookies(session: Session) -> None:
     client = TestClient(app)
     client.post(

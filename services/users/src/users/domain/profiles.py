@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from users.domain.identity import normalize_email, normalize_username
 from users.domain.models import (
     ApplicationUser,
     ConsumerProfile,
@@ -7,13 +8,12 @@ from users.domain.models import (
     OnboardingPreferences,
 )
 
-
-def normalize_email(email: str | None) -> str | None:
-    return email.strip().lower() if email else None
-
-
-def normalize_username(username: str | None) -> str | None:
-    return username.strip().lower() if username else None
+__all__ = [
+    "get_or_create_current_profile",
+    "normalize_email",
+    "normalize_username",
+    "update_onboarding_preferences",
+]
 
 
 def get_or_create_current_profile(
@@ -30,9 +30,9 @@ def get_or_create_current_profile(
         user = ApplicationUser(
             authentik_subject=authentik_subject,
             email=email,
-            email_normalized=normalize_email(email),
+            email_normalized=normalize_email(email) if email else None,
             username=username,
-            username_normalized=normalize_username(username),
+            username_normalized=normalize_username(username) if username else None,
             identity_source=IdentitySource.authentik_internal.value,
             consumer_profile=ConsumerProfile(display_name=username or email),
             onboarding_preferences=OnboardingPreferences(),

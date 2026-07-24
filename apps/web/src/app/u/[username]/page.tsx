@@ -37,10 +37,10 @@ export async function generateMetadata({
     ? absoluteMediaDerivativeUrl(profile.avatarMediaAssetId, "avatar_512")
     : undefined
   return {
-    title: profile.displayName,
+    title: profile.username,
     description,
     openGraph: {
-      title: profile.displayName,
+      title: profile.username,
       description,
       type: "profile",
       ...(image ? { images: [{ url: image }] } : {}),
@@ -78,12 +78,15 @@ export default async function ArtistProfilePage({
     initialFollowing = followed.has(followKey(targetType, profile.username))
   }
 
+  // Anonymised accounts have no username left, so the label stands in for it.
+  const name = profile.username || t("deletedAccount")
+
   return (
     <div className="text-raw-white">
       <header className="flex flex-col gap-4 border-b border-border-gray pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-4">
             <Avatar
-              name={profile.displayName}
+              name={name}
               imageUrl={
                 profile.avatarMediaAssetId
                   ? mediaDerivativeUrl(profile.avatarMediaAssetId, "avatar_512")
@@ -92,14 +95,12 @@ export default async function ArtistProfilePage({
               size="lg"
             />
             <div className="min-w-0">
-              <h1 className="break-words font-display text-[clamp(2rem,6vw,3rem)] leading-tight tracking-wide">
-                {profile.displayName}
+              {/* One public name: the unique username, in the case its owner chose. */}
+              <h1 className="break-words text-[clamp(1.5rem,4vw,2.25rem)] font-semibold leading-tight">
+                {name}
               </h1>
-              <p className="font-mono text-[11px] uppercase tracking-label text-muted">
-                @{profile.username}
-              </p>
               {profile.role || profile.location ? (
-                <p className="mt-2 font-mono text-[11px] uppercase tracking-label text-violet">
+                <p className="mt-2 font-mono text-[11px] uppercase tracking-label text-muted">
                   {[profile.role, profile.location].filter(Boolean).join(" / ")}
                 </p>
               ) : null}

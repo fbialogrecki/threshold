@@ -32,9 +32,17 @@ export function RichText({ text, mentions }: { text: string; mentions: MentionRe
     const end = mention.endIndex ?? start
     if (start < cursor) continue
     if (start > cursor) parts.push(text.slice(cursor, start))
+    // The stored span covers the sigil, but "@" and "#" are how a mention is
+    // typed, not how it reads. A resolved mention shows the bare name.
+    const span = text.slice(start, end)
+    const label = span.startsWith("@") || span.startsWith("#") ? span.slice(1) : span
     parts.push(
-      <Link key={`${mention.mentionType}:${mention.targetHandle}:${start}`} href={mentionHref(mention)} className="text-acid hover:underline">
-        {text.slice(start, end)}
+      <Link
+        key={`${mention.mentionType}:${mention.targetHandle}:${start}`}
+        href={mentionHref(mention)}
+        className="text-acid hover:underline"
+      >
+        {label}
       </Link>,
     )
     cursor = end

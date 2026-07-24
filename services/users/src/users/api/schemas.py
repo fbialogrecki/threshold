@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from users.domain.identity import is_reserved_username, is_valid_username
 
 
 class CurrentPrincipalRequest(BaseModel):
@@ -86,9 +87,9 @@ class UserProfileUpdate(BaseModel):
     def username_policy(_cls, value: str | None) -> str | None:
         if value is None:
             return None
-        if not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", value):
+        if not is_valid_username(value):
             raise ValueError("invalid username")
-        if value.strip("_.-").lower() in {"admin", "root", "support", "threshold"}:
+        if is_reserved_username(value):
             raise ValueError("reserved username")
         return value
 
@@ -155,9 +156,9 @@ class RegisterRequest(BaseModel):
     @field_validator("username")
     @classmethod
     def username_policy(_cls, value: str) -> str:
-        if not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", value):
+        if not is_valid_username(value):
             raise ValueError("invalid username")
-        if value.strip("_.-").lower() in {"admin", "root", "support", "threshold"}:
+        if is_reserved_username(value):
             raise ValueError("reserved username")
         return value
 

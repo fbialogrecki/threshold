@@ -1,7 +1,12 @@
 import re
 from dataclasses import dataclass
 
-MENTION_RE = re.compile(r"(?<![\w.@/`-])@([A-Za-z0-9_.-]{3,30})(?![\w.@-])")
+# Explicit character set matching the users service username policy, including
+# Polish diacritics. Never a broad class: Cyrillic and Greek lookalikes are the
+# impersonation route that folding in `users` exists to close.
+MENTION_RE = re.compile(
+    r"(?<![\w.@/`-])@([A-Za-z0-9_.\-ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]{3,30})(?![\w.@-])"
+)
 EVENT_RE = re.compile(r"(?<![\w`-])#([a-z0-9][a-z0-9-]{1,158}[a-z0-9])(?![\w-])")
 
 
