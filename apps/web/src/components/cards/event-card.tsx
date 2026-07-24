@@ -36,15 +36,17 @@ export async function EventCard({
     : null
   const locationLabel = t(`location.${event.location_mode}`)
 
+  // No accent border and no coloured label: violet belongs to the vote axis,
+  // and the poster plus title scale already mark this as an event.
   return (
-    <Card as="article" className="border-l-2 border-l-violet">
+    <Card as="article">
       <div className="flex items-center justify-between border-b border-border-gray px-4 py-2">
-        <MonoLabel tone="violet">{t("event")}</MonoLabel>
+        <MonoLabel tone="muted">{t("event")}</MonoLabel>
         <MonoLabel tone="muted">{city ?? "—"}</MonoLabel>
       </div>
 
       {posterUrl ? (
-        <Link href={`/events/${event.slug}`} className="block border-b border-border-gray bg-raised">
+        <Link href={`/events/${event.slug}`} className="block border-b border-border-gray">
           <img
             src={posterUrl}
             alt={event.title}
@@ -65,7 +67,7 @@ export async function EventCard({
         </Link>
 
         <div className="mt-3 flex flex-wrap items-stretch gap-2">
-          <div className="border border-border-gray bg-raised px-3 py-1.5">
+          <div className="border border-border-gray px-3 py-1.5">
             <p className="font-mono text-xs uppercase tracking-label text-raw-white">
               {formatEventDate(event.starts_at, locale)}
             </p>
@@ -99,7 +101,7 @@ export async function EventCard({
                 <span key={`${name}-${index}`}>
                   {index > 0 ? " / " : null}
                   {targetUrl ? (
-                    <Link href={targetUrl} className="text-cyan hover:underline">
+                    <Link href={targetUrl} className="text-raw-white hover:text-acid">
                       {name}
                     </Link>
                   ) : (

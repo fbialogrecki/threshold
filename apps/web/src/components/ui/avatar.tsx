@@ -26,6 +26,7 @@ export function Avatar({
     md: "h-10 w-10 text-xs",
     lg: "h-20 w-20 text-2xl",
   }[size]
+  const pixels = { sm: 32, md: 40, lg: 80 }[size]
 
   return (
     <span
@@ -37,7 +38,13 @@ export function Avatar({
       )}
     >
       {imageUrl ? (
-        <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+        <img
+          src={imageUrl}
+          alt=""
+          width={pixels}
+          height={pixels}
+          className="h-full w-full object-cover"
+        />
       ) : (
         initials(name)
       )}

@@ -55,7 +55,7 @@ export function PageManagementPanel({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_24rem]">
-      <section className="border border-border-gray bg-graphite p-4">
+      <section className="border border-border-gray p-4">
         <h2 className="flex items-center gap-2 font-display text-2xl text-raw-white">
           <Buildings size={22} weight="bold" aria-hidden />
           {t("managedTitle")}
@@ -85,7 +85,7 @@ export function PageManagementPanel({
         </div>
       </section>
 
-      <form action={createPage} className="flex flex-col gap-3 border border-border-gray bg-graphite p-4">
+      <form action={createPage} className="flex flex-col gap-3 border border-border-gray p-4">
         <h2 className="flex items-center gap-2 font-display text-2xl text-raw-white">
           <Plus size={22} weight="bold" aria-hidden />
           {t("createTitle")}
@@ -122,7 +122,7 @@ export function PageManagementPanel({
           {t("about")}
           <textarea name="about" className={`${inputClass} mt-1 min-h-28 w-full`} />
         </label>
-        {error ? <p role="alert" className="font-mono text-xs uppercase tracking-label text-alert">{error}</p> : null}
+        {error ? <p role="alert" className="font-mono text-xs uppercase tracking-label text-error">{error}</p> : null}
         <Button type="submit" disabled={pending}>{pending ? t("creating") : t("create")} →</Button>
       </form>
     </div>

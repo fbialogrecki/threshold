@@ -182,9 +182,11 @@ export function PostComposer({
         className="w-full resize-none bg-transparent p-3 text-[15px] leading-7 text-raw-white placeholder:text-muted focus:outline-none"
       />
 
-      {fileNotice ? <p className="px-3 pb-2 text-sm text-orange">{fileNotice}</p> : null}
-      {eventError ? <p className="px-3 pb-2 text-sm text-orange">{eventError}</p> : null}
-      {error ? <p className="px-3 pb-2 text-sm text-error">{error}</p> : null}
+      <div aria-live="polite">
+        {fileNotice ? <p className="px-3 pb-2 text-sm text-orange">{fileNotice}</p> : null}
+        {eventError ? <p className="px-3 pb-2 text-sm text-orange">{eventError}</p> : null}
+        {error ? <p className="px-3 pb-2 text-sm text-error">{error}</p> : null}
+      </div>
 
       <div className="flex items-center gap-1 border-t border-border-gray px-2 py-2">
         <label className={`flex cursor-pointer items-center gap-1.5 ${iconActionClass}`}>

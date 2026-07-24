@@ -16,7 +16,7 @@ export async function AccessUpdateCard({ update }: { update: AccessUpdate }) {
   return (
     <Card as="article" className="border-l-2 border-l-acid">
       <div className="flex items-center justify-between border-b border-border-gray px-4 py-2">
-        <MonoLabel tone="cyan">{t("accessUpdate")}</MonoLabel>
+        <MonoLabel tone="protected">{t("accessUpdate")}</MonoLabel>
         <MonoLabel tone="muted">{formatRelative(update.createdAtIso, locale)}</MonoLabel>
       </div>
 
@@ -29,7 +29,7 @@ export async function AccessUpdateCard({ update }: { update: AccessUpdate }) {
         <div className="mt-4 flex items-center justify-between">
           <Link
             href={`/events/${update.event.slug}`}
-            className="font-mono text-[11px] uppercase tracking-label text-cyan hover:underline"
+            className="font-mono text-[11px] uppercase tracking-label text-acid hover:text-raw-white"
           >
             {t("viewDetails")} →
           </Link>

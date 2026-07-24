@@ -79,14 +79,14 @@ export function OnboardingWizard({
       : true
 
   return (
-    <div className="border border-border-gray bg-graphite">
+    <div className="border border-border-gray">
       <div className="flex overflow-x-auto border-b border-border-gray">
         {STEPS.map((label, index) => (
           <div
             key={label}
             className={cn(
               "min-w-28 flex-1 border-r border-border-gray px-3 py-3 font-mono text-[11px] uppercase tracking-label last:border-r-0",
-              index === step ? "bg-raised text-acid" : index < step ? "text-dim-white" : "text-muted",
+              index === step ? "text-acid" : index < step ? "text-dim-white" : "text-muted",
             )}
           >
             {index + 1}. {t(`steps.${label}`)}

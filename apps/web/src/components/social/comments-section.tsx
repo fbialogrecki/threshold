@@ -232,7 +232,11 @@ function CommentItem({
           </p>
         )}
 
-        {error ? <p className="mt-1 text-sm text-error">{error}</p> : null}
+        {error ? (
+          <p aria-live="polite" className="mt-1 text-sm text-error">
+            {error}
+          </p>
+        ) : null}
 
         {mode !== "edit" ? (
           <CommentActions
@@ -508,7 +512,11 @@ export function CommentsSection({
               {t("commentsLoading")}
             </p>
           ) : null}
-          {error ? <p className="text-sm text-error">{error}</p> : null}
+          {error ? (
+            <p aria-live="polite" className="text-sm text-error">
+              {error}
+            </p>
+          ) : null}
 
           {comments !== null && topLevel.length === 0 ? (
             <p className="text-sm leading-6 text-muted">

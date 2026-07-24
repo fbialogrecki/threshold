@@ -76,7 +76,7 @@ export function GuestSearch({
       >
         {label ?? t("guestSearchLabel")}
       </label>
-      <div className="flex items-center gap-2 border border-border-gray bg-graphite px-3 focus-within:border-acid">
+      <div className="flex items-center gap-2 border border-border-gray px-3 focus-within:border-acid">
         <MagnifyingGlass size={16} weight="bold" className="text-muted" aria-hidden />
         <input
           id={inputId}
@@ -116,7 +116,7 @@ export function GuestSearch({
         />
       </div>
       {state.open ? (
-        <div id={listId} role="listbox" className="absolute z-30 mt-1 w-full border border-border-gray bg-raised">
+        <div id={listId} role="listbox" className="absolute z-30 mt-1 w-full border border-border-gray">
           {state.results.map((result, index) => (
             <button
               id={`${listId}-option-${index}`}
@@ -128,7 +128,7 @@ export function GuestSearch({
               onClick={() => select(result)}
               className={cn(
                 "flex w-full items-center gap-3 px-3 py-2 text-left",
-                index === state.activeIndex ? "bg-acid text-pitch" : "text-raw-white hover:bg-graphite",
+                index === state.activeIndex ? "bg-acid text-pitch" : "text-raw-white hover:text-acid",
               )}
             >
               <User size={16} weight="bold" aria-hidden />

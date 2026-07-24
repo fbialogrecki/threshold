@@ -167,7 +167,7 @@ export default async function ArtistProfilePage({
                     <a
                       key={residency.pageHandle}
                       href={`/pages/${residency.pageHandle}`}
-                      className="font-mono text-xs uppercase tracking-label text-cyan hover:underline"
+                      className="font-mono text-xs uppercase tracking-label text-raw-white hover:text-acid"
                     >
                       {residency.pageName} / {t("confirmed")}
                     </a>
@@ -190,7 +190,7 @@ export default async function ArtistProfilePage({
                       href={link.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="font-mono text-xs uppercase tracking-label text-cyan hover:underline"
+                      className="font-mono text-xs uppercase tracking-label text-raw-white hover:text-acid"
                     >
                       {link.label} ↗
                     </a>

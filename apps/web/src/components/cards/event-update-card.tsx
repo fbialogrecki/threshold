@@ -9,14 +9,14 @@ import type { EventUpdate } from "@/lib/types"
 export async function EventUpdateCard({ update }: { update: EventUpdate }) {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("feed")])
   return (
-    <Card as="article" className="border-l-2 border-l-violet">
+    <Card as="article">
       <div className="flex items-center justify-between border-b border-border-gray px-4 py-2">
-        <MonoLabel tone="violet">{t("eventUpdate")}</MonoLabel>
+        <MonoLabel tone="muted">{t("eventUpdate")}</MonoLabel>
         <MonoLabel tone="muted">{formatRelative(update.createdAtIso, locale)}</MonoLabel>
       </div>
       <div className="px-4 py-4">
         <Link href={`/events/${update.event.slug}`}>
-          <h3 className="font-display text-2xl tracking-wide text-raw-white hover:text-acid">
+          <h3 className="font-display text-2xl text-raw-white hover:text-acid">
             {update.event.title}
           </h3>
         </Link>
