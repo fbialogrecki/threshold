@@ -10,9 +10,13 @@ from alembic.migration import MigrationContext
 from alembic.operations import Operations
 from sqlalchemy.exc import IntegrityError
 
+import events
+
+_MIGRATIONS = Path(events.__file__).parent / "migrations" / "versions"
+
 
 def _migration() -> ModuleType:
-    path = Path(__file__).parents[2] / "migrations/versions/0006_one_issued_check_in_token.py"
+    path = _MIGRATIONS / "0006_one_issued_check_in_token.py"
     spec = spec_from_file_location("one_issued_check_in_token_migration", path)
     assert spec is not None and spec.loader is not None
     migration = module_from_spec(spec)

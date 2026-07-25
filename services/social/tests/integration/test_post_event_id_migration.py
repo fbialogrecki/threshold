@@ -8,9 +8,13 @@ import sqlalchemy as sa
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
+import social
+
+_MIGRATIONS = Path(social.__file__).parent / "migrations" / "versions"
+
 
 def test_post_event_id_migration_backfills_deterministically_and_downgrades() -> None:
-    path = Path(__file__).parents[2] / "migrations/versions/0011_post_event_id.py"
+    path = _MIGRATIONS / "0011_post_event_id.py"
     spec = spec_from_file_location("post_event_id_migration", path)
     assert spec is not None and spec.loader is not None
     migration = module_from_spec(spec)
@@ -114,7 +118,7 @@ def test_post_event_id_migration_backfills_deterministically_and_downgrades() ->
 
 
 def test_post_event_id_migration_emits_portable_postgresql_sql() -> None:
-    path = Path(__file__).parents[2] / "migrations/versions/0011_post_event_id.py"
+    path = _MIGRATIONS / "0011_post_event_id.py"
     spec = spec_from_file_location("post_event_id_postgresql_migration", path)
     assert spec is not None and spec.loader is not None
     migration = module_from_spec(spec)

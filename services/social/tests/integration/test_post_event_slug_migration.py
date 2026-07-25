@@ -7,9 +7,13 @@ import sqlalchemy as sa
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
+import social
+
+_MIGRATIONS = Path(social.__file__).parent / "migrations" / "versions"
+
 
 def test_post_event_slug_migration_adds_nullable_column_and_backfills_announcements() -> None:
-    path = Path(__file__).parents[2] / "migrations/versions/0010_post_event_slug.py"
+    path = _MIGRATIONS / "0010_post_event_slug.py"
     spec = spec_from_file_location("post_event_slug_migration", path)
     assert spec is not None and spec.loader is not None
     migration = module_from_spec(spec)
@@ -72,7 +76,7 @@ def test_post_event_slug_migration_adds_nullable_column_and_backfills_announceme
 
 
 def test_post_event_slug_migration_emits_portable_postgresql_sql() -> None:
-    path = Path(__file__).parents[2] / "migrations/versions/0010_post_event_slug.py"
+    path = _MIGRATIONS / "0010_post_event_slug.py"
     spec = spec_from_file_location("post_event_slug_postgresql_migration", path)
     assert spec is not None and spec.loader is not None
     migration = module_from_spec(spec)

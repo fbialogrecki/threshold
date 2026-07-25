@@ -6,9 +6,13 @@ import sqlalchemy as sa
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
+import social
+
+_MIGRATIONS = Path(social.__file__).parent / "migrations" / "versions"
+
 
 def _migration() -> ModuleType:
-    path = Path(__file__).parents[2] / "migrations/versions/0013_erasure_tombstones.py"
+    path = _MIGRATIONS / "0013_erasure_tombstones.py"
     spec = spec_from_file_location("social_erasure_tombstone_migration", path)
     assert spec is not None and spec.loader is not None
     migration = module_from_spec(spec)

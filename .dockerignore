@@ -25,8 +25,6 @@
 !services/events/alembic.ini
 !services/events/src/
 !services/events/src/**
-!services/events/migrations/
-!services/events/migrations/**
 
 !services/media/
 !services/media/Dockerfile
@@ -34,8 +32,6 @@
 !services/media/alembic.ini
 !services/media/src/
 !services/media/src/**
-!services/media/migrations/
-!services/media/migrations/**
 
 !services/social/
 !services/social/Dockerfile
@@ -43,8 +39,6 @@
 !services/social/alembic.ini
 !services/social/src/
 !services/social/src/**
-!services/social/migrations/
-!services/social/migrations/**
 
 !services/users/
 !services/users/Dockerfile
@@ -52,5 +46,3 @@
 !services/users/alembic.ini
 !services/users/src/
 !services/users/src/**
-!services/users/migrations/
-!services/users/migrations/**
