@@ -108,7 +108,16 @@ jobs:
         with:
           bun-version: 1.3.13
       - run: bun install --frozen-lockfile
-      - run: bun audit
+      # One instance of brace-expansion stays on 1.1.16 (GHSA-mh99-v99m-4gvg):
+      # minimatch@3 requires ^1.1.7 and the advisory's only patched release,
+      # 5.0.8, changed its export shape, so forcing it makes eslint throw
+      # "expand is not a function". minimatch@3 arrives through the eslint
+      # plugins in eslint-config-next, which is already at its latest. The
+      # advisory is a DoS in a lint-only toolchain fed by our own config, so it
+      # is unreachable here. bun still lists the typescript-eslint path, but
+      # that one already resolves to 5.0.8. Drop this when the plugins move off
+      # minimatch@3.
+      - run: bun audit --ignore=GHSA-mh99-v99m-4gvg
       - run: bun test
       - run: bunx tsc --noEmit
       - run: bunx eslint
