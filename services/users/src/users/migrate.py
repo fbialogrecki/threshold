@@ -1,19 +1,25 @@
-from pathlib import Path
+import logging
 
 from alembic import command
 from alembic.config import Config
 
-from users.settings import Settings
+# Package-relative so the same string resolves in the source tree and in the
+# installed wheel, where the service directory no longer exists.
+SCRIPT_LOCATION = "users:migrations"
 
-SERVICE_DIR = Path(__file__).resolve().parents[2]
+
+def build_config() -> Config:
+    config = Config()
+    config.set_main_option("script_location", SCRIPT_LOCATION)
+    return config
 
 
 def run_migrations() -> None:
-    settings = Settings()
-    config = Config(str(SERVICE_DIR / "alembic.ini"))
-    config.set_main_option("script_location", str(SERVICE_DIR / "migrations"))
-    config.set_main_option("sqlalchemy.url", settings.database_url)
-    command.upgrade(config, "head")
+    # alembic.ini is not read here, so its logger levels are reproduced by hand:
+    # the upgrade log is the only record a finished migration Job leaves behind.
+    logging.basicConfig(format="%(levelname)-5.5s [%(name)s] %(message)s", level=logging.WARNING)
+    logging.getLogger("alembic").setLevel(logging.INFO)
+    command.upgrade(build_config(), "head")
 
 
 if __name__ == "__main__":

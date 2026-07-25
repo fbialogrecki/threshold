@@ -6,9 +6,13 @@ import sqlalchemy as sa
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
 
+import events
+
+_MIGRATIONS = Path(events.__file__).parent / "migrations" / "versions"
+
 
 def _migration() -> Any:
-    path = Path(__file__).parents[2] / "migrations/versions/0008_account_erasure_tombstones.py"
+    path = _MIGRATIONS / "0008_account_erasure_tombstones.py"
     spec = spec_from_file_location("account_erasure_tombstones_migration", path)
     assert spec is not None and spec.loader is not None
     migration = module_from_spec(spec)

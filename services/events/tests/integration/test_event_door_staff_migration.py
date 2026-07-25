@@ -8,9 +8,13 @@ from alembic.migration import MigrationContext
 from alembic.operations import Operations
 from sqlalchemy.exc import IntegrityError
 
+import events
+
+_MIGRATIONS = Path(events.__file__).parent / "migrations" / "versions"
+
 
 def test_event_door_staff_migration_constraints_cascade_and_downgrade() -> None:
-    path = Path(__file__).parents[2] / "migrations/versions/0005_event_door_staff.py"
+    path = _MIGRATIONS / "0005_event_door_staff.py"
     spec = spec_from_file_location("event_door_staff_migration", path)
     assert spec is not None and spec.loader is not None
     migration = module_from_spec(spec)

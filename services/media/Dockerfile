@@ -16,7 +16,6 @@ COPY services/users/pyproject.toml services/users/pyproject.toml
 COPY libs/py/threshold_common libs/py/threshold_common
 COPY services/media/src services/media/src
 COPY services/media/alembic.ini services/media/alembic.ini
-COPY services/media/migrations services/media/migrations
 RUN uv sync --locked --no-dev --no-editable --package threshold-media
 
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim@sha256:531f855bda2c73cd6ef67d56b733b357cea384185b3022bd09f05e002cd144ca AS runtime
@@ -29,7 +28,6 @@ RUN groupadd --system --gid 1000 app \
     && useradd --system --uid 1000 --gid app --home-dir /app app
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 COPY --from=builder --chown=app:app /app/services/media/alembic.ini ./alembic.ini
-COPY --from=builder --chown=app:app /app/services/media/migrations ./migrations
 
 USER app
 EXPOSE 8000
