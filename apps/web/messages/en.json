@@ -11,35 +11,92 @@
   "landing": {
     "metadata": {
       "title": "Threshold",
-      "description": "A chronological social platform for underground events, artists, clubs and collectives."
+      "description": "A chronological home for the events, artists, clubs and collectives of the independent scene. No ranking, no ads, no trackers."
     },
     "navigation": "Public navigation",
-    "privacy": "Privacy",
+    "skipToContent": "Skip to content",
+    "privacyBoundary": "Privacy boundary",
     "login": "Log in",
     "eyebrow": "Independent scene infrastructure",
     "heroLineOne": "Below",
     "heroLineTwo": "the surface",
-    "manifest": "Manifest",
-    "body": "Threshold is a chronological place for underground events, artists, clubs and collectives. Direct public pages stay open. An account unlocks the Feed and interactions.",
-    "registrationOpen": "Open registration — choose a supported city during setup",
+    "lede": "A chronological home for the events, artists, clubs and collectives of the independent scene.",
+    "registrationOpen": "Registration open",
     "createAccount": "Create account →",
     "enterFeed": "Enter Feed →",
-    "principles": {
-      "chronological": {
-        "title": "Chronological",
-        "body": "Posts from accounts and official groups you choose, newest first. No ranking and no ads."
+    "thresholdLabel": "Manifest ↓",
+    "manifest": {
+      "title": "Manifest",
+      "lede": "Threshold is built around the things it does not do.",
+      "ranking": {
+        "label": "No ranking",
+        "body": "The Feed is chronological. No algorithm decides what you see."
       },
-      "public": {
-        "title": "Public details",
-        "body": "Event, artist and organization pages can be read without an account. Log in to interact."
+      "ads": {
+        "label": "No ads",
+        "body": "Attention and reach are not for sale. There are no promoted events."
       },
-      "private": {
-        "title": "Private means private",
-        "body": "Guestlists are organizer-managed. Encrypted exact-location reveal is planned, not available in this release."
+      "trackers": {
+        "label": "No trackers",
+        "body": "No third-party tracking scripts. No advertising profile."
       }
     },
-    "footer": "No real names required · no third-party trackers",
-    "privacyBoundary": "Read the privacy boundary →"
+    "forYou": {
+      "title": "For you",
+      "chronology": {
+        "label": "Chronology",
+        "body": "Posts from the accounts and official groups you choose. Newest first."
+      },
+      "events": {
+        "label": "Events",
+        "body": "Events from your city, with line-ups and full details."
+      },
+      "name": {
+        "label": "Your name",
+        "body": "One public name: the one you choose when you register. No real name required."
+      }
+    },
+    "forScene": {
+      "title": "For the scene",
+      "page": {
+        "label": "Page",
+        "body": "A club, collective or project gets its own Page with roles: owner, admin, editor."
+      },
+      "events": {
+        "label": "Events",
+        "body": "Publish an event with a poster, a line-up and a public page you can share."
+      },
+      "guestlist": {
+        "label": "Guestlist",
+        "body": "The organizer runs the list. Entry is confirmed by a short-lived QR code, not a static ticket."
+      },
+      "note": "You create a Page after logging in, from the panel."
+    },
+    "boundary": {
+      "title": "Privacy",
+      "body": "Only what is meant to be public is public: event pages, profiles and organization Pages. Guestlists are not public and there is no public way to sign up for one."
+    },
+    "questions": {
+      "title": "Questions",
+      "free": {
+        "question": "Is it free?",
+        "answer": "Yes. There are no paid accounts and no paid promotion."
+      },
+      "realName": {
+        "question": "Do I need to give my real name?",
+        "answer": "No. Only your username is publicly visible."
+      },
+      "anonymous": {
+        "question": "Can I read without an account?",
+        "answer": "Event pages, profiles and organization Pages, yes. The Feed, the event catalogue and groups require an account."
+      }
+    },
+    "who": {
+      "title": "Who runs this",
+      "body": "An independent project run by Filip Białogrecki. No investors, no ad company. The code is public under Apache-2.0."
+    },
+    "closing": "Registration open.",
+    "footer": "No real names required · no third-party trackers"
   },
   "authFlow": {
     "metadata": {

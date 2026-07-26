@@ -11,35 +11,92 @@
   "landing": {
     "metadata": {
       "title": "Threshold",
-      "description": "Chronologiczna platforma dla niezależnych wydarzeń, artystów, klubów i kolektywów."
+      "description": "Chronologiczne miejsce dla wydarzeń, artystów, klubów i kolektywów niezależnej sceny. Bez rankingu, bez reklam, bez trackerów."
     },
     "navigation": "Nawigacja publiczna",
-    "privacy": "Prywatność",
+    "skipToContent": "Przejdź do treści",
+    "privacyBoundary": "Granica prywatności",
     "login": "Zaloguj się",
     "eyebrow": "Infrastruktura niezależnej sceny",
     "heroLineOne": "Pod",
     "heroLineTwo": "powierzchnią",
-    "manifest": "Manifest",
-    "body": "Threshold to chronologiczne miejsce dla niezależnych wydarzeń, artystów, klubów i kolektywów. Bezpośrednie strony publiczne pozostają otwarte. Konto daje dostęp do Aktualności i interakcji.",
-    "registrationOpen": "Rejestracja jest otwarta — podczas konfiguracji wybierzesz obsługiwane miasto",
-    "createAccount": "Utwórz konto →",
-    "enterFeed": "Przejdź do Aktualności →",
-    "principles": {
-      "chronological": {
-        "title": "Chronologicznie",
-        "body": "Posty z wybranych kont i oficjalnych grup, od najnowszych. Bez rankingu i reklam."
+    "lede": "Chronologiczne miejsce dla wydarzeń, artystów, klubów i kolektywów niezależnej sceny.",
+    "registrationOpen": "Rejestracja otwarta",
+    "createAccount": "Załóż konto →",
+    "enterFeed": "Wejdź do Aktualności →",
+    "thresholdLabel": "Manifest ↓",
+    "manifest": {
+      "title": "Manifest",
+      "lede": "Threshold jest zbudowany wokół tego, czego nie robi.",
+      "ranking": {
+        "label": "Bez rankingu",
+        "body": "Aktualności są chronologiczne. Żaden algorytm nie decyduje, co zobaczysz."
       },
-      "public": {
-        "title": "Publiczne szczegóły",
-        "body": "Strony wydarzeń, artystów i organizacji można czytać bez konta. Interakcje wymagają logowania."
+      "ads": {
+        "label": "Bez reklam",
+        "body": "Uwaga i zasięg nie są na sprzedaż. Nie ma promowanych wydarzeń."
       },
-      "private": {
-        "title": "Prywatne znaczy prywatne",
-        "body": "Listami gości zarządzają organizatorzy. Szyfrowane ujawnianie dokładnej lokalizacji jest planowane, ale niedostępne w tej wersji."
+      "trackers": {
+        "label": "Bez trackerów",
+        "body": "Zero zewnętrznych skryptów śledzących. Nie budujemy profilu reklamowego."
       }
     },
-    "footer": "Prawdziwe imię nie jest wymagane · bez zewnętrznych trackerów",
-    "privacyBoundary": "Przeczytaj o granicy prywatności →"
+    "forYou": {
+      "title": "Dla ciebie",
+      "chronology": {
+        "label": "Chronologia",
+        "body": "Posty z kont i oficjalnych grup, które sam wybierasz. Od najnowszych."
+      },
+      "events": {
+        "label": "Wydarzenia",
+        "body": "Wydarzenia z twojego miasta, z line-upem i pełnymi szczegółami."
+      },
+      "name": {
+        "label": "Twoja nazwa",
+        "body": "Jedna publiczna nazwa: ta, którą wybierzesz przy rejestracji. Prawdziwe imię nie jest potrzebne."
+      }
+    },
+    "forScene": {
+      "title": "Dla sceny",
+      "page": {
+        "label": "Strona",
+        "body": "Klub, kolektyw albo projekt dostaje własną stronę z rolami: właściciel, admin, edytor."
+      },
+      "events": {
+        "label": "Wydarzenia",
+        "body": "Publikujesz wydarzenie z plakatem, line-upem i publiczną stroną, którą da się udostępnić."
+      },
+      "guestlist": {
+        "label": "Lista gości",
+        "body": "Listę prowadzi organizator. Wejście potwierdza krótkotrwały kod QR, nie statyczny bilet."
+      },
+      "note": "Stronę zakładasz po zalogowaniu, w panelu."
+    },
+    "boundary": {
+      "title": "Prywatność",
+      "body": "Publiczne jest tylko to, co ma być publiczne: strony wydarzeń, profile i strony organizacji. Listy gości nie są publiczne i nie ma publicznego zapisu na nie."
+    },
+    "questions": {
+      "title": "Pytania",
+      "free": {
+        "question": "Czy to jest darmowe?",
+        "answer": "Tak. Nie ma płatnych kont ani płatnej promocji."
+      },
+      "realName": {
+        "question": "Czy muszę podać prawdziwe imię?",
+        "answer": "Nie. Publicznie widać tylko nazwę użytkownika."
+      },
+      "anonymous": {
+        "question": "Czy mogę czytać bez konta?",
+        "answer": "Strony wydarzeń, profile i strony organizacji tak. Aktualności, katalog wydarzeń i grupy wymagają konta."
+      }
+    },
+    "who": {
+      "title": "Kto za tym stoi",
+      "body": "Projekt niezależny, prowadzony przez Filipa Białogreckiego. Bez inwestorów i bez spółki reklamowej. Kod jest publiczny na licencji Apache-2.0."
+    },
+    "closing": "Rejestracja otwarta.",
+    "footer": "Bez prawdziwych imion · bez zewnętrznych trackerów"
   },
   "authFlow": {
     "metadata": {
