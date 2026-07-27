@@ -1,4 +1,20 @@
 when:
+  # Merging to main releases. The promotion step still opens a PR against the
+  # gitops repository rather than pushing to it, so a human gate remains where
+  # it belongs: on what reaches the cluster, not on what gets built.
+  - event: push
+    branch: main
+    path:
+      include:
+        - apps/web/**
+        - services/**
+        - libs/py/**
+        - ci/woodpecker/**
+        - .woodpecker/release.yml
+        - pyproject.toml
+        - uv.lock
+        - .python-version
+      on_empty: false
   - event: manual
     branch: main
 
