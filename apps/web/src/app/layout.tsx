@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Archivo, IBM_Plex_Mono } from "next/font/google"
 import { NextIntlClientProvider } from "next-intl"
 import { getLocale, getMessages } from "next-intl/server"
@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   description:
     "Chronological social platform for underground events, artists, clubs and collectives.",
 }
+
+export const viewport: Viewport = { themeColor: "#030303" }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const [locale, messages] = await Promise.all([getLocale(), getMessages()])
