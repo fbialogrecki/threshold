@@ -66,14 +66,20 @@ def test_event_door_staff_migration_constraints_cascade_and_downgrade() -> None:
             "assigned_at": assigned_at,
             "updated_at": assigned_at,
         }
-        connection.execute(sa.text(
-            """
-            INSERT INTO event_door_staff
-                (id, event_id, user_id, assigned_by_user_id, assigned_at, updated_at)
-            VALUES
-                (:id, :event_id, :user_id, :assigned_by_user_id, :assigned_at, :updated_at)
-            """
-        ), row)
+        connection.execute(
+            sa.text(
+                """
+                INSERT INTO event_door_staff
+                    (id, event_id, user_id, assigned_by_user_id, assigned_at, updated_at)
+                VALUES
+                    (:id, :event_id, :user_id, :assigned_by_user_id, :assigned_at, :updated_at)
+                """
+            ).bindparams(
+                sa.bindparam("assigned_at", type_=sa.DateTime(timezone=True)),
+                sa.bindparam("updated_at", type_=sa.DateTime(timezone=True)),
+            ),
+            row,
+        )
         with pytest.raises(IntegrityError):
             connection.execute(
                 sa.text(
@@ -84,6 +90,9 @@ def test_event_door_staff_migration_constraints_cascade_and_downgrade() -> None:
                         ('door-2', :event_id, :user_id, :assigned_by_user_id,
                          :assigned_at, :updated_at)
                     """
+                ).bindparams(
+                    sa.bindparam("assigned_at", type_=sa.DateTime(timezone=True)),
+                    sa.bindparam("updated_at", type_=sa.DateTime(timezone=True)),
                 ),
                 row,
             )
