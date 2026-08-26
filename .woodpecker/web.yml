@@ -16,7 +16,7 @@ when:
 
 steps:
   web-check:
-    image: docker.io/oven/bun:1-slim@sha256:d56a2534ffd262e92c12fd3249d3924d296d97086da773f821d7d0477435ea04
+    image: docker.io/oven/bun:1.4-slim@sha256:4c3ac64f41e0a47e28403789a63ecdca7987f322fa811bf5b3cb0f25f18443cc
     commands:
       - cd apps/web
       - bun install --frozen-lockfile
