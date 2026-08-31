@@ -92,7 +92,14 @@ jobs:
       - run: uv run ruff check .
       - run: uv run mypy .
       - run: uv run pytest -q
-      - run: uvx --from pip-audit==2.10.1 pip-audit --strict
+      - name: Export frozen runtime dependencies
+        run: >-
+          uv export --frozen --no-dev --no-emit-workspace --no-hashes
+          --format requirements.txt --output-file /tmp/threshold-requirements.txt
+      - name: Audit frozen runtime dependencies
+        run: |
+          uvx --from pip-audit==2.10.1 pip-audit --strict --format json --output /tmp/pip-audit.json -r /tmp/threshold-requirements.txt
+          python3 ci/verify-pip-audit.py /tmp/pip-audit.json cryptography
 
   web:
     runs-on: ubuntu-latest
