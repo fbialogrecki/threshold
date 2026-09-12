@@ -1,19 +1,28 @@
-import { afterEach, describe, expect, it, mock } from "bun:test"
+import { afterEach, describe, expect, it, mock, spyOn } from "bun:test"
 
 mock.module("server-only", () => ({}))
-mock.module("@/lib/social/client", () => ({
-  trustedAuthorHeaders: async () => ({ "X-Threshold-User-Id": "user-1" }),
-}))
+const socialClient = await import("@/lib/social/client")
 const { uploadMediaAsset } = await import("@/lib/media/client")
 
 const originalFetch = globalThis.fetch
+const originalMediaUrl = process.env.MEDIA_SERVICE_URL
+const originalInternalToken = process.env.THRESHOLD_INTERNAL_TOKEN
+
+function restoreEnvironment(name: string, value: string | undefined) {
+  if (value === undefined) delete process.env[name]
+  else process.env[name] = value
+}
 
 afterEach(() => {
+  mock.restore()
   globalThis.fetch = originalFetch
+  restoreEnvironment("MEDIA_SERVICE_URL", originalMediaUrl)
+  restoreEnvironment("THRESHOLD_INTERNAL_TOKEN", originalInternalToken)
 })
 
 describe("media service upload client", () => {
   it("uses the inbound ReadableStream directly with Node fetch duplex", async () => {
+    spyOn(socialClient, "trustedAuthorHeaders").mockResolvedValue({ "X-Threshold-User-Id": "user-1" })
     process.env.MEDIA_SERVICE_URL = "http://media.test"
     process.env.THRESHOLD_INTERNAL_TOKEN = "secret"
     const request = new Request("http://threshold.test/api/media/assets", {

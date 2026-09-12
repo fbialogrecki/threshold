@@ -4,7 +4,8 @@ import { formatEventDate, formatRelative } from "@/lib/format"
 
 describe("formatEventDate", () => {
   it("formats an ISO date in UTC", () => {
-    expect(formatEventDate("2026-06-14T21:00:00.000Z")).toBe("Sun, 14 Jun")
+    // CLDR releases differ on the optional comma after the English weekday.
+    expect(formatEventDate("2026-06-15T00:30:00+02:00")).toMatch(/^Sun,? 14 Jun$/)
     expect(formatEventDate("2026-06-14T21:00:00.000Z", "pl")).toBe(
       new Intl.DateTimeFormat("pl-PL", {
         weekday: "short",
