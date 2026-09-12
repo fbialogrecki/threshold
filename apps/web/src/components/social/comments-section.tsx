@@ -5,6 +5,8 @@ import Link from "next/link"
 import type { FormEvent, ReactNode } from "react"
 import { useState, useTransition } from "react"
 
+import { SafetyActions } from "@/components/social/safety-actions"
+import { safetyAllowed } from "@/lib/safety/actions"
 import { CommentComposer } from "@/components/social/comment-composer"
 import { OwnerMenu } from "@/components/social/owner-menu"
 import { RichText } from "@/components/social/rich-text"
@@ -111,12 +113,14 @@ const COMMENT_ACTION_CLASS =
 type CommentMode = "view" | "edit"
 
 function CommentItem({
+  viewerUserId,
   comment,
   depth,
   onReply,
   onEdited,
   onDeleted,
 }: {
+  viewerUserId: string | null
   comment: Comment
   depth: number
   onReply: (target: ReplyTarget) => void
@@ -239,11 +243,14 @@ function CommentItem({
         ) : null}
 
         {mode !== "edit" ? (
+          <>
+          <SafetyActions allowed={!comment.viewerIsAuthor && safetyAllowed(viewerUserId, comment.author.id)} target={{ type: "comment", target: comment.id }} />
           <CommentActions
             comment={comment}
             replyTarget={replyTarget}
             onReply={onReply}
           />
+          </>
         ) : null}
       </div>
     </div>
@@ -321,6 +328,7 @@ function CommentActions({
  * reply composers. The /posts/[id] deep-link reuses it with SSR initialComments.
  */
 export function CommentsSection({
+  viewerUserId,
   postId,
   commentCount,
   initialComments,
@@ -328,6 +336,7 @@ export function CommentsSection({
   reactions,
   votes,
 }: {
+  viewerUserId: string | null
   postId: string
   commentCount: number
   initialComments?: Comment[]
@@ -456,6 +465,7 @@ export function CommentsSection({
     if (row.kind === "comment") {
       return (
         <CommentItem
+          viewerUserId={viewerUserId}
           key={row.comment.id}
           comment={row.comment}
           depth={row.depth}

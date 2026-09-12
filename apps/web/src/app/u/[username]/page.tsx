@@ -1,3 +1,6 @@
+import { SafetyActions } from "@/components/social/safety-actions"
+import { safetyAllowed } from "@/lib/safety/actions"
+import { getAccountBlockState } from "@/lib/safety/block-state"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 import { notFound } from "next/navigation"
@@ -63,6 +66,9 @@ export default async function ArtistProfilePage({
   const sessionState = await getSessionState()
   const isAuthenticated = sessionState.status === "authenticated"
     && hasRequiredOnboarding(sessionState.session)
+  const viewerId = isAuthenticated ? sessionState.session.user.id : null
+  const canUseSafety = safetyAllowed(viewerId, profile.id) && Boolean(profile.username)
+  const blocked = canUseSafety ? await getAccountBlockState(viewerId!, profile.id) : null
   const authUnavailable = sessionState.status === "unavailable"
   const anonymousLoginHref = isAuthenticated
     ? undefined
@@ -118,6 +124,8 @@ export default async function ArtistProfilePage({
             />
           )}
         </header>
+
+        <SafetyActions key={`${profile.id}:${blocked}`} allowed={canUseSafety} target={{ type: "profile", target: profile.username }} username={profile.username} initialBlocked={blocked} />
 
         <div
           className={
