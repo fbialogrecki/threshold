@@ -1,3 +1,6 @@
+import { SafetyActions } from "@/components/social/safety-actions"
+import { getSession } from "@/lib/auth/session"
+import { safetyAllowed } from "@/lib/safety/actions"
 import { getLocale, getTranslations } from "next-intl/server"
 import Link from "next/link"
 
@@ -139,6 +142,8 @@ export async function PostCard({
   redirectHomeOnDelete?: boolean
 }) {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("post")])
+  const session = await getSession()
+  const viewerId = session?.user.id ?? null
   const href = profileHref(post.author)
   const name = profileName(post.author)
 
@@ -203,8 +208,10 @@ export async function PostCard({
             />
           ) : null}
 
+          <SafetyActions allowed={!post.viewerIsAuthor && !post.systemOwned && safetyAllowed(viewerId, post.author.id)} target={{ type: "post", target: post.id }} />
           <TagRow className="mt-3" tags={post.tags} />
           <CommentsSection
+            viewerUserId={viewerId}
             postId={post.id}
             commentCount={post.commentCount}
             initialComments={initialComments}

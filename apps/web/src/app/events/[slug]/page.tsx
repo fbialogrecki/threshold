@@ -95,6 +95,7 @@ export default async function EventPage({ params }: { params: Params }) {
     isAuthenticated ? getEventViewerContext(slug) : null,
     event.page_id ? getOrganizerRefs([event.page_id]) : [],
   ])
+  const editor = await getTranslations("eventEditor")
   const accessSurfaces = eventAccessSurfaces(viewerContext)
   const [guestlist, doorStaff] = await Promise.all([
     accessSurfaces.managerGuestlist ? getManagerGuestlist(slug) : [],
@@ -120,6 +121,7 @@ export default async function EventPage({ params }: { params: Params }) {
 
   return (
     <article className="mx-auto w-full max-w-event-detail">
+      {viewerContext?.can_post_update ? <Link href={`/app/events/${encodeURIComponent(event.slug)}/edit`} className="mb-4 inline-block border border-border-gray px-3 py-2 font-mono text-xs text-acid">{editor("edit")}</Link> : null}
       <header className="grid gap-6 border-b border-border-gray pb-8 md:grid-cols-[minmax(17rem,0.88fr)_minmax(0,1.12fr)] md:items-start">
         <div className="border border-border-gray">
           {posterUrl ? (

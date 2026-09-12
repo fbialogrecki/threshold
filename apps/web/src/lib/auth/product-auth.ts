@@ -84,6 +84,7 @@ async function call(
  * tokens are only ever read out-of-band (server logs / direct API) in dev.
  */
 export function stripDevTokens(body: unknown): unknown {
+  if (Array.isArray(body)) return body.map(stripDevTokens)
   if (body === null || typeof body !== "object") return body
   const clone: Record<string, unknown> = { ...(body as Record<string, unknown>) }
   delete clone.dev_email_verification_token
@@ -237,6 +238,10 @@ export function unfollowTarget(
 
 export function listFollows(): Promise<UsersResponse> {
   return call("/v1/me/follows", { method: "GET", forwardCookies: true })
+}
+
+export function unblockUser(username: string): Promise<UsersResponse> {
+  return call(`/v1/me/blocks/${encodeURIComponent(username)}`, { method: "DELETE", forwardCookies: true })
 }
 
 export function blockUser(username: string): Promise<UsersResponse> {
