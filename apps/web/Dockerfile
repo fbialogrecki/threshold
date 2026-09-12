@@ -14,6 +14,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN bun --bun next build
+RUN bun -e 'const routes = require("./.next/server/app-paths-manifest.json"); for (const route of ["/api/reports/route", "/api/social/reports/route", "/api/social/moderation/reports/route", "/api/social/moderation/reports/[id]/route"]) { if (!routes[route]) throw new Error(`Missing report API: ${route}`); }'
 
 FROM docker.io/oven/bun:1.4-slim@sha256:4c3ac64f41e0a47e28403789a63ecdca7987f322fa811bf5b3cb0f25f18443cc AS runner
 WORKDIR /app

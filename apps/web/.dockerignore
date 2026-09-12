@@ -28,8 +28,7 @@ CLAUDE.md
 docs
 **/docs
 scripts
-reports
-**/reports
+reports/*
 
 Dockerfile
 .dockerignore
