@@ -55,16 +55,17 @@ libs/proto/               Protobuf source schemas
 libs/generated/           Generated Protobuf code
 .github/workflows/         Public GitHub validation
 .woodpecker/               Self-hosted validation and trusted release pipelines
-Taskfile.yml               Local quality command contract
+ci/                       Generic validation and release helpers
+Taskfile.yml               Local command shortcuts
 ----
 
-Operational scripts, live GitOps topology, runbooks, private hostnames, and agent state are deliberately not published in this repository.
+This is the public product source repository, not a combined source/deployment checkout. Deployment manifests live on `main` in the separate https://github.com/fbialogrecki/threshold-gitops[public GitOps repository], not on a `gitops` branch here. Privileged operator tooling, runbooks, credentials, private operational details, and agent state stay outside both public repositories.
 
 == Prerequisites
 
 * Git
 * https://taskfile.dev/[Task] (`go-task`)
-* https://bun.sh/[Bun]
+* https://bun.sh/[Bun] 1.4.0 (matching the checked-in CI configuration)
 * Python 3.13
 * https://docs.astral.sh/uv/[uv]
 * https://buf.build/[Buf] for Protobuf checks
@@ -78,38 +79,38 @@ Container workflows additionally require an OCI builder.
 git clone https://github.com/fbialogrecki/threshold.git
 cd threshold
 uv sync --frozen
-go-task web:install
+(cd apps/web && bun install --frozen-lockfile)
 cp apps/web/.env.example apps/web/.env.local
 go-task web:dev
 ----
 
-Open http://localhost:3000[]. The example environment file contains development placeholders only. Never commit `.env.local`, credentials, tokens, kubeconfigs, or rendered Kubernetes secrets.
+The development server uses http://localhost:3000[]. The link:apps/web/.env.example[example environment file] contains development placeholders only. Never commit `.env.local`, credentials, tokens, kubeconfigs, or rendered Kubernetes secrets.
 
-The full integrated environment requires PostgreSQL, NATS, object storage, and private deployment configuration.
+`go-task web:dev` and `go-task dev` start only the web UI/BFF, not backend services or infrastructure. Backend-dependent features require separately configured services, PostgreSQL, NATS, and object storage. The example URLs are loopback placeholders, not provisioned dependencies. An isolated full-product startup workflow is not yet verified; private deployment access is not a prerequisite for editing the UI or running source checks.
+
+WARNING: Production startup is under repair; use `web:dev` for the contributor entry point. The earlier `web:start` / `bun run start` script targeted retired `bun-dist/server.js`, which is not a supported fallback. Verify the matching build/start contract before using a replacement production command; a successful Next.js build alone does not establish that it starts correctly.
 
 == Quality gates
 
 [source,bash]
 ----
-export PATH="$HOME/.bun/bin:$PATH"
-go-task check
-go-task repo:secret-scan
+uv sync --frozen
+uv run --frozen ruff check .
+uv run --frozen mypy .
+uv run --frozen pytest -q
 ----
 
-Focused commands:
+Web checks, from the source repository root with Bun 1.4.0 on `PATH`:
 
 [source,bash]
 ----
-go-task web:lint
-go-task web:typecheck
-go-task web:test
-go-task web:build
-go-task py:lint
-go-task py:typecheck
-go-task py:test
+(cd apps/web && bun install --frozen-lockfile && bun test && bunx tsc --noEmit && bunx eslint && AUTH_COOKIE_SECURE=true bun --bun next build)
+go-task repo:secret-scan
 go-task proto:lint
 go-task proto:generate
 ----
+
+These are source checks, not deployment or production-start verification. The direct Python/web commands avoid the existing Taskfile's conditional skip paths; do not treat an aggregate `go-task check` success alone as proof that every gate ran. The repository secret scan is a lightweight check, not a substitute for the full-history security checks in link:.github/workflows/ci.yml[CI]. Protobuf generation changes generated files; review its diff.
 
 == Contributing
 
@@ -117,7 +118,9 @@ Focused issues and pull requests are welcome. Keep changes inside the stated MVP
 
 Untrusted pull-request jobs run without release, registry-push, signing, Kubernetes, or GitOps credentials.
 
-The manual trusted release pipeline builds from the exact public commit, pushes immutable image digests, and opens a digest-only change in the private GitOps repository. Product source is never synchronized through a private mirror. Release credentials and environment-specific values are configured only in the trusted Woodpecker installation.
+The intended release contract is: validated public source SHA -> immutable OCI image digest(s) -> reviewed digest-only pull request to the separate public GitOps repository's `main` -> deployment verification. Product source is never synchronized through a private mirror. Untrusted jobs must never receive promotion credentials; release credentials and private environment values belong only in trusted operator configuration.
+
+The checked-in link:.woodpecker/release.yml[release workflow] currently declares both `push` and `manual` events on `main`. A verified manual-release path and its end-to-end trust checks are not yet established; the intended sequence above is not a claim that release is operationally proven.
 
 == Security
 
