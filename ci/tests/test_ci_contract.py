@@ -91,9 +91,10 @@ class WorkflowWiringTests(unittest.TestCase):
         self.assertIn("python-quality", jobs)
         quality = jobs["python-quality"]
         self.assertNotRegex(quality, r"(?m)^    (needs|if):")
-        for command in ("uv sync --frozen", "uv run ruff check .", "uv run mypy .",
-                        "uv run pytest -q", "uv export --frozen", "pip-audit --strict",
-                        "python3 ci/verify-pip-audit.py"):
+        for command in ("uv sync --frozen", "uv run --frozen ruff check .",
+                        "uv run --frozen mypy .", "uv run --frozen pytest -q",
+                        "uv export --frozen", "pip-audit --strict",
+                        "uv run --frozen python ci/verify-pip-audit.py"):
             self.assertIn(command, quality)
         gate = jobs["python"]
         self.assertIn("    if: always()\n", gate)
@@ -104,9 +105,51 @@ class WorkflowWiringTests(unittest.TestCase):
         self.assertIn("actions/checkout@", gate)
         security = jobs["security"]
         self.assertIn("run: bash ci/check-shell-syntax.sh ci/woodpecker/*.sh ci/*.sh", security)
-        self.assertIn("run: python3 -m unittest ci.tests.test_ci_contract -v", security)
         self.assertNotIn("bash -n ci/woodpecker/*.sh", security)
         self.assertIn("web", jobs)
+        for name in (*REQUIRED, "web"):
+            self.assertNotIn("continue-on-error", jobs[name])
+
+    def test_security_enrolls_both_contract_modules(self) -> None:
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        security = workflow.split("  security:\n", 1)[1].split("  containers:\n", 1)[0]
+        self.assertIn(
+            "run: python3 -m unittest ci.tests.test_ci_contract ci.tests.test_task_contract -v",
+            security,
+        )
+        self.assertIn('python3 -c "import tomllib"', security)
+
+    def test_task_install_is_pinned_verified_and_before_tests(self) -> None:
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        security = workflow.split("  security:\n", 1)[1].split("  containers:\n", 1)[0]
+        self.assertIn("- name: Install Task", security)
+        install = security.split("- name: Install Task", 1)[1].split("      - ", 1)[0]
+        for required in (
+            "TASK_VERSION: 3.48.0",
+            "TASK_SHA256: f4bfc4eef1b2557b262f3cc0a79976a421885cb7b9e71cfe75568a2ebe4d7ae5",
+            "https://github.com/go-task/task/releases/download/v${TASK_VERSION}/${archive}",
+            'archive="task_linux_amd64.tar.gz"',
+            'echo "${TASK_SHA256}  /tmp/${archive}" | sha256sum --check --strict',
+            'tar -xzf "/tmp/${archive}" -C "${task_dir}" task',
+            'sudo install -m 0755 "${task_dir}/task" /usr/local/bin/go-task',
+        ):
+            self.assertIn(required, install)
+        self.assertLess(install.index("sha256sum"), install.index("tar -xzf"))
+        self.assertLess(install.index("tar -xzf"), install.index("sudo install"))
+        self.assertLess(security.index("- name: Install Task"), security.index("-m unittest"))
+
+    def test_web_uses_installed_tools_scoped_tests_and_packaged_build(self) -> None:
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        web = workflow.split("  web:\n", 1)[1]
+        for command in (
+            "bun install --frozen-lockfile", "bun audit", "bun test ./src ./tooling",
+            "./node_modules/.bin/tsc --noEmit", "./node_modules/.bin/eslint",
+            "AUTH_COOKIE_SECURE=true bun run build",
+        ):
+            with self.subTest(command=command):
+                self.assertIn(f"- run: {command}\n", web)
+        self.assertNotIn("bunx", web)
+        self.assertNotIn("bun --bun next build", web)
 
 
 if __name__ == "__main__":

@@ -67,5 +67,5 @@ def test_python_ci_audits_exported_project_dependencies() -> None:
         "--output /tmp/pip-audit.json -r /tmp/threshold-requirements.txt"
     ) in normalized
     assert (
-        "python3 ci/verify-pip-audit.py /tmp/pip-audit.json cryptography"
+        "uv run --frozen python ci/verify-pip-audit.py /tmp/pip-audit.json cryptography"
     ) in normalized

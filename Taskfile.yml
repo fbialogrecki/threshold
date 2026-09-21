@@ -56,135 +56,160 @@ tasks:
   # ─── Web (Next.js + Bun) ──────────────────────────────────────────────
 
   web:install:
-    desc: Install web dependencies
+    desc: Install locked web dependencies
     dir: '{{.WEB_DIR}}'
+    preconditions: &web-project
+      - test -f package.json && test -f bun.lock
+      - command -v bun
     cmds:
-      - bun install
+      - bun install --frozen-lockfile
 
   web:dev:
     desc: Start Next.js dev server with Bun
     dir: '{{.WEB_DIR}}'
+    preconditions: *web-project
     cmds:
       - bun --bun next dev
 
   web:build:
     desc: Build web app for production
     dir: '{{.WEB_DIR}}'
+    preconditions: *web-project
     cmds:
       - bun run build
 
   web:start:
     desc: Start production web server
     dir: '{{.WEB_DIR}}'
+    preconditions: *web-project
     cmds:
       - bun run start
 
   web:lint:
-    desc: Run ESLint for web app
+    desc: Run installed ESLint for web app
     dir: '{{.WEB_DIR}}'
+    preconditions:
+      - test -f package.json && test -f bun.lock && test -f eslint.config.mjs
+      - test -x node_modules/.bin/eslint
     cmds:
-      - bun run lint
+      - ./node_modules/.bin/eslint
 
   web:test:
-    desc: Run Bun tests for web app if test files exist
+    desc: Run web unit and packaging tests (not e2e)
     dir: '{{.WEB_DIR}}'
+    preconditions:
+      - test -f package.json && test -f bun.lock
+      - command -v bun
+      - >-
+        python3 -c 'from pathlib import Path; assert all(Path(d).is_dir() and any(p.is_file() for pattern in ("*.test.ts", "*.test.tsx", "*.spec.ts", "*.spec.tsx") for p in Path(d).rglob(pattern)) for d in ("src", "tooling")), "Missing web unit test root or files"'
     cmds:
-      - |
-        if find . \
-          -path './node_modules' -prune -o \
-          -path './.next' -prune -o \
-          -type f \( -name '*.test.ts' -o -name '*.test.tsx' -o -name '*.spec.ts' -o -name '*.spec.tsx' \) \
-          -print | grep -q .; then
-          bun test
-        else
-          echo "No web tests yet; skipping."
-        fi
+      - bun test ./src ./tooling
 
   web:typecheck:
-    desc: Type-check web app
+    desc: Type-check web app with installed TypeScript
     dir: '{{.WEB_DIR}}'
+    preconditions:
+      - test -f package.json && test -f bun.lock && test -f tsconfig.json
+      - test -x node_modules/.bin/tsc
     cmds:
-      - bunx tsc --noEmit
+      - ./node_modules/.bin/tsc --noEmit
 
-  # ─── Python / services (future-proof, no-op until pyproject exists) ────
+  # ─── Python / services ───────────────────────────────────────────────
+
+  py:install:
+    desc: Install locked Python dependencies
+    preconditions: &python-project
+      - test -f pyproject.toml && test -f uv.lock
+      - command -v uv
+      - >-
+        python3 -c 'import pathlib, tomllib; p = pathlib.Path; c = tomllib.loads(p("pyproject.toml").read_text()); assert all((p(m) / "pyproject.toml").is_file() for m in c["tool"]["uv"]["workspace"]["members"]), "Missing Python workspace project"'
+    cmds:
+      - uv sync --frozen
 
   py:lint:
-    desc: Run Ruff if Python workspace exists
+    desc: Run Ruff
+    preconditions: *python-project
     cmds:
-      - |
-        if [ -f pyproject.toml ]; then
-          uv run ruff check .
-        else
-          echo "No root pyproject.toml yet; skipping Python lint."
-        fi
+      - uv run --frozen ruff check .
 
   py:format:
-    desc: Format Python if Python workspace exists
+    desc: Format Python
+    preconditions: *python-project
     cmds:
-      - |
-        if [ -f pyproject.toml ]; then
-          uv run ruff format .
-        else
-          echo "No root pyproject.toml yet; skipping Python format."
-        fi
+      - uv run --frozen ruff format .
 
   py:typecheck:
-    desc: Run mypy if Python workspace exists
+    desc: Run mypy
+    preconditions: *python-project
     cmds:
-      - |
-        if [ -f pyproject.toml ]; then
-          uv run mypy .
-        else
-          echo "No root pyproject.toml yet; skipping Python typecheck."
-        fi
+      - uv run --frozen mypy .
 
   py:test:
-    desc: Run pytest if Python workspace exists
+    desc: Run pytest against the configured test roots
+    preconditions:
+      - test -f pyproject.toml && test -f uv.lock
+      - command -v uv
+      - >-
+        python3 -c 'import pathlib, tomllib; p = pathlib.Path; c = tomllib.loads(p("pyproject.toml").read_text()); assert all(p(t).is_dir() for t in c["tool"]["pytest"]["ini_options"]["testpaths"]), "Missing configured test root"; assert all((p(m) / "pyproject.toml").is_file() and any((p(m) / "tests").rglob("test_*.py")) for m in c["tool"]["uv"]["workspace"]["members"]), "Missing workspace project or tests"'
     cmds:
-      - |
-        if [ -f pyproject.toml ]; then
-          uv run pytest
-        else
-          echo "No root pyproject.toml yet; skipping Python tests."
-        fi
+      - uv run --frozen pytest
 
   service:dev:
     desc: Run a service locally, e.g. task service:dev SERVICE=auth-gateway
     dir: '{{.SERVICES_DIR}}/{{.SERVICE}}'
+    preconditions:
+      - test -f pyproject.toml && test -f ../../uv.lock && test -d src
+      - command -v uv
     cmds:
       - |
         pkg=$(printf '%s' '{{.SERVICE}}' | tr '-' '_')
-        uv run fastapi dev src/$pkg/main.py
+        uv run --frozen fastapi dev src/$pkg/main.py
 
   service:test:
     desc: Run tests for one service, e.g. task service:test SERVICE=users
     dir: '{{.SERVICES_DIR}}/{{.SERVICE}}'
+    preconditions:
+      - test -f pyproject.toml && test -f ../../uv.lock && test -d src
+      - command -v uv
+      - test -d tests
+      - >-
+        python3 -c 'from pathlib import Path; assert any(Path("tests").rglob("test_*.py")), "Missing service tests"'
     cmds:
-      - uv run pytest
+      - uv run --frozen pytest
 
   service:lint:
     desc: Run lint for one service, e.g. task service:lint SERVICE=events
     dir: '{{.SERVICES_DIR}}/{{.SERVICE}}'
+    preconditions:
+      - test -f pyproject.toml && test -f ../../uv.lock && test -d src
+      - command -v uv
     cmds:
-      - uv run ruff check .
+      - uv run --frozen ruff check .
 
   # ─── Protobuf / buf ───────────────────────────────────────────────────
 
   proto:lint:
     desc: Lint protobuf schemas
     dir: '{{.PROTO_DIR}}'
+    preconditions: &proto-project
+      - test -f buf.yaml
+      - command -v buf
     cmds:
       - buf lint
 
   proto:generate:
     desc: Generate protobuf code into libs/generated
     dir: '{{.PROTO_DIR}}'
+    preconditions:
+      - test -f buf.yaml && test -f buf.gen.yaml
+      - command -v buf
     cmds:
       - buf generate
 
   proto:breaking:
     desc: Check protobuf breaking changes against main branch
     dir: '{{.PROTO_DIR}}'
+    preconditions: *proto-project
     cmds:
       - buf breaking --against ../../.git#branch=main
 
@@ -199,10 +224,11 @@ tasks:
   install:
     desc: Install all local dependencies
     cmds:
+      - task: py:install
       - task: web:install
 
   lint:
-    desc: Run all linters that are available now
+    desc: Run all required linters
     cmds:
       - task: web:lint
       - task: py:lint

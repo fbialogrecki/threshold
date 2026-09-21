@@ -45,7 +45,23 @@ jobs:
           tar -xzf "/tmp/${archive}" -C /usr/local/bin trivy
       - run: trivy fs --scanners vuln,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .
       - run: bash ci/check-shell-syntax.sh ci/woodpecker/*.sh ci/*.sh
-      - run: python3 -m unittest ci.tests.test_ci_contract -v
+      - name: Install Task
+        env:
+          TASK_VERSION: 3.48.0
+          TASK_SHA256: f4bfc4eef1b2557b262f3cc0a79976a421885cb7b9e71cfe75568a2ebe4d7ae5
+        run: |
+          archive="task_linux_amd64.tar.gz"
+          curl --fail --silent --show-error --location \
+            "https://github.com/go-task/task/releases/download/v${TASK_VERSION}/${archive}" \
+            --output "/tmp/${archive}"
+          echo "${TASK_SHA256}  /tmp/${archive}" | sha256sum --check --strict
+          task_dir=$(mktemp -d)
+          trap 'rm -rf "${task_dir}"' EXIT
+          tar -xzf "/tmp/${archive}" -C "${task_dir}" task
+          sudo install -m 0755 "${task_dir}/task" /usr/local/bin/go-task
+      # Hosted Ubuntu provides Python >=3.11; fail closed if tomllib is unavailable.
+      - run: python3 -c "import tomllib"
+      - run: python3 -m unittest ci.tests.test_ci_contract ci.tests.test_task_contract -v
       - run: ci/woodpecker/woodpecker-build-push.sh --self-test
       - run: ci/woodpecker/woodpecker-promote-gitops.sh --self-test
       - run: python3 -m py_compile ci/woodpecker/bump-service-gitops.py
@@ -89,9 +105,9 @@ jobs:
         with:
           enable-cache: true
       - run: uv sync --frozen
-      - run: uv run ruff check .
-      - run: uv run mypy .
-      - run: uv run pytest -q
+      - run: uv run --frozen ruff check .
+      - run: uv run --frozen mypy .
+      - run: uv run --frozen pytest -q
       - name: Export frozen runtime dependencies
         run: >-
           uv export --frozen --no-dev --no-emit-workspace --no-hashes
@@ -99,7 +115,7 @@ jobs:
       - name: Audit frozen runtime dependencies
         run: |
           uvx --from pip-audit==2.10.1 pip-audit --strict --format json --output /tmp/pip-audit.json -r /tmp/threshold-requirements.txt
-          python3 ci/verify-pip-audit.py /tmp/pip-audit.json cryptography
+          uv run --frozen python ci/verify-pip-audit.py /tmp/pip-audit.json cryptography
 
   # Preserve the protected check identity; this is not release authorization.
   python:
@@ -129,7 +145,7 @@ jobs:
           bun-version: 1.4.0
       - run: bun install --frozen-lockfile
       - run: bun audit
-      - run: bun test
-      - run: bunx tsc --noEmit
-      - run: bunx eslint
-      - run: bun --bun next build
+      - run: bun test ./src ./tooling
+      - run: ./node_modules/.bin/tsc --noEmit
+      - run: ./node_modules/.bin/eslint
+      - run: AUTH_COOKIE_SECURE=true bun run build

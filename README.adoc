@@ -88,7 +88,16 @@ The development server uses http://localhost:3000[]. The link:apps/web/.env.exam
 
 `go-task web:dev` and `go-task dev` start only the web UI/BFF, not backend services or infrastructure. Backend-dependent features require separately configured services, PostgreSQL, NATS, and object storage. The example URLs are loopback placeholders, not provisioned dependencies. An isolated full-product startup workflow is not yet verified; private deployment access is not a prerequisite for editing the UI or running source checks.
 
-WARNING: Production startup is under repair; use `web:dev` for the contributor entry point. The earlier `web:start` / `bun run start` script targeted retired `bun-dist/server.js`, which is not a supported fallback. Verify the matching build/start contract before using a replacement production command; a successful Next.js build alone does not establish that it starts correctly.
+For a production-mode web build and loopback startup (illustrative defaults):
+
+[source,bash]
+----
+cd apps/web
+AUTH_COOKIE_SECURE=true bun run build
+AUTH_COOKIE_SECURE=true HOSTNAME=127.0.0.1 PORT=3000 bun run start
+----
+
+`build` prepares the Next.js standalone server and copies its static/public assets; `start` runs `.next/standalone/server.js`. The matching build/start path has been locally verified, including asset delivery. The retired `bun-dist/server.js` is not a fallback. Secure cookies require HTTPS for real browser authentication; this loopback example is a web startup check, not backend login or full-product verification. The remaining dependency/security remediation (W03) and isolated full-product/backend startup verification (W07) are not established by this web check.
 
 == Quality gates
 
@@ -104,13 +113,13 @@ Web checks, from the source repository root with Bun 1.4.0 on `PATH`:
 
 [source,bash]
 ----
-(cd apps/web && bun install --frozen-lockfile && bun test && bunx tsc --noEmit && bunx eslint && AUTH_COOKIE_SECURE=true bun --bun next build)
+(cd apps/web && bun install --frozen-lockfile && bun test ./src ./tooling && ./node_modules/.bin/tsc --noEmit && ./node_modules/.bin/eslint && AUTH_COOKIE_SECURE=true bun run build)
 go-task repo:secret-scan
 go-task proto:lint
 go-task proto:generate
 ----
 
-These are source checks, not deployment or production-start verification. The direct Python/web commands avoid the existing Taskfile's conditional skip paths; do not treat an aggregate `go-task check` success alone as proof that every gate ran. The repository secret scan is a lightweight check, not a substitute for the full-history security checks in link:.github/workflows/ci.yml[CI]. Protobuf generation changes generated files; review its diff.
+These are source checks, not deployment or full-product verification. `go-task install` uses frozen Python and web installs; `AUTH_COOKIE_SECURE=true go-task check` runs the required lint, type, unit-test, and build commands without conditional success skips. Missing expected projects, configurations, test roots/files, or local checking tools fail the affected targets. Web unit tests explicitly select `src` and `tooling`, not future end-to-end suites. Run `python3 -m unittest ci.tests.test_task_contract -v` with go-task installed for executable Taskfile contract tests; their isolated fake tools verify invocation and failure behavior, not application correctness. The repository secret scan is a lightweight check, not a substitute for the full-history security checks in link:.github/workflows/ci.yml[CI]. Protobuf generation changes generated files; review its diff.
 
 == Contributing
 
