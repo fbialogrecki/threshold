@@ -44,7 +44,8 @@ jobs:
           echo "${TRIVY_SHA256}  /tmp/${archive}" | sha256sum --check --strict
           tar -xzf "/tmp/${archive}" -C /usr/local/bin trivy
       - run: trivy fs --scanners vuln,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .
-      - run: bash -n ci/woodpecker/*.sh
+      - run: bash ci/check-shell-syntax.sh ci/woodpecker/*.sh ci/*.sh
+      - run: python3 -m unittest ci.tests.test_ci_contract -v
       - run: ci/woodpecker/woodpecker-build-push.sh --self-test
       - run: ci/woodpecker/woodpecker-promote-gitops.sh --self-test
       - run: python3 -m py_compile ci/woodpecker/bump-service-gitops.py
@@ -79,8 +80,7 @@ jobs:
       - name: Build ${{ matrix.service }} image
         run: docker build --file "${{ matrix.dockerfile }}" --tag "threshold/${{ matrix.service }}:ci" "${{ matrix.context }}"
 
-  python:
-    needs: [security, containers]
+  python-quality:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -100,6 +100,19 @@ jobs:
         run: |
           uvx --from pip-audit==2.10.1 pip-audit --strict --format json --output /tmp/pip-audit.json -r /tmp/threshold-requirements.txt
           python3 ci/verify-pip-audit.py /tmp/pip-audit.json cryptography
+
+  # Preserve the protected check identity; this is not release authorization.
+  python:
+    if: always()
+    needs: [python-quality, security, containers]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - name: Require every dependency to succeed
+        env:
+          REQUIRED_RESULTS: ${{ toJSON(needs) }}
+        run: python3 ci/check-required-results.py
 
   web:
     runs-on: ubuntu-latest
