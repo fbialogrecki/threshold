@@ -15,6 +15,9 @@ from users.api.schemas import (
     ArtistReferencesRequest,
     BlockCheckResponse,
     BlockCreateRequest,
+    BlockDecisionResponse,
+    BlockDecisionsRequest,
+    BlockDecisionsResponse,
     CurrentPrincipalRequest,
     CurrentProfileResponse,
     EmailVerifyRequest,
@@ -69,6 +72,7 @@ from users.auth.service import (
     request_password_reset,
     revoke_session,
 )
+from users.block_policy import allowed_targets
 from users.domain.follows import (
     PAGE_FOLLOW_TARGET_TYPES,
     canonical_follow_target_type,
@@ -182,6 +186,23 @@ def require_internal_token(
         )
     if token is None or not hmac.compare_digest(token, expected):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="unauthorized")
+
+
+@router.post("/internal/v1/users/block-decisions", response_model=BlockDecisionsResponse)
+def get_block_decisions(
+    payload: BlockDecisionsRequest,
+    _: Annotated[None, Depends(require_internal_token)],
+    session: DbSession,
+) -> BlockDecisionsResponse:
+    # Preserve exact request order and multiplicity, including duplicates.
+    allowed = allowed_targets(session, payload.viewer_id, payload.target_ids)
+    return BlockDecisionsResponse(
+        viewer_id=payload.viewer_id,
+        decisions=[
+            BlockDecisionResponse(target_id=target, allowed=target in allowed)
+            for target in payload.target_ids
+        ],
+    )
 
 
 def _user_payload(user: ApplicationUser) -> dict[str, object]:

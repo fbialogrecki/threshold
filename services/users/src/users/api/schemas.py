@@ -2,8 +2,31 @@ import re
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 from users.domain.identity import is_reserved_username, is_valid_username
+
+PolicyUserId = Annotated[str, Field(strict=True, min_length=1, max_length=36)]
+
+
+class BlockDecisionsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    viewer_id: PolicyUserId
+    target_ids: list[PolicyUserId] = Field(
+        min_length=1,
+        max_length=100,
+        description="Immutable user IDs; response preserves exact order and duplicates.",
+    )
+
+
+class BlockDecisionResponse(BaseModel):
+    target_id: str
+    allowed: StrictBool
+
+
+class BlockDecisionsResponse(BaseModel):
+    viewer_id: str
+    decisions: list[BlockDecisionResponse]
 
 
 class CurrentPrincipalRequest(BaseModel):
