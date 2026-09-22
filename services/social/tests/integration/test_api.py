@@ -1,3 +1,6 @@
+import json
+
+import httpx
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
@@ -32,6 +35,30 @@ USER_2_HEADERS = {
     "X-Threshold-Username": "warper",
     "X-Threshold-Display-Name": "Warper",
 }
+
+
+@pytest.fixture()
+def canonical_unblocked_transport(monkeypatch):
+    """Explicit remote-policy control for non-policy unit tests, not a projection."""
+    factory = httpx.AsyncClient
+
+    def handler(request):
+        assert request.url.path == "/internal/v1/users/block-decisions"
+        body = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={
+                "viewer_id": body["viewer_id"],
+                "decisions": [
+                    {"target_id": target, "allowed": True} for target in body["target_ids"]
+                ],
+            },
+        )
+
+    monkeypatch.setattr(routes.settings, "users_service_url", "http://canonical.test")
+    monkeypatch.setattr(
+        httpx, "AsyncClient", lambda **kw: factory(**kw, transport=httpx.MockTransport(handler))
+    )
 
 
 def test_healthz() -> None:
@@ -110,6 +137,7 @@ def test_group_posts_require_membership(session: Session) -> None:
     assert allowed.status_code == 201
 
 
+@pytest.mark.usefixtures("canonical_unblocked_transport")
 def test_group_post_comment_reaction_and_anonymize_flow(session: Session) -> None:
     client = TestClient(app)
 
@@ -191,6 +219,7 @@ def test_membership_and_reaction_are_idempotent(session: Session) -> None:
     assert client.get(f"/v1/posts/{post['id']}", headers=TOKEN_HEADERS).json()["like_count"] == 1
 
 
+@pytest.mark.usefixtures("canonical_unblocked_transport")
 def test_feed_filter_and_cursor_contract(session: Session) -> None:
     client = TestClient(app)
     client.post("/v1/groups/techno-warsaw/membership", headers=USER_HEADERS)
@@ -225,6 +254,7 @@ def test_feed_filter_and_cursor_contract(session: Session) -> None:
     assert [item["id"] for item in second_page.json()["items"]] == [first["id"]]
 
 
+@pytest.mark.usefixtures("canonical_unblocked_transport")
 def test_ordinary_and_event_linked_posts_expose_event_reference(session: Session) -> None:
     client = TestClient(app)
     client.post("/v1/groups/techno-warsaw/membership", headers=USER_HEADERS)
@@ -438,6 +468,7 @@ def test_internal_event_announcement_crossposts_once_to_official_city_group(
     assert legacy["event_slug"] == "warehouse-signal"
 
 
+@pytest.mark.usefixtures("canonical_unblocked_transport")
 def test_feed_batches_legacy_event_slug_fallback(session: Session) -> None:
     client = TestClient(app)
     client.post("/v1/groups/techno-warsaw/membership", headers=USER_HEADERS)

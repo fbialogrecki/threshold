@@ -1,12 +1,83 @@
+import asyncio
 import json
 import logging
 from typing import Any
 
+import httpx
 import nats
+from fastapi import HTTPException
 
 from social.settings import Settings
 
 logger = logging.getLogger(__name__)
+
+
+def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate policy response member")
+        result[key] = value
+    return result
+
+
+async def block_decisions(
+    settings: Settings, viewer_id: str, target_ids: list[str]
+) -> dict[str, bool]:
+    """Fresh, strictly bound canonical decisions; never use a local projection."""
+    try:
+        if not settings.users_service_url or not settings.threshold_internal_token:
+            raise ValueError("canonical policy is not configured")
+        if any(
+            type(value) is not str or not 1 <= len(value) <= 36
+            for value in [viewer_id, *target_ids]
+        ):
+            raise ValueError("invalid principal")
+        targets = list(dict.fromkeys(target_ids))
+        result: dict[str, bool] = {}
+        async with asyncio.timeout(settings.nats_request_timeout_seconds):
+            async with httpx.AsyncClient(
+                timeout=settings.nats_request_timeout_seconds,
+                trust_env=False,
+                follow_redirects=False,
+            ) as client:
+                for offset in range(0, len(targets), 100):
+                    batch = targets[offset : offset + 100]
+                    async with client.stream(
+                        "POST",
+                        f"{settings.users_service_url.rstrip('/')}/internal/v1/users/block-decisions",
+                        headers={"X-Threshold-Internal-Token": settings.threshold_internal_token},
+                        json={"viewer_id": viewer_id, "target_ids": batch},
+                    ) as response:
+                        response.raise_for_status()
+                        data = bytearray()
+                        async for chunk in response.aiter_bytes():
+                            data.extend(chunk)
+                            if len(data) > 32768:
+                                raise ValueError("oversize policy response")
+                    payload = json.loads(data, object_pairs_hook=_unique_json_object)
+                    if (
+                        type(payload) is not dict
+                        or set(payload) != {"viewer_id", "decisions"}
+                        or type(payload["viewer_id"]) is not str
+                        or payload["viewer_id"] != viewer_id
+                        or type(payload["decisions"]) is not list
+                        or len(payload["decisions"]) != len(batch)
+                    ):
+                        raise ValueError("invalid policy response")
+                    for target, decision in zip(batch, payload["decisions"], strict=True):
+                        if (
+                            type(decision) is not dict
+                            or set(decision) != {"target_id", "allowed"}
+                            or type(decision["target_id"]) is not str
+                            or decision["target_id"] != target
+                            or type(decision["allowed"]) is not bool
+                        ):
+                            raise ValueError("invalid policy decision")
+                        result[target] = decision["allowed"]
+        return result
+    except (httpx.HTTPError, ValueError, TimeoutError) as exc:
+        raise HTTPException(status_code=503, detail="block policy unavailable") from exc
 
 
 async def list_following_user_ids(settings: Settings, user_id: str) -> set[str]:

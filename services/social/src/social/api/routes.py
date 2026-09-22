@@ -1,3 +1,4 @@
+import asyncio
 from collections import defaultdict
 from datetime import datetime
 from typing import Annotated, Any
@@ -59,6 +60,7 @@ from social.events import publish_event
 from social.main_dependencies import get_db_session, settings
 from social.mentions import MentionCandidate, extract_mention_candidates
 from social.users_client import (
+    block_decisions,
     create_notification,
     list_following_user_ids,
     resolve_event_mention,
@@ -1660,29 +1662,69 @@ async def get_feed(
     before: Annotated[str | None, Query()] = None,
     limit: Annotated[int | None, Query(ge=1)] = None,
 ) -> FeedResponse:
-    followed_user_ids = await list_following_user_ids(settings, user.user_id)
-    group_ids = set(
-        session.scalars(
-            select(GroupMembership.group_id).where(GroupMembership.user_id == user.user_id)
-        ).all()
-    )
-    filters = []
-    if followed_user_ids:
-        filters.append(Post.author_user_id.in_(followed_user_ids))
-    if group_ids:
-        filters.append(Post.group_id.in_(group_ids))
-    if not filters:
-        return FeedResponse(items=[], next_before=None)
-    conditions = [or_(*filters), Post.hidden_at.is_(None)]
-    blocked_author_ids = _blocked_feed_author_ids(session, user.user_id)
-    if blocked_author_ids:
-        conditions.append(Post.author_user_id.not_in(blocked_author_ids))
-    cursor_condition = _cursor_condition(Post, before)
-    if cursor_condition is not None:
-        conditions.append(cursor_condition)
-    return _paginate_posts(
-        select(Post).where(*conditions), session, _clamp_limit(limit), user.user_id
-    )
+    # Cooperative only: synchronous DB cancellation remains W21 work.
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + 3.0
+
+    def check_deadline() -> None:
+        if loop.time() >= deadline:
+            raise HTTPException(status_code=503, detail="feed policy deadline exceeded")
+
+    try:
+        async with asyncio.timeout_at(deadline):
+            followed_user_ids = await list_following_user_ids(settings, user.user_id)
+            check_deadline()
+            group_ids = set(
+                session.scalars(
+                    select(GroupMembership.group_id).where(GroupMembership.user_id == user.user_id)
+                ).all()
+            )
+            check_deadline()
+            filters = []
+            if followed_user_ids:
+                filters.append(Post.author_user_id.in_(followed_user_ids))
+            if group_ids:
+                filters.append(Post.group_id.in_(group_ids))
+            if not filters:
+                return FeedResponse(items=[], next_before=None)
+            conditions = [or_(*filters), Post.hidden_at.is_(None)]
+            cursor_condition = _cursor_condition(Post, before)
+            page_limit = _clamp_limit(limit)
+            visible: list[Post] = []
+            # At most 500 candidates / five canonical calls. Never claim a false end.
+            for _ in range(5):
+                check_deadline()
+                query = select(Post).where(*conditions)
+                if cursor_condition is not None:
+                    query = query.where(cursor_condition)
+                rows = list(
+                    session.scalars(
+                        query.order_by(Post.created_at.desc(), Post.id.desc()).limit(100)
+                    ).all()
+                )
+                check_deadline()
+                if not rows:
+                    break
+                decisions = await block_decisions(
+                    settings, user.user_id, [post.author_user_id for post in rows]
+                )
+                check_deadline()
+                visible.extend(post for post in rows if decisions[post.author_user_id])
+                if len(visible) > page_limit or len(rows) < 100:
+                    break
+                cursor_condition = _cursor_condition(Post, _encode_cursor(rows[-1]))
+            else:
+                raise HTTPException(status_code=503, detail="feed policy scan exhausted")
+            check_deadline()
+            page = visible[:page_limit]
+            next_before = _encode_cursor(page[-1]) if len(visible) > page_limit else None
+            response = FeedResponse(
+                items=_posts_response(session, page, user.user_id), next_before=next_before
+            )
+            check_deadline()
+            return response
+    except TimeoutError as exc:
+        raise HTTPException(status_code=503, detail="feed policy deadline exceeded") from exc
 
 
 @router.get("/v1/search/groups", response_model=list[GroupResponse])
