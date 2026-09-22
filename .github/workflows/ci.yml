@@ -117,10 +117,29 @@ jobs:
           uvx --from pip-audit==2.10.1 pip-audit --strict --format json --output /tmp/pip-audit.json -r /tmp/threshold-requirements.txt
           uv run --frozen python ci/verify-pip-audit.py /tmp/pip-audit.json cryptography
 
+  system:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: command -v podman
+      - run: >-
+          python3 -c 'from pathlib import Path; root = Path("tests/system"); assert root.is_dir() and all((root / name).is_file() for name in ("test_database.py", "test_blocks_http.py", "test_block_decisions_http.py", "test_block_feed_freshness.py", "test_feed_users_outage.py", "test_resource_errors.py", "test_resource_lifecycle.py", "test_resource_fence.py")), "Missing system test root or expected tests"'
+      - run: >-
+          python3 -c 'import json, subprocess; info = json.loads(subprocess.check_output(["podman", "--remote=false", "info", "--format", "json"], timeout=30)); assert info["host"]["security"]["rootless"] is True and info["host"]["arch"] == "amd64", "System lane requires rootless amd64 Podman"'
+      - run: podman --remote=false pull docker.io/library/postgres@sha256:1b13c640ae11f2f165d1e89667e5862b0017baf4c80fec2fb7377d86319859ba
+      - run: uv run --frozen pytest -q tests/system
+
   # Preserve the protected check identity; this is not release authorization.
   python:
     if: always()
-    needs: [python-quality, security, containers]
+    needs: [python-quality, security, containers, system]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

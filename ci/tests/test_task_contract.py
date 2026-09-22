@@ -57,6 +57,77 @@ class TaskContractTests(unittest.TestCase):
     def calls(self) -> str:
         return self.log.read_text() if self.log.exists() else ""
 
+    def system_fixture(self) -> None:
+        for name in ("test_database.py", "test_blocks_http.py", "test_block_decisions_http.py",
+                     "test_block_feed_freshness.py", "test_feed_users_outage.py",
+                     "test_resource_errors.py", "test_resource_lifecycle.py",
+                     "test_resource_fence.py"):
+            self.put(f"tests/system/{name}")
+        podman = self.bin / "podman"
+        self.executable(podman, "podman")
+        with podman.open("a") as stream:
+            stream.write("printf '%s\\n' '{\"host\":{\"security\":{\"rootless\":true},"
+                         "\"arch\":\"amd64\"}}'\n")
+
+    def test_system_healthy_explicit_frozen_and_pinned(self) -> None:
+        self.system_fixture()
+        result = self.run_task("python:system")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.calls().splitlines(), [
+            "podman --remote=false info --format json",
+            "podman --remote=false pull docker.io/library/postgres@sha256:"
+            "1b13c640ae11f2f165d1e89667e5862b0017baf4c80fec2fb7377d86319859ba",
+            "uv run --frozen pytest -q tests/system",
+        ])
+
+    def test_system_missing_prerequisites_fail_closed(self) -> None:
+        self.system_fixture()
+        self.assertEqual(self.run_task("python:system").returncode, 0)
+        for name in ("tests/system", "tests/system/test_database.py",
+                     "tests/system/test_blocks_http.py",
+                     "tests/system/test_block_decisions_http.py",
+                     "tests/system/test_block_feed_freshness.py",
+                     "tests/system/test_feed_users_outage.py",
+                     "tests/system/test_resource_errors.py",
+                     "tests/system/test_resource_lifecycle.py",
+                     "tests/system/test_resource_fence.py", "bin/podman"):
+            with self.subTest(missing=name):
+                self.log.unlink(missing_ok=True)
+                path = self.root / name
+                backup = path.with_name(path.name + ".hidden")
+                path.rename(backup)
+                try:
+                    result = self.run_task("python:system")
+                    self.assertNotEqual(result.returncode, 0, result.stderr)
+                    self.assertNotIn("pull", self.calls())
+                    self.assertNotIn("uv ", self.calls())
+                finally:
+                    backup.rename(path)
+
+    def test_system_runtime_failures_propagate(self) -> None:
+        self.system_fixture()
+        self.assertEqual(self.run_task("python:system").returncode, 0)
+        for tool, mutation in (
+            ("podman", 'case "$*" in *info*) exit 23;; esac\n'),
+            ("podman", 'case "$*" in *pull*) exit 23;; esac\n'),
+            ("uv", "exit 23\n"),
+        ):
+            with self.subTest(tool=tool, mutation=mutation):
+                path = self.bin / tool
+                original = path.read_text()
+                self.log.unlink(missing_ok=True)
+                path.write_text(original.replace("#!/bin/sh\n", "#!/bin/sh\n" + mutation))
+                try:
+                    result = self.run_task("python:system")
+                    self.assertNotEqual(result.returncode, 0, result.stderr)
+                    if tool == "podman":
+                        self.assertNotIn("uv ", self.calls())
+                finally:
+                    path.write_text(original)
+        path = self.bin / "podman"
+        path.write_text(path.read_text().replace('"rootless":true', '"rootless":false'))
+        self.assertNotEqual(self.run_task("python:system").returncode, 0)
+
     def test_python_missing_project_fails(self) -> None:
         (self.root / "pyproject.toml").unlink()
         for target in ("py:lint", "py:format", "py:typecheck", "py:test"):

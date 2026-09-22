@@ -154,6 +154,20 @@ tasks:
     cmds:
       - uv run --frozen pytest
 
+  python:system:
+    desc: Run the separate rootless PostgreSQL and HTTP system lane
+    preconditions:
+      - test -f pyproject.toml && test -f uv.lock
+      - command -v uv
+      - command -v podman
+      - >-
+        python3 -c 'from pathlib import Path; root = Path("tests/system"); assert root.is_dir() and all((root / name).is_file() for name in ("test_database.py", "test_blocks_http.py", "test_block_decisions_http.py", "test_block_feed_freshness.py", "test_feed_users_outage.py", "test_resource_errors.py", "test_resource_lifecycle.py", "test_resource_fence.py")), "Missing system test root or expected tests"'
+      - >-
+        python3 -c 'import json, subprocess; info = json.loads(subprocess.check_output(["podman", "--remote=false", "info", "--format", "json"], timeout=30)); assert info["host"]["security"]["rootless"] is True and info["host"]["arch"] == "amd64", "System lane requires rootless amd64 Podman"'
+    cmds:
+      - podman --remote=false pull docker.io/library/postgres@sha256:1b13c640ae11f2f165d1e89667e5862b0017baf4c80fec2fb7377d86319859ba
+      - uv run --frozen pytest -q tests/system
+
   service:dev:
     desc: Run a service locally, e.g. task service:dev SERVICE=auth-gateway
     dir: '{{.SERVICES_DIR}}/{{.SERVICE}}'

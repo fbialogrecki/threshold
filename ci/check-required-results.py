@@ -4,7 +4,7 @@ import json
 import os
 import sys
 
-REQUIRED = ("python-quality", "security", "containers")
+REQUIRED = ("python-quality", "security", "containers", "system")
 
 
 def main() -> int:

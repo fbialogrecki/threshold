@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-REQUIRED = ("python-quality", "security", "containers")
+REQUIRED = ("python-quality", "security", "containers", "system")
 
 
 class RequiredResultsTests(unittest.TestCase):
@@ -98,7 +98,7 @@ class WorkflowWiringTests(unittest.TestCase):
             self.assertIn(command, quality)
         gate = jobs["python"]
         self.assertIn("    if: always()\n", gate)
-        self.assertIn("    needs: [python-quality, security, containers]\n", gate)
+        self.assertIn("    needs: [python-quality, security, containers, system]\n", gate)
         self.assertIn("REQUIRED_RESULTS: ${{ toJSON(needs) }}", gate)
         self.assertIn("run: python3 ci/check-required-results.py", gate)
         self.assertNotIn("continue-on-error", gate)
@@ -109,6 +109,36 @@ class WorkflowWiringTests(unittest.TestCase):
         self.assertIn("web", jobs)
         for name in (*REQUIRED, "web"):
             self.assertNotIn("continue-on-error", jobs[name])
+
+    def test_system_is_independent_secretless_and_executes_full_root(self) -> None:
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        jobs = dict(re.findall(
+            r"^  ([\w-]+):\n(.*?)(?=^  [\w-]+:|\Z)",
+            workflow.split("jobs:\n", 1)[1], re.M | re.S,
+        ))
+        self.assertIn("system", jobs)
+        system = jobs["system"]
+        self.assertIn("    runs-on: ubuntu-24.04\n", system)
+        self.assertIn("    timeout-minutes: 20\n", system)
+        self.assertNotRegex(system, r"(?m)^    (needs|if|services|container):")
+        for forbidden in ("continue-on-error", "secrets.", "sudo", "|| true", "--privileged"):
+            self.assertNotIn(forbidden, system)
+        for command in ("uv sync --frozen", "command -v podman",
+                        "uv run --frozen pytest -q tests/system"):
+            self.assertIn("- run: " + command + "\n", system)
+        task = (ROOT / "Taskfile.yml").read_text().split("  python:system:\n")[1]
+        task = task.split("  service:dev:\n")[0]
+        # Shared actual commands, not comments: named files and rootless checks must run.
+        for line in task.splitlines():
+            if line.strip().startswith("python3 -c"):
+                self.assertIn("      - run: >-\n          " + line.strip() + "\n", system)
+        image = "docker.io/library/postgres@sha256:" + (
+            "1b13c640ae11f2f165d1e89667e5862b0017baf4c80fec2fb7377d86319859ba"
+        )
+        self.assertIn("- run: podman --remote=false pull " + image + "\n", system)
+        self.assertLess(system.index("info"), system.index("pull " + image))
+        self.assertLess(system.index("pull " + image), system.index("pytest -q tests/system"))
+        self.assertIn("persist-credentials: false", system)
 
     def test_security_enrolls_both_contract_modules(self) -> None:
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
