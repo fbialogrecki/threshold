@@ -58,6 +58,9 @@ class S3ObjectStorage:
                 aws_access_key_id=self._settings.s3_access_key_id,
                 aws_secret_access_key=self._settings.s3_secret_access_key,
                 config=Config(
+                    connect_timeout=5,
+                    read_timeout=30,
+                    retries={"total_max_attempts": 2, "mode": "standard"},
                     s3={"addressing_style": "path" if self._settings.s3_path_style else "auto"}
                 ),
             )

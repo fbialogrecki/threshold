@@ -491,7 +491,13 @@ def refresh_session(
     if not refresh_token:
         raise AuthError("missing refresh token")
     token_hash = _hash_token(refresh_token, settings)
-    row = session.scalar(select(UserSession).where(UserSession.refresh_token_hash == token_hash))
+    # Consume the old hash under the request transaction's row lock. A waiting
+    # refresh rechecks this predicate after the winner commits its new hashes.
+    row = session.scalar(
+        select(UserSession)
+        .where(UserSession.refresh_token_hash == token_hash)
+        .with_for_update()
+    )
     now = utc_now()
     if row is None:
         raise AuthError("invalid refresh token")
@@ -521,7 +527,6 @@ def refresh_session(
         user_id=row.user_id,
     )
     session.commit()
-    session.refresh(row)
     return user, new_session_token, new_refresh_token
 
 

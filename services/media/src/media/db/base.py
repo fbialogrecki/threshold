@@ -17,6 +17,18 @@ def build_engine(database_url: str) -> Engine:
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
+    if database_url.startswith(("postgresql:", "postgresql+psycopg:")):
+        return create_engine(
+            database_url,
+            pool_pre_ping=True,
+            pool_timeout=5,
+            connect_args={
+                "connect_timeout": 5,
+                "tcp_user_timeout": 30000,
+                "options": "-c statement_timeout=30000 -c lock_timeout=5000 "
+                "-c idle_in_transaction_session_timeout=30000",
+            },
+        )
     return create_engine(database_url, pool_pre_ping=True)
 
 
