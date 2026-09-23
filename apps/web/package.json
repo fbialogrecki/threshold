@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "bun --bun next dev",
-    "build": "bun --bun next build",
-    "start": "NEXT_PROJECT_DIR=. bun bun-dist/server.js",
+    "build": "bun --bun next build && bun tooling/prepare-standalone.ts",
+    "start": "bun .next/standalone/server.js",
     "lint": "eslint"
   },
   "dependencies": {
@@ -40,7 +40,6 @@
     "unrs-resolver"
   ],
   "trustedDependencies": [
-    "adapter-bun",
     "sharp",
     "unrs-resolver"
   ]

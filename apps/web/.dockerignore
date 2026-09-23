@@ -1,7 +1,6 @@
 # Dependency and generated output caches
 node_modules
 .next
-bun-dist
 .cache
 **/.cache
 coverage
