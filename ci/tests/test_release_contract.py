@@ -30,7 +30,7 @@ class ReleaseContainmentTests(unittest.TestCase):
             fixture = Path(directory) / "release.yml"
             fixture.write_text(workflow)
             with (
-                patch("ci.tests.test_release_contract.WORKFLOW", fixture),
+                patch.dict(globals(), {"WORKFLOW": fixture}),
                 self.assertRaises(AssertionError),
             ):
                 self.test_public_workflow_is_exactly_the_reviewed_disabled_version()
