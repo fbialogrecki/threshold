@@ -7,8 +7,6 @@ version: '3'
 vars:
   WEB_DIR: apps/web
   SERVICES_DIR: services
-  PROTO_DIR: libs/proto
-  GENERATED_DIR: libs/generated
   IMAGE_REGISTRY: '{{default "threshold" .IMAGE_REGISTRY}}'
   IMAGE_TAG: '{{default "latest" .IMAGE_TAG}}'
   SERVICE: '{{default "web" .SERVICE}}'
@@ -39,7 +37,7 @@ tasks:
           echo "Fedora package: go-task (binary: /usr/bin/go-task)"
           exit 1
         fi
-        for tool in buf uv docker kubectl tilt kustomize; do
+        for tool in uv docker kubectl tilt kustomize; do
           if command -v "$tool" >/dev/null; then
             echo "ok: $tool"
           else
@@ -168,32 +166,6 @@ tasks:
     cmds:
       - uv run ruff check .
 
-  # ─── Protobuf / buf ───────────────────────────────────────────────────
-
-  proto:lint:
-    desc: Lint protobuf schemas
-    dir: '{{.PROTO_DIR}}'
-    cmds:
-      - buf lint
-
-  proto:generate:
-    desc: Generate protobuf code into libs/generated
-    dir: '{{.PROTO_DIR}}'
-    cmds:
-      - buf generate
-
-  proto:breaking:
-    desc: Check protobuf breaking changes against main branch
-    dir: '{{.PROTO_DIR}}'
-    cmds:
-      - buf breaking --against ../../.git#branch=main
-
-  proto:check:
-    desc: Lint and generate protobuf code
-    cmds:
-      - task: proto:lint
-      - task: proto:generate
-
   # ─── Global gates ─────────────────────────────────────────────────────
 
   install:
@@ -206,7 +178,6 @@ tasks:
     cmds:
       - task: web:lint
       - task: py:lint
-      - task: proto:lint
 
   typecheck:
     desc: Run all type checks

@@ -44,7 +44,8 @@ jobs:
           echo "${TRIVY_SHA256}  /tmp/${archive}" | sha256sum --check --strict
           tar -xzf "/tmp/${archive}" -C /usr/local/bin trivy
       - run: trivy fs --scanners vuln,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .
-      - run: bash -n ci/woodpecker/*.sh
+      # bash -n only parses its first argument, so check each script separately.
+      - run: for script in ci/woodpecker/*.sh; do bash -n "$script"; done
       - run: python3 -m unittest ci.tests.test_release_contract -v
       - run: ci/woodpecker/woodpecker-build-push.sh --self-test
       - run: ci/woodpecker/woodpecker-promote-gitops.sh --self-test
@@ -89,6 +90,7 @@ jobs:
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
         with:
           enable-cache: true
+      - run: uv lock --check
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run mypy .
