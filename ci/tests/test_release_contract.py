@@ -29,9 +29,11 @@ class ReleaseContainmentTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             fixture = Path(directory) / "release.yml"
             fixture.write_text(workflow)
-            with patch("ci.tests.test_release_contract.WORKFLOW", fixture):
-                with self.assertRaises(AssertionError):
-                    self.test_public_workflow_is_exactly_the_reviewed_disabled_version()
+            with (
+                patch("ci.tests.test_release_contract.WORKFLOW", fixture),
+                self.assertRaises(AssertionError),
+            ):
+                self.test_public_workflow_is_exactly_the_reviewed_disabled_version()
 
     def test_public_security_job_runs_release_contract(self) -> None:
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
