@@ -1,7 +1,7 @@
 /**
  * Threshold domain contracts (frontend view).
- * These mirror product domain rules and libs/proto so backend response
- * mapping stays explicit at the UI boundary.
+ * These mirror product domain rules so backend response mapping stays
+ * explicit at the UI boundary.
  */
 
 import type { PageType } from "@/lib/page-types"

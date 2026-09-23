@@ -53,7 +53,6 @@ members = [
 target-version = "py313"
 line-length = 100
 src = ["libs/py", "services"]
-exclude = ["libs/generated"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
@@ -66,4 +65,4 @@ testpaths = ["services", "libs/py/tests"]
 python_version = "3.13"
 strict = true
 packages = ["threshold_common", "auth_gateway", "events", "media", "users", "social"]
-exclude = "(libs/generated|services/.*/migrations|services/.*/tests|scripts)"
+exclude = "(services/.*/migrations|services/.*/tests|scripts)"

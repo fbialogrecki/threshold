@@ -50,11 +50,6 @@ def configure_telemetry(service_name: str) -> None:
             client_name="HTTPX",
         )
         _instrument_optional_client(
-            module_name="opentelemetry.instrumentation.asyncpg",
-            class_name="AsyncPGInstrumentor",
-            client_name="asyncpg",
-        )
-        _instrument_optional_client(
             module_name="opentelemetry.instrumentation.psycopg",
             class_name="PsycopgInstrumentor",
             client_name="psycopg",
