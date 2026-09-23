@@ -31,7 +31,6 @@ The MVP excludes ticketing, payments, direct messages, creator monetization, mob
 |`services/media` |Image validation, metadata, derivatives, and S3-compatible storage
 |`services/auth-gateway` |Authentik-backed SSO edge for internal and administrative surfaces
 |`libs/py` |Shared Python helpers
-|`libs/proto` |Internal Protobuf contracts
 |===
 
 Runtime stack:
@@ -51,8 +50,6 @@ Runtime stack:
 apps/web/                 Next.js frontend and BFF
 services/                 FastAPI services
 libs/py/                  Shared Python package
-libs/proto/               Protobuf source schemas
-libs/generated/           Generated Protobuf code
 .github/workflows/         Public GitHub validation
 .woodpecker/               Self-hosted validation and trusted release pipelines
 Taskfile.yml               Local quality command contract
@@ -67,7 +64,6 @@ Operational scripts, live GitOps topology, runbooks, private hostnames, and agen
 * https://bun.sh/[Bun]
 * Python 3.13
 * https://docs.astral.sh/uv/[uv]
-* https://buf.build/[Buf] for Protobuf checks
 
 Container workflows additionally require an OCI builder.
 
@@ -107,8 +103,6 @@ go-task web:build
 go-task py:lint
 go-task py:typecheck
 go-task py:test
-go-task proto:lint
-go-task proto:generate
 ----
 
 == Contributing

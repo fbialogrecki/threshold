@@ -32,11 +32,6 @@ def test_configure_telemetry_instruments_http_and_database_clients(
     )
     monkeypatch.setitem(
         sys.modules,
-        "opentelemetry.instrumentation.asyncpg",
-        module_with_instrumentor("AsyncPGInstrumentor", "asyncpg"),
-    )
-    monkeypatch.setitem(
-        sys.modules,
         "opentelemetry.instrumentation.psycopg",
         module_with_instrumentor("PsycopgInstrumentor", "psycopg"),
     )
@@ -46,7 +41,7 @@ def test_configure_telemetry_instruments_http_and_database_clients(
 
     telemetry.configure_telemetry("test-service")
 
-    assert calls == ["httpx", "asyncpg", "psycopg"]
+    assert calls == ["httpx", "psycopg"]
 
 
 def test_configure_telemetry_exports_metrics_over_existing_otlp_pipeline(
