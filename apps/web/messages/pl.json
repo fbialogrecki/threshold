@@ -108,6 +108,7 @@
     "login": "Zaloguj się",
     "createAccount": "Utwórz konto",
     "registrationOpen": "Rejestracja otwarta",
+    "registrationSteps": "Najpierw załóż konto. Potem wybierzesz miasto i opcjonalnie dodasz profil DJ-a oraz Strony klubu lub projektu.",
     "loginCaption": "Wejdź na scenę",
     "nickname": "Pseudonim",
     "identifier": "E-mail lub pseudonim",
@@ -234,13 +235,15 @@
       "identity": "Tożsamość",
       "city": "Miasto",
       "frequencies": "Brzmienia",
+      "artist": "Profil DJ",
+      "pages": "Strony",
       "access": "Grupa miasta",
       "done": "Gotowe"
     },
     "identity": {
-      "body": "Wybierz publiczny pseudonim. Prawdziwe imię nie jest wymagane. Awatar możesz dodać później.",
+      "body": "Twoje konto zostało utworzone. Potwierdź publiczną nazwę użytkownika; nie wymagamy prawdziwego imienia.",
       "nickname": "Pseudonim",
-      "hint": "To będzie Twoja nazwa wyświetlana. Możesz ją później zmienić w Ustawieniach."
+      "hint": "To Twoja jedyna publiczna nazwa, także jako DJ. Możesz ją później zmienić w Ustawieniach."
     },
     "city": {
       "body": "Wybierz swoje miasto. W tej wersji wybór obsługiwanego miasta jest wymagany."
@@ -256,13 +259,35 @@
     "frequencies": {
       "body": "Wybierz pasujące tagi sceny. Ten krok jest opcjonalny i można go później zmienić."
     },
+    "artist": {
+      "body": "Grasz jako DJ lub tworzysz muzykę? Rozszerz swoje konto o profil artysty. To nadal ta sama publiczna nazwa i to samo logowanie.",
+      "enable": "Dodaj profil DJ / artysty",
+      "role": "Rola / gatunek (np. DJ)",
+      "location": "Lokalizacja (opcjonalnie)",
+      "url": "Strona internetowa (opcjonalnie)",
+      "hint": "Możesz pominąć ten krok i uzupełnić profil później w Ustawieniach."
+    },
+    "pages": {
+      "body": "Prowadzisz klub, kolektyw lub projekt? Załóż jego Stronę teraz albo zrób to później. Możesz dodać więcej niż jedną.",
+      "entry": "Strona {number}",
+      "name": "Nazwa Strony",
+      "slug": "Adres Strony (małe litery, cyfry, myślniki)",
+      "type": "Typ",
+      "about": "Opis (opcjonalnie)",
+      "add": "+ Dodaj Stronę",
+      "remove": "Usuń z formularza",
+      "hint": "Strony zostaną utworzone po zatwierdzeniu konfiguracji. Miasto Strony będzie takie jak wybrane wyżej.",
+      "types": { "club": "Klub", "collective": "Kolektyw", "project": "Projekt", "festival": "Festiwal" }
+    },
     "access": {
       "body": "Threshold dołączy Twoje konto do oficjalnej grupy wybranego miasta.",
       "hint": "Żaden artysta, klub ani kolektyw nie będzie obserwowany automatycznie."
     },
     "done": {
-      "body": "Miasto i opcjonalne preferencje sceny są gotowe do zapisania.",
-      "hint": "Po dołączeniu do oficjalnej grupy miasta przejdziesz do Aktualności."
+      "body": "Sprawdź wybory i zapisz konfigurację konta, opcjonalny profil DJ oraz Strony.",
+      "hint": "Po zapisaniu i dołączeniu do oficjalnej grupy miasta przejdziesz do Aktualności.",
+      "summary": "Konto: {username} · Miasto: {city} · Artysta: {artist} · Strony: {pages}",
+      "none": "brak"
     },
     "back": "← Wstecz",
     "next": "Dalej →",
@@ -272,7 +297,11 @@
       "profile": "Nie udało się zapisać pseudonimu. Spróbuj ponownie.",
       "nameTaken": "Ta nazwa jest już zajęta. Wybierz inną.",
       "save": "Nie udało się zapisać konfiguracji lub dołączyć do oficjalnej grupy miasta. Spróbuj ponownie.",
-      "network": "Nie udało się połączyć z siecią. Spróbuj ponownie."
+      "network": "Nie udało się połączyć z siecią. Spróbuj ponownie.",
+      "artist": "Nie udało się zapisać profilu artysty. Sprawdź dane i spróbuj ponownie.",
+      "page": "Nie udało się utworzyć Strony. Spróbuj ponownie.",
+      "pageTaken": "Ten adres Strony jest zajęty. Wybierz inny.",
+      "pageInvalid": "Sprawdź nazwę i adres każdej Strony."
     }
   },
   "privacy": {
