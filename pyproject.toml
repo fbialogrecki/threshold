@@ -59,10 +59,10 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.pytest.ini_options]
 addopts = "-q --import-mode=importlib"
-testpaths = ["services", "libs/py/tests"]
+testpaths = ["services", "libs/py/tests", "ops/tests"]
 
 [tool.mypy]
 python_version = "3.13"
 strict = true
 packages = ["threshold_common", "auth_gateway", "events", "media", "users", "social"]
-exclude = "(services/.*/migrations|services/.*/tests|scripts)"
+exclude = "(services/.*/migrations|services/.*/tests|ops/tests|scripts)"

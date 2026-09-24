@@ -316,6 +316,27 @@ tasks:
         print("no inline Secret data found")
         PY
 
+  # ─── Operator scripts ─────────────────────────────────────────────────
+
+  ops:backup:install:
+    desc: Install ops/backup scripts and the CNPG restore gate into ~/bin as copies (cron runs these, not the checkout)
+    cmds:
+      - |
+        set -eu
+        mkdir -p "$HOME/bin"
+        for src in ops/backup/*.sh ops/cnpg-restore-gate.sh; do
+          dest="$HOME/bin/$(basename "$src")"
+          if [ -f "$dest" ] && [ ! -L "$dest" ] && cmp -s "$src" "$dest"; then
+            continue
+          fi
+          if [ -e "$dest" ] || [ -L "$dest" ]; then
+            diff -u "$dest" "$src" || true
+            rm -f "$dest"
+          fi
+          install -m 0755 "$src" "$dest"
+          echo "installed $dest"
+        done
+
   # ─── Release ─────────────────────────────────────────────────────────
 
   release:
