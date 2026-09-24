@@ -43,12 +43,44 @@ jobs:
             --output "/tmp/${archive}"
           echo "${TRIVY_SHA256}  /tmp/${archive}" | sha256sum --check --strict
           tar -xzf "/tmp/${archive}" -C /usr/local/bin trivy
-      - run: trivy fs --scanners vuln,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .
+      # infra/ holds upstream-vendored manifests that were never misconfig-scanned;
+      # enabling that is tracked separately.
+      - run: trivy fs --scanners vuln,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 --skip-dirs infra .
       # bash -n only parses its first argument, so check each script separately.
       - run: for script in ci/woodpecker/*.sh; do bash -n "$script"; done
       - run: ci/woodpecker/woodpecker-build-push.sh --self-test
       - run: ci/woodpecker/woodpecker-promote-gitops.sh --self-test
       - run: python3 -m py_compile ci/woodpecker/bump-service-gitops.py
+
+  infra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Install Task
+        env:
+          TASK_VERSION: 3.48.0
+          TASK_SHA256: f4bfc4eef1b2557b262f3cc0a79976a421885cb7b9e71cfe75568a2ebe4d7ae5
+        run: |
+          archive="task_linux_amd64.tar.gz"
+          curl --fail --silent --show-error --location \
+            "https://github.com/go-task/task/releases/download/v${TASK_VERSION}/${archive}" \
+            --output "/tmp/${archive}"
+          echo "${TASK_SHA256}  /tmp/${archive}" | sha256sum --check --strict
+          tar -xzf "/tmp/${archive}" -C /usr/local/bin task
+      - name: Install kustomize
+        env:
+          KUSTOMIZE_VERSION: 5.7.1
+          KUSTOMIZE_SHA256: ea375e7372f9aa029129d4b2d16c66b7750b7f1213c4f66f910d981c895818d8
+        run: |
+          archive="kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz"
+          curl --fail --silent --show-error --location \
+            "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/${archive}" \
+            --output "/tmp/${archive}"
+          echo "${KUSTOMIZE_SHA256}  /tmp/${archive}" | sha256sum --check --strict
+          tar -xzf "/tmp/${archive}" -C /usr/local/bin kustomize
+      - name: Render every kustomization and reject inline secrets
+        run: task infra:check
 
   containers:
     runs-on: ubuntu-latest
