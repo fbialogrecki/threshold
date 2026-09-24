@@ -50,12 +50,15 @@ Runtime stack:
 apps/web/                 Next.js frontend and BFF
 services/                 FastAPI services
 libs/py/                  Shared Python package
+infra/                    Argo CD app-of-apps, Kustomize overlays, Helm values
+ops/                      Operator scripts (secret seeding, token rotation, backups)
+docs/                     Architecture, release and deploy flow, runbooks
 .github/workflows/         Public GitHub validation
-.woodpecker/               Self-hosted validation and trusted release pipelines
-Taskfile.yml               Local quality command contract
+.woodpecker/               Trusted release pipeline
+Taskfile.yml               Local and CI command contract
 ----
 
-Operational scripts, live GitOps topology, runbooks, private hostnames, and agent state are deliberately not published in this repository.
+Argo CD deploys `infra/` from `main`. Secret values live in OpenBao and are referenced through External Secrets; private operator values stay in the git-ignored `ops/local.env`. See link:docs/architecture.md[Architecture] and link:docs/release-and-deploy.md[Release and deploy].
 
 == Prerequisites
 
@@ -111,7 +114,7 @@ Focused issues and pull requests are welcome. Keep changes inside the stated MVP
 
 Untrusted pull-request jobs run without release, registry-push, signing, Kubernetes, or GitOps credentials.
 
-The manual trusted release pipeline builds from the exact public commit, pushes immutable image digests, and opens a digest-only pull request in the GitOps repository. Product source is never synchronized through a private mirror. Release credentials and environment-specific values are configured only in the trusted Woodpecker installation.
+Releases are cut with `go-task release VERSION=vX.Y.Z`: the trusted pipeline verifies the tag, builds from that exact commit, pushes immutable image digests, and opens a digest-only pull request against `infra/`. Product source is never synchronized through a private mirror. Release credentials and environment-specific values are configured only in the trusted Woodpecker installation.
 
 == Security
 
