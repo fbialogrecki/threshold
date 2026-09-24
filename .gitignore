@@ -7,10 +7,18 @@ graphify-out/
 .hermes/
 .learnings/
 /scripts/
-/docs/
 /documents/
+/docs/plans/
+# Markdown is opt-in so agent notes and evidence files stay out of git.
 *.[mM][dD]
+!/AGENTS.md
+!/README.md
 !/SECURITY.md
+!/docs/**/*.md
+!/apps/web/*.md
+!/services/*/README.md
+!/ops/**/*.md
+!/infra/**/README.md
 /.audit/
 /reports/
 *.sarif
@@ -21,6 +29,7 @@ graphify-out/
 .env
 .env.*
 !.env.example
+ops/local.env
 crash.log
 crash.*.log
 
