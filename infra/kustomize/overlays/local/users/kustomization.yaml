@@ -6,7 +6,7 @@ resources:
 images:
   - name: threshold/users
     newName: core.harbor.domain/threshold/users
-    digest: sha256:c250edbbd4fdc8eb7a09913f97a5916243c3582f6aa22fb1659ac9c9734339e6
+    digest: sha256:a8b22a4fd7e0bf3b8636c57611c21b70575bc22a6067f552a94558c1befe830c
 patches:
   - target:
       kind: ConfigMap
