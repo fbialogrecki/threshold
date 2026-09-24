@@ -19,7 +19,7 @@ spec:
         releaseName: alloy
         valueFiles:
           - $values/infra/helm/alloy/values.yaml
-    - repoURL: git@github.com:fbialogrecki/threshold-gitops.git
+    - repoURL: https://github.com/fbialogrecki/threshold.git
       targetRevision: main
       ref: values
   destination:
