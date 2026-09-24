@@ -395,6 +395,13 @@ class BlockCheckResponse(BaseModel):
     blocked: bool
 
 
+class BlockPairResponse(BaseModel):
+    blocker_user_id: str
+    blocker_username: str | None
+    blocked_user_id: str
+    blocked_username: str | None
+
+
 class SafetyAuditLogResponse(BaseModel):
     id: str
     actor_user_id: str | None = None

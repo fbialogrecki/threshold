@@ -77,11 +77,6 @@ def test_erased_actor_cannot_create_any_durable_social_participation(session: Se
             json={"emoji": "🔥"},
         ),
         client.post(
-            "/v1/blocks/user-2",
-            headers=USER_1_HEADERS,
-            json={"blocked_username": "warper"},
-        ),
-        client.post(
             "/v1/reports",
             headers=USER_1_HEADERS,
             json={"target_type": "post", "target_id": post["id"], "reason": "spam"},
@@ -103,7 +98,7 @@ def test_erased_actor_cannot_create_any_durable_social_participation(session: Se
     )
 
 
-def test_erased_target_is_fenced_for_blocks_mentions_and_event_announcements(
+def test_erased_target_is_fenced_for_mentions_and_event_announcements(
     session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     client = TestClient(app)
@@ -121,11 +116,6 @@ def test_erased_target_is_fenced_for_blocks_mentions_and_event_announcements(
 
     monkeypatch.setattr(routes, "resolve_profile_or_page_mention", resolve_erased_user)
 
-    block = client.post(
-        "/v1/blocks/user-2",
-        headers=USER_1_HEADERS,
-        json={"blocked_username": "warper"},
-    )
     mention = client.post(
         "/v1/posts",
         headers=USER_1_HEADERS,
@@ -144,7 +134,6 @@ def test_erased_target_is_fenced_for_blocks_mentions_and_event_announcements(
         },
     )
 
-    assert block.status_code == 410
     assert mention.status_code == 410
     assert announcement.status_code == 410
 

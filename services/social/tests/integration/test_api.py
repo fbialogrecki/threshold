@@ -34,6 +34,21 @@ USER_2_HEADERS = {
 }
 
 
+def _block(session: Session, *, blocked_username: str = "warper") -> None:
+    """user-1 blocks user-2, the way the users service propagates it."""
+    apply_user_block_event(
+        session,
+        {
+            "action": "blocked",
+            "blocker_user_id": "user-1",
+            "blocker_username": "nightcrawler",
+            "blocked_user_id": "user-2",
+            "blocked_username": blocked_username,
+        },
+    )
+    session.commit()
+
+
 def test_healthz() -> None:
     client = TestClient(app)
     response = client.get("/healthz")
@@ -883,12 +898,7 @@ def test_block_prevents_comments_mentions_and_notifications_for_blocker(session:
     client = TestClient(app)
     post = _create_post(client, "block-owned post")
 
-    block = client.post(
-        "/v1/blocks/user-2",
-        headers=USER_HEADERS,
-        json={"blocked_username": "warper"},
-    )
-    assert block.status_code == 200
+    _block(session)
 
     blocked_comment = client.post(
         f"/v1/posts/{post['id']}/comments",
@@ -1334,10 +1344,7 @@ def test_reports_for_post_and_comment_are_visible_to_content_owner(session: Sess
 def test_blocked_user_cannot_comment_or_mention_blocker(session: Session) -> None:
     client = TestClient(app)
     post = _create_post(client)
-    block = client.post(
-        "/v1/blocks/user-2", headers=USER_HEADERS, json={"blocked_username": "replyguy"}
-    )
-    assert block.status_code == 200
+    _block(session, blocked_username="replyguy")
 
     comment = client.post(
         f"/v1/posts/{post['id']}/comments", headers=USER_2_HEADERS, json={"body": "blocked"}
@@ -1372,11 +1379,7 @@ def test_blocked_user_cannot_add_blocker_mention_by_edit(
 
     monkeypatch.setattr(routes, "resolve_profile_or_page_mention", _resolve)
     client = TestClient(app)
-    assert (
-        client.post("/v1/blocks/user-2", headers=USER_HEADERS, json={"blocked_username": "warper"})
-        .status_code
-        == 200
-    )
+    _block(session)
     blocked_post = client.post(
         "/v1/posts", headers=USER_2_HEADERS, json={"body": "plain post"}
     ).json()
@@ -1407,9 +1410,6 @@ def test_safety_audit_log_records_blocks_reports_and_moderation_decisions(
     client = TestClient(app)
     post = _create_post(client)
 
-    block = client.post(
-        "/v1/blocks/user-2", headers=USER_HEADERS, json={"blocked_username": "warper"}
-    )
     report = client.post(
         "/v1/reports",
         headers=USER_2_HEADERS,
@@ -1426,14 +1426,12 @@ def test_safety_audit_log_records_blocks_reports_and_moderation_decisions(
         json={"status": "resolved", "action": "hide", "note": "handled token=secret"},
     )
 
-    assert block.status_code == 200
     assert report.status_code == 201
     assert decision.status_code == 200
     entries = session.scalars(
         select(SafetyAuditLog).order_by(SafetyAuditLog.created_at, SafetyAuditLog.action)
     ).all()
     assert [entry.action for entry in entries] == [
-        "user.blocked",
         "report.created",
         "moderation.hide",
         "report.resolved",
@@ -1445,7 +1443,6 @@ def test_safety_audit_log_records_blocks_reports_and_moderation_decisions(
     audit_response = client.get("/v1/safety/audit-log", headers=USER_HEADERS)
     assert audit_response.status_code == 200
     assert [entry["action"] for entry in audit_response.json()] == [
-        "user.blocked",
         "moderation.hide",
         "report.resolved",
     ]

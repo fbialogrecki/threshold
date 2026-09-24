@@ -824,6 +824,20 @@ def test_user_block_prevents_notifications_and_internal_check(
     assert check.status_code == 200
     assert check.json() == {"blocked": True}
 
+    all_blocks = actor.get(
+        "/internal/v1/blocks", headers={"X-Threshold-Internal-Token": "test-internal-token"}
+    )
+    assert all_blocks.status_code == 200
+    assert all_blocks.json() == [
+        {
+            "blocker_user_id": blocker_id,
+            "blocker_username": "blocker",
+            "blocked_user_id": actor_id,
+            "blocked_username": "blocked",
+        }
+    ]
+    assert actor.get("/internal/v1/blocks").status_code == 401
+
     page = Page(slug="blocked-note-page", display_name="Blocked Note Page", page_type="club")
     session.add(page)
     session.flush()
