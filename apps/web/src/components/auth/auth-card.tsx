@@ -65,6 +65,7 @@ export function AuthCard({
         <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-muted">
           {isRegister ? t("registrationOpen") : t("loginCaption")}
         </p>
+        {isRegister ? <p className="mt-3 text-sm leading-6 text-dim-white">{t("registrationSteps")}</p> : null}
 
         <form onSubmit={onSubmit} className="mt-7 flex flex-col gap-4">
           <Field

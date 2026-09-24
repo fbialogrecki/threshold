@@ -108,6 +108,7 @@
     "login": "Log in",
     "createAccount": "Create account",
     "registrationOpen": "Open registration",
+    "registrationSteps": "First create your account. Then choose your city and optionally add a DJ profile and club or project Pages.",
     "loginCaption": "Enter the scene",
     "nickname": "Nickname",
     "identifier": "Email or nickname",
@@ -234,13 +235,15 @@
       "identity": "Identity",
       "city": "City",
       "frequencies": "Frequencies",
+      "artist": "DJ profile",
+      "pages": "Pages",
       "access": "City group",
       "done": "Done"
     },
     "identity": {
-      "body": "Choose your public nickname. No real name is required. You can add an avatar later.",
+      "body": "Your account has been created. Confirm your public username; no real name is required.",
       "nickname": "Nickname",
-      "hint": "This becomes your display name. You can change it later in Settings."
+      "hint": "This is your one public name, also as a DJ. You can change it later in Settings."
     },
     "city": {
       "body": "Choose your city. A supported city is required for this release."
@@ -256,13 +259,35 @@
     "frequencies": {
       "body": "Choose any scene tags that fit. This step is optional and can be changed later."
     },
+    "artist": {
+      "body": "Play as a DJ or make music? Add an artist profile to your account. You keep the same public username and login.",
+      "enable": "Add a DJ / artist profile",
+      "role": "Role / genre (e.g. DJ)",
+      "location": "Location (optional)",
+      "url": "Website (optional)",
+      "hint": "Skip this step if you prefer to fill in your profile later in Settings."
+    },
+    "pages": {
+      "body": "Run a club, collective or project? Create its Page now or later. You can add more than one.",
+      "entry": "Page {number}",
+      "name": "Page name",
+      "slug": "Page address (lowercase letters, digits, hyphens)",
+      "type": "Type",
+      "about": "Description (optional)",
+      "add": "+ Add Page",
+      "remove": "Remove from form",
+      "hint": "Pages will be created when you confirm setup. They will use the city selected above.",
+      "types": { "club": "Club", "collective": "Collective", "project": "Project", "festival": "Festival" }
+    },
     "access": {
       "body": "Threshold will join your account to the official group for the selected city.",
       "hint": "No artists, clubs or collectives are followed automatically."
     },
     "done": {
-      "body": "Your city and optional scene preferences are ready to save.",
-      "hint": "After the official city group is joined, you will continue to the Feed."
+      "body": "Review your choices and save your account setup, optional DJ profile and Pages.",
+      "hint": "After saving and joining the official city group, you will continue to the Feed.",
+      "summary": "Account: {username} · City: {city} · Artist: {artist} · Pages: {pages}",
+      "none": "none"
     },
     "back": "← Back",
     "next": "Next →",
@@ -272,7 +297,11 @@
       "profile": "Your nickname could not be saved. Try again.",
       "nameTaken": "That name is taken. Pick another one.",
       "save": "Setup or the official city group could not be saved. Try again.",
-      "network": "Could not reach the network. Try again."
+      "network": "Could not reach the network. Try again.",
+      "artist": "Artist profile could not be saved. Check the details and try again.",
+      "page": "Page could not be created. Try again.",
+      "pageTaken": "That Page address is taken. Choose another.",
+      "pageInvalid": "Check the name and address of each Page."
     }
   },
   "privacy": {
