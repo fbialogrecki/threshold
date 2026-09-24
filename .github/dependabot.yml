@@ -6,15 +6,19 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
 
-  - package-ecosystem: npm
+  # "bun" (not "npm") so Dependabot also updates bun.lock; npm-ecosystem PRs
+  # only touched package.json and always failed `bun install --frozen-lockfile`.
+  - package-ecosystem: bun
     directory: /apps/web
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
     groups:
-      # react and react-dom must move together or the app breaks.
+      # These pairs must move together or the app/lint config breaks.
       react:
         patterns: ["react", "react-dom"]
+      next:
+        patterns: ["next", "eslint-config-next"]
     ignore:
       # Majors that need migration work: eslint 10 breaks eslint-plugin-react
       # in eslint-config-next, TypeScript 7 no longer resolves the Bun test
