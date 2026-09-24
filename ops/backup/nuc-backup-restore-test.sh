@@ -29,8 +29,10 @@ fi
 
 podman run -d --rm --name "$CONTAINER" -e POSTGRES_PASSWORD=restore-test \
   -v "$WORK:/dumps:ro,Z" "$PG_IMAGE" >/dev/null
+# The image's init step runs a temporary socket-only server that already
+# answers pg_isready; checking over TCP waits for the real server.
 for _ in $(seq 1 60); do
-  podman exec "$CONTAINER" pg_isready -U postgres >/dev/null 2>&1 && break
+  podman exec "$CONTAINER" pg_isready -h 127.0.0.1 -U postgres >/dev/null 2>&1 && break
   sleep 1
 done
 
