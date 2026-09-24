@@ -36,7 +36,7 @@ spec:
     spec:
       project: apps
       source:
-        repoURL: git@github.com:fbialogrecki/threshold-gitops.git
+        repoURL: https://github.com/fbialogrecki/threshold.git
         targetRevision: main
         path: "infra/kustomize/overlays/local/{{ .name }}"
       destination:

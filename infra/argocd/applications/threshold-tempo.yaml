@@ -17,7 +17,7 @@ spec:
         releaseName: tempo
         valueFiles:
           - $values/infra/helm/tempo/values.yaml
-    - repoURL: git@github.com:fbialogrecki/threshold-gitops.git
+    - repoURL: https://github.com/fbialogrecki/threshold.git
       targetRevision: main
       ref: values
   destination:
