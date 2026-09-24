@@ -18,6 +18,9 @@ class Settings(ServiceSettings):
     comment_created_subject: str = "social.comment.created.v1"
     nats_request_timeout_seconds: float = 1.5
     media_request_timeout_seconds: float = 1.5
+    # Repairs the local block copy if a users.block.changed event was lost.
+    block_sync_interval_seconds: float = 300
+    block_sync_timeout_seconds: float = 10
 
     threshold_internal_token: str | None = Field(
         default=None, validation_alias="THRESHOLD_INTERNAL_TOKEN"
