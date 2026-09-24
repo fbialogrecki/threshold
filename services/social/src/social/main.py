@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -5,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 
 from social import main_dependencies
 from social.api.routes import router
+from social.block_sync import run_block_sync_loop
 from social.db.readiness import check_database_ready
 from social.main_dependencies import create_schema_for_local_sqlite, settings
 from social.nats_server import SocialNatsServer
@@ -29,9 +31,16 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
             session_factory=main_dependencies.session_factory,
         )
         await social_nats_server.start()
+    block_sync: asyncio.Task[None] | None = None
+    if settings.users_service_url and settings.threshold_internal_token:
+        block_sync = asyncio.create_task(
+            run_block_sync_loop(settings, main_dependencies.session_factory)
+        )
     try:
         yield
     finally:
+        if block_sync is not None:
+            block_sync.cancel()
         if social_nats_server is not None:
             await social_nats_server.stop()
             social_nats_server = None
