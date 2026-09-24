@@ -31,9 +31,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["event_id"], ["events.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(
-        "ix_event_updates_event_created", "event_updates", ["event_id", "created_at"]
-    )
+    op.create_index("ix_event_updates_event_created", "event_updates", ["event_id", "created_at"])
     op.create_index("ix_event_updates_created", "event_updates", ["created_at"])
 
 

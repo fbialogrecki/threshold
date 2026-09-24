@@ -494,9 +494,7 @@ def refresh_session(
     # Consume the old hash under the request transaction's row lock. A waiting
     # refresh rechecks this predicate after the winner commits its new hashes.
     row = session.scalar(
-        select(UserSession)
-        .where(UserSession.refresh_token_hash == token_hash)
-        .with_for_update()
+        select(UserSession).where(UserSession.refresh_token_hash == token_hash).with_for_update()
     )
     now = utc_now()
     if row is None:

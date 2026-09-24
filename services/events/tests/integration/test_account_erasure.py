@@ -132,9 +132,7 @@ def test_internal_account_erasure_removes_participation_and_anonymizes_attributi
     assert second.status_code == 200
     session.expire_all()
     tombstones = session.scalars(
-        select(AccountErasureTombstone).where(
-            AccountErasureTombstone.user_id == target_user_id
-        )
+        select(AccountErasureTombstone).where(AccountErasureTombstone.user_id == target_user_id)
     ).all()
     assert len(tombstones) == 1
     erased_event = session.get(Event, event_id)
@@ -153,8 +151,7 @@ def test_internal_account_erasure_removes_participation_and_anonymizes_attributi
         == []
     )
     assert (
-        session.scalars(select(EventBoost).where(EventBoost.user_id == target_user_id)).all()
-        == []
+        session.scalars(select(EventBoost).where(EventBoost.user_id == target_user_id)).all() == []
     )
     assert session.get(EventGuestlistEntry, target_guest_id) is None
     assert session.get(EventCheckInToken, token_id) is None
@@ -252,11 +249,14 @@ def test_guestlist_write_rejects_erased_actor_or_target(session: Session) -> Non
 
     assert erased_target.status_code == 409
     assert erased_actor.status_code == 409
-    assert session.scalars(
-        select(EventGuestlistEntry).where(
-            EventGuestlistEntry.guest_user_id.in_(["erased-guest", "active-guest"])
-        )
-    ).all() == []
+    assert (
+        session.scalars(
+            select(EventGuestlistEntry).where(
+                EventGuestlistEntry.guest_user_id.in_(["erased-guest", "active-guest"])
+            )
+        ).all()
+        == []
+    )
 
 
 def test_erased_actor_cannot_write_update_follow_or_boost(session: Session) -> None:
@@ -290,8 +290,9 @@ def test_erased_actor_cannot_write_update_follow_or_boost(session: Session) -> N
 
     assert erased.status_code == 200
     assert [response.status_code for response in responses] == [409, 409, 409, 409]
-    assert session.scalars(
-        select(EventUpdate).where(EventUpdate.author_user_id == "user-1")
-    ).all() == []
+    assert (
+        session.scalars(select(EventUpdate).where(EventUpdate.author_user_id == "user-1")).all()
+        == []
+    )
     assert session.scalars(select(EventFollow).where(EventFollow.user_id == "user-1")).all() == []
     assert session.scalars(select(EventBoost).where(EventBoost.user_id == "user-1")).all() == []

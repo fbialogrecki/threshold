@@ -23,8 +23,7 @@ def test_post_can_reference_uploaded_images(
     monkeypatch.setattr(media_client, "validate_post_image_asset", _valid_post_image_asset)
     client = TestClient(app)
     assert (
-        client.post("/v1/groups/techno-warsaw/membership", headers=USER_HEADERS).status_code
-        == 200
+        client.post("/v1/groups/techno-warsaw/membership", headers=USER_HEADERS).status_code == 200
     )
 
     response = client.post(

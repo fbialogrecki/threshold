@@ -437,9 +437,7 @@ def _post_mentions(session: Session, post_ids: list[str]) -> dict[str, list[Post
 def _legacy_event_refs(
     session: Session, posts: list[Post]
 ) -> dict[str, tuple[str | None, str | None]]:
-    post_ids = [
-        post.id for post in posts if post.event_id is None or post.event_slug is None
-    ]
+    post_ids = [post.id for post in posts if post.event_id is None or post.event_slug is None]
     if not post_ids:
         return {}
     ranked = (
@@ -534,9 +532,7 @@ def _posts_response(
     responses: list[PostResponse] = []
     for post in posts:
         up_count = up_counts.get(post.id, 0)
-        legacy_event_id, legacy_event_slug = legacy_event_refs.get(
-            post.id, (None, None)
-        )
+        legacy_event_id, legacy_event_slug = legacy_event_refs.get(post.id, (None, None))
         responses.append(
             PostResponse.model_validate(
                 {
@@ -830,16 +826,11 @@ def get_event_announcement_posts(
             .all()
         )
     slug_matches = {
-        announcement.event_slug: (announcement, post)
-        for announcement, post in slug_rows
+        announcement.event_slug: (announcement, post) for announcement, post in slug_rows
     }
 
-    selected = [
-        id_matches[event_id] for event_id in event_ids if event_id in id_matches
-    ] + [
-        slug_matches[event_slug]
-        for event_slug in event_slugs
-        if event_slug in slug_matches
+    selected = [id_matches[event_id] for event_id in event_ids if event_id in id_matches] + [
+        slug_matches[event_slug] for event_slug in event_slugs if event_slug in slug_matches
     ]
     selected_by_announcement = {
         announcement.id: (announcement, post) for announcement, post in selected
@@ -852,23 +843,15 @@ def get_event_announcement_posts(
     posts: list[Post] = []
     seen_post_ids: set[str] = set()
     for _, post in ordered:
-        if (
-            post.id in seen_post_ids
-            or post.author_type != "system"
-            or post.hidden_at is not None
-        ):
+        if post.id in seen_post_ids or post.author_type != "system" or post.hidden_at is not None:
             continue
         seen_post_ids.add(post.id)
         posts.append(post)
     blocked_author_ids = _blocked_feed_author_ids(session, viewer_id)
-    posts = [
-        post for post in posts if post.author_user_id not in blocked_author_ids
-    ]
+    posts = [post for post in posts if post.author_user_id not in blocked_author_ids]
     return EventAnnouncementPostsResponse(
         posts=_posts_response(session, posts, viewer_id),
-        represented_event_ids=[
-            event_id for event_id in event_ids if event_id in id_matches
-        ],
+        represented_event_ids=[event_id for event_id in event_ids if event_id in id_matches],
         represented_event_slugs=[
             event_slug for event_slug in event_slugs if event_slug in slug_matches
         ],
@@ -1668,6 +1651,7 @@ def anonymize_author(payload: AnonymizeAuthorRequest, session: DbSession) -> Sim
             | (SafetyAuditLog.target_id == payload.user_id)
         )
     ):
+
         def scrub_audit_metadata(value: Any, key: str | None = None) -> Any:
             if key and (key.endswith("_username") or key.endswith("_handle")):
                 return None

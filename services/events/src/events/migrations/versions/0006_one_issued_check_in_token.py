@@ -21,12 +21,7 @@ ISSUED = sa.text("status = 'issued'")
 
 def upgrade() -> None:
     if op.get_bind().dialect.name == "postgresql":
-        op.execute(
-            sa.text(
-                "LOCK TABLE event_check_in_tokens "
-                "IN SHARE ROW EXCLUSIVE MODE"
-            )
-        )
+        op.execute(sa.text("LOCK TABLE event_check_in_tokens IN SHARE ROW EXCLUSIVE MODE"))
     op.execute(
         sa.text(
             """

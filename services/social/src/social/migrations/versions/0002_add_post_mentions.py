@@ -4,6 +4,7 @@ Revision ID: 0002_add_post_mentions
 Revises: 0001_create_social_schema
 Create Date: 2026-06-08
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa

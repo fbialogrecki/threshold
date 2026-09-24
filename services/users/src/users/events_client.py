@@ -7,9 +7,7 @@ from users.settings import Settings
 logger = logging.getLogger(__name__)
 
 
-def erase_events_account(
-    settings: Settings, user_id: str, artist_profile_ids: list[str]
-) -> None:
+def erase_events_account(settings: Settings, user_id: str, artist_profile_ids: list[str]) -> None:
     if not settings.events_service_url or not settings.threshold_internal_token:
         raise RuntimeError("events erasure config is missing")
 

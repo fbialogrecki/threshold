@@ -61,7 +61,7 @@ class S3ObjectStorage:
                     connect_timeout=5,
                     read_timeout=30,
                     retries={"total_max_attempts": 2, "mode": "standard"},
-                    s3={"addressing_style": "path" if self._settings.s3_path_style else "auto"}
+                    s3={"addressing_style": "path" if self._settings.s3_path_style else "auto"},
                 ),
             )
         return self._client

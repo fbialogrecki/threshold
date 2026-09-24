@@ -66,9 +66,7 @@ app.include_router(router)
 
 
 @app.exception_handler(SessionAuthenticationError)
-def session_authentication_error(
-    _: Request, exc: SessionAuthenticationError
-) -> JSONResponse:
+def session_authentication_error(_: Request, exc: SessionAuthenticationError) -> JSONResponse:
     response = JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
     _clear_auth_cookies(response)
     return response

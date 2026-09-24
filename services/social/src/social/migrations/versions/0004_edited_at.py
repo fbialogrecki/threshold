@@ -6,6 +6,7 @@ Create Date: 2026-06-12
 
 Nullable edited_at marks owner edits; NULL means never edited.
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa

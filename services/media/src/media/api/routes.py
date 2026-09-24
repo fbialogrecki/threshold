@@ -291,9 +291,7 @@ def erase_account_data(
     )
     try:
         for asset in assets:
-            _delete_object_if_present(
-                storage=storage, bucket=asset.bucket, key=asset.original_key
-            )
+            _delete_object_if_present(storage=storage, bucket=asset.bucket, key=asset.original_key)
             for derivative in asset.derivatives:
                 _delete_object_if_present(
                     storage=storage, bucket=derivative.bucket, key=derivative.object_key

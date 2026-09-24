@@ -14,6 +14,7 @@ Downgrade is lossy by design: 'up' votes are mapped back to 'like' and
 'down' votes are deleted, because the pre-v2 schema has no concept of a
 downvote. Comment votes and emoji reactions are dropped entirely.
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa

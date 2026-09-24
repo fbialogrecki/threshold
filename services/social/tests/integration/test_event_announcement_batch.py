@@ -232,9 +232,7 @@ def test_legacy_event_refs_selects_one_matching_deterministic_pair(session: Sess
     )
     session.commit()
 
-    assert routes._legacy_event_refs(session, [post]) == {
-        post.id: ("event-z", "zebra-night")
-    }
+    assert routes._legacy_event_refs(session, [post]) == {post.id: ("event-z", "zebra-night")}
 
 
 def test_event_announcement_batch_filters_blocks_and_non_system_posts(session: Session) -> None:

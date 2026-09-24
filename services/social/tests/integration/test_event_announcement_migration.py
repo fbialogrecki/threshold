@@ -44,8 +44,7 @@ def test_event_announcement_upgrade_path_and_downgrade_on_sqlite() -> None:
         with Operations.context(context):
             migrations[0].upgrade()
         assert {
-            index["name"]
-            for index in sa.inspect(connection).get_indexes("event_announcements")
+            index["name"] for index in sa.inspect(connection).get_indexes("event_announcements")
         } == {"ix_event_announcements_post_id"}
 
         with Operations.context(context):
@@ -53,15 +52,15 @@ def test_event_announcement_upgrade_path_and_downgrade_on_sqlite() -> None:
                 migration.upgrade()
 
         assert {
-            index["name"]
-            for index in sa.inspect(connection).get_indexes("event_announcements")
+            index["name"] for index in sa.inspect(connection).get_indexes("event_announcements")
         } == {
             "ix_event_announcements_event_slug",
             "ix_event_announcements_post_created",
         }
-        assert {
-            index["name"] for index in sa.inspect(connection).get_indexes("posts")
-        } == {"ix_posts_event_id", "ix_posts_event_slug"}
+        assert {index["name"] for index in sa.inspect(connection).get_indexes("posts")} == {
+            "ix_posts_event_id",
+            "ix_posts_event_slug",
+        }
         assert {
             constraint["name"]
             for constraint in sa.inspect(connection).get_check_constraints("posts")
@@ -70,8 +69,7 @@ def test_event_announcement_upgrade_path_and_downgrade_on_sqlite() -> None:
         with Operations.context(context):
             migrations[3].downgrade()
         assert {
-            index["name"]
-            for index in sa.inspect(connection).get_indexes("event_announcements")
+            index["name"] for index in sa.inspect(connection).get_indexes("event_announcements")
         } == {"ix_event_announcements_post_id"}
 
         with Operations.context(context):

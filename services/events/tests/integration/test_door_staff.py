@@ -171,9 +171,7 @@ def test_assignment_requires_manager_and_active_user(
     session: Session,
     door_staff_users: dict[str, Any],
 ) -> None:
-    door_staff_users["by_username"].update(
-        {"locked": "locked-user", "deleted": "deleted-user"}
-    )
+    door_staff_users["by_username"].update({"locked": "locked-user", "deleted": "deleted-user"})
     door_staff_users["refs"].update(
         {
             "locked-user": {
@@ -223,24 +221,23 @@ def test_username_rename_and_reuse_do_not_change_assignment_identity(
     door_staff_users["active"].add("replacement-user")
     door_staff_users["by_username"]["door"] = "replacement-user"
 
-    renamed_list = client.get(
-        "/v1/events/warehouse-signal/door-staff", headers=MANAGER_HEADERS
-    )
+    renamed_list = client.get("/v1/events/warehouse-signal/door-staff", headers=MANAGER_HEADERS)
     replacement = _assign(client)
     client.delete(
         f"/v1/events/warehouse-signal/door-staff/{original_id}",
         headers=MANAGER_HEADERS,
     )
-    remaining = client.get(
-        "/v1/events/warehouse-signal/door-staff", headers=MANAGER_HEADERS
-    )
+    remaining = client.get("/v1/events/warehouse-signal/door-staff", headers=MANAGER_HEADERS)
 
     assert renamed_list.json()[0]["username"] == "renamed-door"
     assert replacement.json()["id"] != original_id
     assert [row["id"] for row in remaining.json()] == [replacement.json()["id"]]
-    assert session.scalar(
-        select(EventDoorStaff.user_id).where(EventDoorStaff.id == replacement.json()["id"])
-    ) == "replacement-user"
+    assert (
+        session.scalar(
+            select(EventDoorStaff.user_id).where(EventDoorStaff.id == replacement.json()["id"])
+        )
+        == "replacement-user"
+    )
 
 
 def test_inactive_assignment_is_visible_for_revoke_but_cannot_check_in(
@@ -253,9 +250,7 @@ def test_inactive_assignment_is_visible_for_revoke_but_cannot_check_in(
     token = _add_guest_and_mint_token(client)
 
     listed = client.get("/v1/events/warehouse-signal/door-staff", headers=MANAGER_HEADERS)
-    context = client.get(
-        "/v1/events/warehouse-signal/viewer-context", headers=DOOR_HEADERS
-    )
+    context = client.get("/v1/events/warehouse-signal/viewer-context", headers=DOOR_HEADERS)
     denied = client.post(
         "/v1/events/warehouse-signal/check-in",
         headers=DOOR_HEADERS,
@@ -283,12 +278,8 @@ def test_door_staff_has_only_check_in_capability_and_minimal_response(session: S
     client = TestClient(app)
     assignment = _assign(client)
     assert assignment.status_code == 200
-    context = client.get(
-        "/v1/events/warehouse-signal/viewer-context", headers=DOOR_HEADERS
-    )
-    guestlist = client.get(
-        "/v1/events/warehouse-signal/guestlist", headers=DOOR_HEADERS
-    )
+    context = client.get("/v1/events/warehouse-signal/viewer-context", headers=DOOR_HEADERS)
+    guestlist = client.get("/v1/events/warehouse-signal/guestlist", headers=DOOR_HEADERS)
     guest_add = client.post(
         "/v1/events/warehouse-signal/guestlist",
         headers=DOOR_HEADERS,
@@ -304,9 +295,7 @@ def test_door_staff_has_only_check_in_capability_and_minimal_response(session: S
         headers=DOOR_HEADERS,
         json={"quota": 1},
     )
-    door_list = client.get(
-        "/v1/events/warehouse-signal/door-staff", headers=DOOR_HEADERS
-    )
+    door_list = client.get("/v1/events/warehouse-signal/door-staff", headers=DOOR_HEADERS)
     door_assign = client.put(
         "/v1/events/warehouse-signal/door-staff/by-username/alpha",
         headers=DOOR_HEADERS,

@@ -189,9 +189,7 @@ def test_create_event_accepts_linked_artist_lineup_and_filters_by_artist(
         }
     ]
 
-    listed = client.get(
-        "/v1/events?lineup_artist_user_id=artist-user-1", headers=TOKEN_HEADERS
-    )
+    listed = client.get("/v1/events?lineup_artist_user_id=artist-user-1", headers=TOKEN_HEADERS)
     assert listed.status_code == 200
     assert [event["slug"] for event in listed.json()["items"]] == ["linked-lineup"]
 
@@ -236,9 +234,7 @@ def test_create_and_update_event_batch_validate_100_linked_lineup_entries(
     batch_calls: list[list[str]] = []
     single_calls: list[str] = []
 
-    def get_artist_refs(
-        _settings: object, artist_ids: list[str]
-    ) -> dict[str, dict[str, str]]:
+    def get_artist_refs(_settings: object, artist_ids: list[str]) -> dict[str, dict[str, str]]:
         batch_calls.append(artist_ids)
         return {
             artist_id: {
@@ -366,11 +362,14 @@ def test_list_events_upcoming_excludes_past_and_sorts_start_ascending(
         ("next-event", "2026-07-11T20:00:00Z"),
         ("later-event", "2026-07-12T20:00:00Z"),
     ]:
-        assert client.post(
-            "/v1/events",
-            headers=USER_HEADERS,
-            json={**EVENT_PAYLOAD, "slug": slug, "starts_at": starts_at},
-        ).status_code == 201
+        assert (
+            client.post(
+                "/v1/events",
+                headers=USER_HEADERS,
+                json={**EVENT_PAYLOAD, "slug": slug, "starts_at": starts_at},
+            ).status_code
+            == 201
+        )
     monkeypatch.setattr(routes, "utc_now", lambda: datetime(2026, 7, 10, tzinfo=UTC))
 
     response = client.get("/v1/events?upcoming=true&limit=2", headers=USER_HEADERS)
@@ -969,9 +968,7 @@ def test_list_events_can_filter_upcoming_by_linked_artist_profile_id(
         },
     )
 
-    response = client.get(
-        f"/v1/events?artist_profile_id={linked_artist_id}", headers=TOKEN_HEADERS
-    )
+    response = client.get(f"/v1/events?artist_profile_id={linked_artist_id}", headers=TOKEN_HEADERS)
     empty = client.get(f"/v1/events?artist_profile_id={other_artist_id}", headers=TOKEN_HEADERS)
 
     assert response.status_code == 200
@@ -1221,9 +1218,7 @@ def test_organizer_manages_private_guestlist_and_notifies_guest(
     assert access.status_code == 200
     assert access.json()["can_check_in"] is True
 
-    removed = client.delete(
-        "/v1/events/warehouse-signal/guestlist/guest-1", headers=USER_HEADERS
-    )
+    removed = client.delete("/v1/events/warehouse-signal/guestlist/guest-1", headers=USER_HEADERS)
     assert removed.status_code == 204
     access_after_remove = client.get(
         "/v1/events/warehouse-signal/access",
@@ -1357,11 +1352,14 @@ def test_removed_lineup_artist_cannot_use_existing_quota(
     assert response.status_code == 403
     assert response.json()["detail"] == "artist is not in event lineup"
     assert artist_calls == []
-    assert session.scalar(
-        select(EventGuestlistEntry).where(
-            EventGuestlistEntry.guest_user_id == "guest-after-removal"
+    assert (
+        session.scalar(
+            select(EventGuestlistEntry).where(
+                EventGuestlistEntry.guest_user_id == "guest-after-removal"
+            )
         )
-    ) is None
+        is None
+    )
 
 
 def test_check_in_token_is_opaque_short_lived_and_one_time(
@@ -1575,7 +1573,6 @@ def test_check_in_atomic_claim_loser_stops_before_check_in_and_audit(
     assert len(session.scalars(select(EventAccessAuditLog)).all()) == audits_before
 
 
-
 def test_organizer_adds_guest_and_guest_mints_one_time_check_in_token(
     session: Session, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -1740,9 +1737,7 @@ def test_viewer_context_and_guestlist_require_authenticated_user(session: Sessio
 
     assert client.get("/v1/events/warehouse-signal/viewer-context").status_code == 401
     assert (
-        client.get(
-            "/v1/events/warehouse-signal/viewer-context", headers=TOKEN_HEADERS
-        ).status_code
+        client.get("/v1/events/warehouse-signal/viewer-context", headers=TOKEN_HEADERS).status_code
         == 401
     )
     assert (

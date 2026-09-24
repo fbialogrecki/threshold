@@ -26,9 +26,7 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="Application name: auth-gateway, events, media, social, users, or web.",
     )
-    parser.add_argument(
-        "--digest", required=True, help="Immutable sha256 image digest to write."
-    )
+    parser.add_argument("--digest", required=True, help="Immutable sha256 image digest to write.")
     parser.add_argument(
         "--image-registry",
         required=True,
@@ -83,7 +81,7 @@ def bump(path: Path, service: str, image_registry: str, digest: str) -> bool:
         stripped = line.strip()
 
         if stripped.startswith("- name:"):
-            image_name = stripped.split(":", 1)[1].strip().strip('"\'')
+            image_name = stripped.split(":", 1)[1].strip().strip("\"'")
             in_target_image = image_name == expected_name
             saw_target_image = saw_target_image or in_target_image
             out.append(line)
@@ -96,9 +94,7 @@ def bump(path: Path, service: str, image_registry: str, digest: str) -> bool:
             out.append(new_line)
             continue
 
-        if in_target_image and (
-            stripped.startswith("newTag:") or stripped.startswith("digest:")
-        ):
+        if in_target_image and (stripped.startswith("newTag:") or stripped.startswith("digest:")):
             if saw_digest_field:
                 changed = True
                 continue

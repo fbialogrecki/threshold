@@ -320,10 +320,7 @@ def test_versioned_event_post_endpoint_validates_before_mutation(session: Sessio
     }
 
     assert client.post("/v1/event-posts", json=payload).status_code == 401
-    assert (
-        client.post("/v1/event-posts", headers=TOKEN_HEADERS, json=payload).status_code
-        == 401
-    )
+    assert client.post("/v1/event-posts", headers=TOKEN_HEADERS, json=payload).status_code == 401
     before = session.query(Post).count()
     no_event = client.post(
         "/v1/event-posts",
@@ -1289,8 +1286,9 @@ def test_hidden_posts_reject_comments_votes_and_emoji(session: Session) -> None:
 
     assert client.get(f"/v1/posts/{post['id']}/comments", headers=TOKEN_HEADERS).status_code == 404
     assert (
-        client.put(f"/v1/posts/{post['id']}/reaction", headers=USER_HEADERS, json={"kind": "up"})
-        .status_code
+        client.put(
+            f"/v1/posts/{post['id']}/reaction", headers=USER_HEADERS, json={"kind": "up"}
+        ).status_code
         == 404
     )
     assert (
@@ -1302,8 +1300,9 @@ def test_hidden_posts_reject_comments_votes_and_emoji(session: Session) -> None:
         == 404
     )
     assert (
-        client.put(f"/v1/posts/{post['id']}/emoji", headers=USER_HEADERS, json={"emoji": "🔥"})
-        .status_code
+        client.put(
+            f"/v1/posts/{post['id']}/emoji", headers=USER_HEADERS, json={"emoji": "🔥"}
+        ).status_code
         == 404
     )
 

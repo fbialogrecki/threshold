@@ -286,10 +286,7 @@ def test_regular_event_list_batches_unique_artist_references(
     assert response.status_code == 200
     assert calls == [["artist-1"]]
     assert single_calls == []
-    assert all(
-        item["lineup"][0]["artist_handle"] == "artist"
-        for item in response.json()["items"]
-    )
+    assert all(item["lineup"][0]["artist_handle"] == "artist" for item in response.json()["items"])
 
 
 def test_event_list_enriches_first_100_unique_artists_and_keeps_fallback(
@@ -299,8 +296,7 @@ def test_event_list_enriches_first_100_unique_artists_and_keeps_fallback(
     session.query(Event).delete()
     first = _event("first", "first-event", datetime(2026, 7, 2, tzinfo=UTC))
     first.lineup = [
-        {"name": f"Artist {index}", "artist_profile_id": f"artist-{index}"}
-        for index in range(100)
+        {"name": f"Artist {index}", "artist_profile_id": f"artist-{index}"} for index in range(100)
     ]
     second = _event("second", "second-event", datetime(2026, 7, 1, tzinfo=UTC))
     second.lineup = [
