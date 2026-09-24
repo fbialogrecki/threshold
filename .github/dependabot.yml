@@ -11,6 +11,20 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      # react and react-dom must move together or the app breaks.
+      react:
+        patterns: ["react", "react-dom"]
+    ignore:
+      # Majors that need migration work: eslint 10 breaks eslint-plugin-react
+      # in eslint-config-next, TypeScript 7 no longer resolves the Bun test
+      # types, and @types/node should follow the runtime, not the latest Node.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
