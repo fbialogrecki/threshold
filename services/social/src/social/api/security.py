@@ -28,9 +28,7 @@ def require_current_user(
     username: Annotated[str | None, Header(alias="X-Threshold-Username")] = None,
     display_name: Annotated[str | None, Header(alias="X-Threshold-Display-Name")] = None,
 ) -> CurrentUser:
-    return current_user_from_headers(
-        user_id=user_id, username=username, display_name=display_name
-    )
+    return current_user_from_headers(user_id=user_id, username=username, display_name=display_name)
 
 
 def require_write_quota(user: Annotated[CurrentUser, Depends(require_current_user)]) -> None:

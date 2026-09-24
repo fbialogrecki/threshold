@@ -223,10 +223,7 @@ def test_page_owner_invites_artist_and_artist_accepts_residency(session: Session
     assert invite.json()["status"] == "pending"
     assert accept.status_code == 200
     assert accept.json()["status"] == "accepted"
-    assert (
-        session.scalar(select(PageResidency).where(PageResidency.page_id == page_id))
-        is not None
-    )
+    assert session.scalar(select(PageResidency).where(PageResidency.page_id == page_id)) is not None
     notifications = session.scalars(
         select(NotificationEvent).order_by(NotificationEvent.created_at)
     ).all()
@@ -1175,9 +1172,12 @@ def test_critical_page_role_notification_bypasses_page_update_mute(session: Sess
     assert member_register.status_code == 201
     member_id = member_register.json()["user"]["id"]
 
-    assert member.put(
-        "/v1/notifications/preferences", json={"page_updates_enabled": False}
-    ).status_code == 200
+    assert (
+        member.put(
+            "/v1/notifications/preferences", json={"page_updates_enabled": False}
+        ).status_code
+        == 200
+    )
 
     page = owner.post(
         "/v1/pages",

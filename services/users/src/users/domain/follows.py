@@ -1,6 +1,4 @@
-PAGE_FOLLOW_TARGET_TYPES = frozenset(
-    {"page", "club", "collective", "project", "festival"}
-)
+PAGE_FOLLOW_TARGET_TYPES = frozenset({"page", "club", "collective", "project", "festival"})
 
 
 def canonical_follow_target_type(target_type: str) -> str:

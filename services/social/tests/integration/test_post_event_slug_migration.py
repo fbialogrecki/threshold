@@ -60,9 +60,7 @@ def test_post_event_slug_migration_adds_nullable_column_and_backfills_announceme
         columns = {column["name"]: column for column in sa.inspect(connection).get_columns("posts")}
         assert columns["event_slug"]["nullable"] is True
         assert columns["event_slug"]["type"].length == 160
-        rows = connection.execute(
-            sa.text("SELECT id, event_slug FROM posts ORDER BY id")
-        ).all()
+        rows = connection.execute(sa.text("SELECT id, event_slug FROM posts ORDER BY id")).all()
         assert rows == [("announcement", "zebra-night"), ("ordinary", None)]
         assert "ix_posts_event_slug" in {
             index["name"] for index in sa.inspect(connection).get_indexes("posts")

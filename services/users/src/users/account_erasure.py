@@ -39,18 +39,14 @@ _NEXT_STAGE = {"social": "events", "events": "media", "media": "local"}
 
 def enqueue_account_erasure(session: Session, user: ApplicationUser) -> AccountErasureJob:
     """Fence the account and durably enqueue erasure in one database transaction."""
-    existing = session.scalar(
-        select(AccountErasureJob).where(AccountErasureJob.user_id == user.id)
-    )
+    existing = session.scalar(select(AccountErasureJob).where(AccountErasureJob.user_id == user.id))
     if existing is not None:
         return existing
 
     now = utc_now()
     user.status = "erasure_pending"
     session.execute(delete(UserSession).where(UserSession.user_id == user.id))
-    session.execute(
-        delete(EmailVerificationToken).where(EmailVerificationToken.user_id == user.id)
-    )
+    session.execute(delete(EmailVerificationToken).where(EmailVerificationToken.user_id == user.id))
     session.execute(delete(PasswordResetToken).where(PasswordResetToken.user_id == user.id))
     job = AccountErasureJob(user_id=user.id, next_attempt_at=now)
     session.add_all([user, job])
@@ -172,9 +168,7 @@ def _erase_local_data(session: Session, *, user_id: str, now: datetime) -> None:
         if audit_log.target_id == user_id:
             audit_log.target_id = "deleted-user"
         audit_log.metadata_json = _scrub_metadata(audit_log.metadata_json, identifiers)
-    for auth_log in session.scalars(
-        select(AuthAuditLog).where(AuthAuditLog.user_id == user_id)
-    ):
+    for auth_log in session.scalars(select(AuthAuditLog).where(AuthAuditLog.user_id == user_id)):
         # Security events are retained, but no stable account/network/device
         # identifiers remain attached to them after erasure.
         auth_log.user_id = None

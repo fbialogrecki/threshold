@@ -124,9 +124,7 @@ class EventAnnouncement(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     event_id: Mapped[str] = mapped_column(String(36), nullable=False)
     event_slug: Mapped[str] = mapped_column(String(160), nullable=False)
-    post_id: Mapped[str] = mapped_column(
-        ForeignKey("posts.id", ondelete="CASCADE"), nullable=False
-    )
+    post_id: Mapped[str] = mapped_column(ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
     group_id: Mapped[str] = mapped_column(
         ForeignKey("groups.id", ondelete="CASCADE"), nullable=False
     )
@@ -141,9 +139,7 @@ class PostMention(Base):
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    post_id: Mapped[str] = mapped_column(
-        ForeignKey("posts.id", ondelete="CASCADE"), nullable=False
-    )
+    post_id: Mapped[str] = mapped_column(ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
     mention_type: Mapped[str] = mapped_column(String(32), nullable=False)
     target_handle: Mapped[str] = mapped_column(String(150), nullable=False)
     target_id: Mapped[str | None] = mapped_column(String(150), nullable=True)

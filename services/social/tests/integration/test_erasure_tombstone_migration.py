@@ -32,8 +32,7 @@ def test_erasure_tombstone_migration_upgrade_and_downgrade_on_sqlite() -> None:
         inspector = sa.inspect(connection)
         assert "account_erasure_tombstones" in inspector.get_table_names()
         columns = {
-            column["name"]: column
-            for column in inspector.get_columns("account_erasure_tombstones")
+            column["name"]: column for column in inspector.get_columns("account_erasure_tombstones")
         }
         assert set(columns) == {"user_id", "erased_at"}
         assert columns["user_id"]["nullable"] is False

@@ -32,9 +32,7 @@ class _FakeSession:
 def test_postgresql_fence_sorts_deduplicates_locks_then_queries_tombstones() -> None:
     fake = _FakeSession("postgresql", ["user-z"])
 
-    erased = fenced_erased_user_ids(
-        cast(Session, fake), ["user-z", "user-a", "user-z", None, " "]
-    )
+    erased = fenced_erased_user_ids(cast(Session, fake), ["user-z", "user-a", "user-z", None, " "])
 
     assert erased == {"user-z"}
     assert [operation[0] for operation in fake.operations] == ["execute", "execute", "scalars"]

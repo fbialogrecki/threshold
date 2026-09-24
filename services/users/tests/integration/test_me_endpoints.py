@@ -347,12 +347,18 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
     assert user.consumer_profile.avatar_media_asset_id is None
     assert user.artist_profile is None
     assert user.onboarding_preferences is None
-    assert session.scalars(
-        select(EmailVerificationToken).where(EmailVerificationToken.user_id == user_id)
-    ).all() == []
-    assert session.scalars(
-        select(PasswordResetToken).where(PasswordResetToken.user_id == user_id)
-    ).all() == []
+    assert (
+        session.scalars(
+            select(EmailVerificationToken).where(EmailVerificationToken.user_id == user_id)
+        ).all()
+        == []
+    )
+    assert (
+        session.scalars(
+            select(PasswordResetToken).where(PasswordResetToken.user_id == user_id)
+        ).all()
+        == []
+    )
     assert (
         session.scalars(select(NotificationEvent).where(NotificationEvent.user_id == user_id)).all()
         == []
@@ -386,9 +392,12 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
     assert retained_page is not None
     assert retained_page.avatar_media_asset_id is None
     assert retained_page.avatar_media_owner_user_id is None
-    assert session.scalar(
-        select(NotificationPreference).where(NotificationPreference.user_id == user_id)
-    ) is None
+    assert (
+        session.scalar(
+            select(NotificationPreference).where(NotificationPreference.user_id == user_id)
+        )
+        is None
+    )
 
     # Session tokens and linked IP/UA hashes are deleted immediately.
     sessions = session.scalars(select(UserSession).where(UserSession.user_id == user_id)).all()
@@ -402,7 +411,6 @@ def test_delete_me_gdpr(session: Session, monkeypatch: MonkeyPatch) -> None:
     # Try GET /v1/auth/me should return 401
     get_me = client.get("/v1/auth/me")
     assert get_me.status_code == 401
-
 
 
 def test_follow_and_unfollow_endpoints(session: Session) -> None:
@@ -480,9 +488,7 @@ def test_follow_and_unfollow_endpoints(session: Session) -> None:
     assert len(follows) == 4
 
     # Check structure & display name resolution
-    assert {
-        (f["target_type"], f["target_handle"], f["display_name"]) for f in follows
-    } == {
+    assert {(f["target_type"], f["target_handle"], f["display_name"]) for f in follows} == {
         ("consumer", "consumertarget", "Consumertarget"),
         ("artist", "artisttarget", "Artisttarget"),
         ("page", "club-x", "Club X"),
@@ -502,9 +508,7 @@ def test_follow_and_unfollow_endpoints(session: Session) -> None:
 
 
 def test_generic_page_follow_supports_all_page_types(session: Session) -> None:
-    client, _ = _get_authenticated_client(
-        session, "page-follower@example.test", "pagefollower"
-    )
+    client, _ = _get_authenticated_client(session, "page-follower@example.test", "pagefollower")
     pages = [
         Page(
             slug=f"{page_type}-follow",
@@ -526,10 +530,9 @@ def test_generic_page_follow_supports_all_page_types(session: Session) -> None:
 
     follows = client.get("/v1/me/follows")
     assert follows.status_code == 200
-    assert {
-        (follow["target_type"], follow["target_handle"])
-        for follow in follows.json()
-    } == {("page", page.slug) for page in pages}
+    assert {(follow["target_type"], follow["target_handle"]) for follow in follows.json()} == {
+        ("page", page.slug) for page in pages
+    }
 
     unfollow = client.delete("/v1/me/follows/page/project-follow")
     assert unfollow.status_code == 204
@@ -551,32 +554,42 @@ def test_page_follow_aliases_dedupe_count_and_unfollow(session: Session) -> None
     session.add(page)
     session.commit()
 
-    assert generic_client.post(
-        "/v1/me/follows",
-        json={"target_type": "page", "target_handle": page.slug},
-    ).status_code == 200
-    assert generic_client.post(
-        "/v1/me/follows",
-        json={"target_type": "club", "target_handle": page.slug},
-    ).status_code == 200
+    assert (
+        generic_client.post(
+            "/v1/me/follows",
+            json={"target_type": "page", "target_handle": page.slug},
+        ).status_code
+        == 200
+    )
+    assert (
+        generic_client.post(
+            "/v1/me/follows",
+            json={"target_type": "club", "target_handle": page.slug},
+        ).status_code
+        == 200
+    )
     generic_rows = session.scalars(
         select(Follow).where(
             Follow.follower_user_id == generic_id,
             Follow.target_id == page.id,
         )
     ).all()
-    assert [(row.target_type, row.target_handle) for row in generic_rows] == [
-        ("page", page.slug)
-    ]
+    assert [(row.target_type, row.target_handle) for row in generic_rows] == [("page", page.slug)]
 
-    assert legacy_client.post(
-        "/v1/me/follows",
-        json={"target_type": "festival", "target_handle": page.slug},
-    ).status_code == 200
-    assert legacy_client.post(
-        "/v1/me/follows",
-        json={"target_type": "page", "target_handle": page.slug},
-    ).status_code == 200
+    assert (
+        legacy_client.post(
+            "/v1/me/follows",
+            json={"target_type": "festival", "target_handle": page.slug},
+        ).status_code
+        == 200
+    )
+    assert (
+        legacy_client.post(
+            "/v1/me/follows",
+            json={"target_type": "page", "target_handle": page.slug},
+        ).status_code
+        == 200
+    )
     legacy_rows = session.scalars(
         select(Follow).where(
             Follow.follower_user_id == legacy_id,
@@ -605,18 +618,21 @@ def test_page_follow_aliases_dedupe_count_and_unfollow(session: Session) -> None
 
     listed = generic_client.get("/v1/me/follows")
     assert listed.status_code == 200
-    assert [
-        (follow["target_type"], follow["target_handle"]) for follow in listed.json()
-    ] == [("page", page.slug)]
+    assert [(follow["target_type"], follow["target_handle"]) for follow in listed.json()] == [
+        ("page", page.slug)
+    ]
 
     removed = generic_client.delete(f"/v1/me/follows/collective/{page.slug}")
     assert removed.status_code == 204
-    assert session.scalars(
-        select(Follow).where(
-            Follow.follower_user_id == generic_id,
-            Follow.target_id == page.id,
-        )
-    ).all() == []
+    assert (
+        session.scalars(
+            select(Follow).where(
+                Follow.follower_user_id == generic_id,
+                Follow.target_id == page.id,
+            )
+        ).all()
+        == []
+    )
 
     after = generic_client.get(f"/v1/pages/{page.slug}")
     assert after.json()["follower_count"] == 1

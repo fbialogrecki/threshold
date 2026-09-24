@@ -117,9 +117,7 @@ async def sync_blocks_once(settings: Settings, session_factory: sessionmaker[Ses
         )
 
 
-async def run_block_sync_loop(
-    settings: Settings, session_factory: sessionmaker[Session]
-) -> None:
+async def run_block_sync_loop(settings: Settings, session_factory: sessionmaker[Session]) -> None:
     while True:
         try:
             await sync_blocks_once(settings, session_factory)

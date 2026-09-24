@@ -134,7 +134,6 @@ class EventBoost(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
 
 
-
 class EventGuestlistEntry(Base):
     __tablename__ = "event_guestlist_entries"
     __table_args__ = (

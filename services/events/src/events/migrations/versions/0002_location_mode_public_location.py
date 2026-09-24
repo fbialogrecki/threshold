@@ -4,6 +4,7 @@ Revision ID: 0002_location_mode
 Revises: 0001_create_events_schema
 Create Date: 2026-06-21
 """
+
 from collections.abc import Sequence
 
 from alembic import op

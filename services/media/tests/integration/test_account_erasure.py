@@ -68,9 +68,7 @@ def test_postgresql_owner_fence_uses_transaction_scoped_service_lock() -> None:
     _acquire_owner_write_lock(owner_user_id="user-1", session=cast(Session, session))
 
     statement, parameters = session.execute.call_args.args
-    assert str(statement) == (
-        "SELECT pg_advisory_xact_lock(hashtextextended(:owner, :seed))"
-    )
+    assert str(statement) == ("SELECT pg_advisory_xact_lock(hashtextextended(:owner, :seed))")
     assert parameters == {"owner": "user-1", "seed": 42002}
 
 

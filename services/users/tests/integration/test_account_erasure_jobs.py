@@ -63,9 +63,7 @@ def test_erasure_job_retries_from_checkpoint_after_restart_and_is_idempotent(
     def social(_settings: object, _user_id: str) -> None:
         calls.append("social")
 
-    def events(
-        _settings: object, _user_id: str, _artist_profile_ids: list[str]
-    ) -> None:
+    def events(_settings: object, _user_id: str, _artist_profile_ids: list[str]) -> None:
         calls.append("events")
         if not events_available:
             raise RuntimeError("temporary failure")

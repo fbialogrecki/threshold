@@ -108,9 +108,7 @@ def test_two_legacy_issued_tokens_allow_one_check_in_and_one_audit(
     tokens = {
         token.id: token.status
         for token in session.scalars(
-            select(EventCheckInToken).where(
-                EventCheckInToken.guestlist_entry_id == entry.id
-            )
+            select(EventCheckInToken).where(EventCheckInToken.guestlist_entry_id == entry.id)
         )
     }
     audits = session.scalars(
@@ -194,9 +192,7 @@ def test_serialized_mint_keeps_one_issued_token_and_locks_guest_row(
         .order_by(EventCheckInToken.created_at.asc(), EventCheckInToken.id.asc())
     ).all()
     lock_sql = str(
-        routes._guestlist_entry_lock_query(
-            added.json()["event_id"], "mint-guest"
-        ).compile(
+        routes._guestlist_entry_lock_query(added.json()["event_id"], "mint-guest").compile(
             dialect=postgresql.dialect(),
             compile_kwargs={"literal_binds": True},
         )
@@ -273,9 +269,7 @@ def test_readd_locks_guest_before_revoking_tokens(
     )
     session.expire_all()
     token_row = session.scalar(
-        select(EventCheckInToken).where(
-            EventCheckInToken.guestlist_entry_id == added.json()["id"]
-        )
+        select(EventCheckInToken).where(EventCheckInToken.guestlist_entry_id == added.json()["id"])
     )
 
     assert readded.status_code == 201
@@ -315,9 +309,7 @@ def test_mint_conflict_rolls_back_revocation_without_500(
     )
     session.expire_all()
     rows = session.scalars(
-        select(EventCheckInToken).where(
-            EventCheckInToken.guestlist_entry_id == added.json()["id"]
-        )
+        select(EventCheckInToken).where(EventCheckInToken.guestlist_entry_id == added.json()["id"])
     ).all()
 
     assert conflict.status_code == 409

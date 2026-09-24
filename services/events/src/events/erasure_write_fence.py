@@ -21,9 +21,7 @@ def acquire_account_erasure_write_fence(
 
     bind = session.get_bind()
     if bind.dialect.name == "postgresql":
-        lock_statement = text(
-            "SELECT pg_advisory_xact_lock(hashtextextended(:user_id, :seed))"
-        )
+        lock_statement = text("SELECT pg_advisory_xact_lock(hashtextextended(:user_id, :seed))")
         for user_id in normalized_ids:
             session.execute(
                 lock_statement,

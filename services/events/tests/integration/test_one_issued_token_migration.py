@@ -80,10 +80,7 @@ def test_one_issued_token_migration_reconciles_and_downgrades_on_sqlite() -> Non
             migration.upgrade()
 
         rows = connection.execute(
-            sa.text(
-                "SELECT id, status FROM event_check_in_tokens "
-                "ORDER BY guestlist_entry_id, id"
-            )
+            sa.text("SELECT id, status FROM event_check_in_tokens ORDER BY guestlist_entry_id, id")
         ).all()
         assert rows == [
             ("new-a", "revoked"),
@@ -139,13 +136,9 @@ def test_one_issued_token_migration_emits_postgresql_partial_index() -> None:
         migration.upgrade()
 
     sql = output.getvalue()
-    lock_position = sql.index(
-        "LOCK TABLE event_check_in_tokens IN SHARE ROW EXCLUSIVE MODE"
-    )
+    lock_position = sql.index("LOCK TABLE event_check_in_tokens IN SHARE ROW EXCLUSIVE MODE")
     cleanup_position = sql.index("UPDATE event_check_in_tokens")
-    index_position = sql.index(
-        "CREATE UNIQUE INDEX uq_event_check_in_tokens_one_issued"
-    )
+    index_position = sql.index("CREATE UNIQUE INDEX uq_event_check_in_tokens_one_issued")
     assert lock_position < cleanup_position < index_position
     assert "row_number() OVER" in sql
     assert (

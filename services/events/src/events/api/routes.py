@@ -281,11 +281,7 @@ def _validate_lineup_artist_refs(
     lineup: list[dict[str, str]],
 ) -> dict[str, dict[str, str]]:
     artist_ids = list(
-        dict.fromkeys(
-            artist_id
-            for item in lineup
-            if (artist_id := item.get("artist_profile_id"))
-        )
+        dict.fromkeys(artist_id for item in lineup if (artist_id := item.get("artist_profile_id")))
     )
     if not artist_ids:
         return {}
@@ -517,28 +513,39 @@ def list_events(
                 Event.lineup.cast(String).icontains(query),
             )
         )
-    cursor_cond = None if upcoming else (
-        _created_cursor_condition(before) if sort == "created" else _cursor_condition(before)
+    cursor_cond = (
+        None
+        if upcoming
+        else (_created_cursor_condition(before) if sort == "created" else _cursor_condition(before))
     )
     if cursor_cond is not None:
         conditions.append(cursor_cond)
 
     fetched_limit = _clamp_limit(limit)
-    order_by = (Event.starts_at.asc(), Event.id.asc()) if upcoming else (
-        (Event.created_at.desc(), Event.id.desc())
-        if sort == "created"
-        else (Event.starts_at.desc(), Event.id.desc())
+    order_by = (
+        (Event.starts_at.asc(), Event.id.asc())
+        if upcoming
+        else (
+            (Event.created_at.desc(), Event.id.desc())
+            if sort == "created"
+            else (Event.starts_at.desc(), Event.id.desc())
+        )
     )
     rows = session.scalars(
-        select(Event)
-        .where(*conditions)
-        .order_by(*order_by)
-        .limit(fetched_limit + 1)
+        select(Event).where(*conditions).order_by(*order_by).limit(fetched_limit + 1)
     ).all()
     visible = list(rows[:fetched_limit])
-    next_before = None if upcoming else (
-        _encode_created_cursor(visible[-1]) if sort == "created" else _encode_cursor(visible[-1])
-    ) if len(rows) > fetched_limit and visible else None
+    next_before = (
+        None
+        if upcoming
+        else (
+            _encode_created_cursor(visible[-1])
+            if sort == "created"
+            else _encode_cursor(visible[-1])
+        )
+        if len(rows) > fetched_limit and visible
+        else None
+    )
     return EventListResponse(
         items=_events_response(session, visible, viewer_id),
         next_before=next_before,
@@ -598,12 +605,16 @@ def get_event_feed_candidates(
         .correlate(Event)
         .scalar_subquery()
     )
-    rows = session.execute(
-        select(Event, follower_count, boost_count, viewer_follow, viewer_boost)
-        .where(Event.deleted_at.is_(None), or_(*admission))
-        .order_by(Event.created_at.desc(), Event.id.desc())
-        .limit(payload.limit)
-    ).tuples().all()
+    rows = (
+        session.execute(
+            select(Event, follower_count, boost_count, viewer_follow, viewer_boost)
+            .where(Event.deleted_at.is_(None), or_(*admission))
+            .order_by(Event.created_at.desc(), Event.id.desc())
+            .limit(payload.limit)
+        )
+        .tuples()
+        .all()
+    )
     events = [event for event, _, _, _, _ in rows]
     return _events_response(
         session,
@@ -612,12 +623,8 @@ def get_event_feed_candidates(
         follower_counts={event.id: followers for event, followers, _, _, _ in rows},
         boost_counts={event.id: boosts for event, _, boosts, _, _ in rows},
         enrich_lineup=False,
-        viewer_follows={
-            event.id for event, _, _, is_following, _ in rows if is_following
-        },
-        viewer_boosts={
-            event.id for event, _, _, _, is_boosting in rows if is_boosting
-        },
+        viewer_follows={event.id for event, _, _, is_following, _ in rows if is_following},
+        viewer_boosts={event.id for event, _, _, _, is_boosting in rows if is_boosting},
     )
 
 
@@ -638,12 +645,16 @@ def get_events_batch(payload: EventBatchRequest, session: DbSession) -> list[Eve
         .correlate(Event)
         .scalar_subquery()
     )
-    rows = session.execute(
-        select(Event, follower_count, boost_count).where(
-            Event.slug.in_(slugs),
-            Event.deleted_at.is_(None),
+    rows = (
+        session.execute(
+            select(Event, follower_count, boost_count).where(
+                Event.slug.in_(slugs),
+                Event.deleted_at.is_(None),
+            )
         )
-    ).tuples().all()
+        .tuples()
+        .all()
+    )
     events = {event.slug: event for event, _, _ in rows}
     ordered = [events[slug] for slug in slugs if slug in events]
     return _events_response(
@@ -680,9 +691,7 @@ def erase_account_data(
 
     session.execute(delete(EventFollow).where(EventFollow.user_id == user_id))
     session.execute(delete(EventBoost).where(EventBoost.user_id == user_id))
-    session.execute(
-        delete(EventGuestlistEntry).where(EventGuestlistEntry.guest_user_id == user_id)
-    )
+    session.execute(delete(EventGuestlistEntry).where(EventGuestlistEntry.guest_user_id == user_id))
     session.execute(delete(EventDoorStaff).where(EventDoorStaff.user_id == user_id))
 
     for event in session.scalars(select(Event)):
@@ -905,13 +914,16 @@ def _require_lineup_artist(event: Event, artist_profile_id: str) -> None:
 
 
 def _quota_response(session: Session, event: Event, quota: EventGuestQuota) -> GuestQuotaResponse:
-    used = session.scalar(
-        select(func.count(EventGuestlistEntry.id)).where(
-            EventGuestlistEntry.event_id == event.id,
-            EventGuestlistEntry.added_by_artist_profile_id == quota.artist_profile_id,
-            EventGuestlistEntry.status == GuestlistEntryStatus.active.value,
+    used = (
+        session.scalar(
+            select(func.count(EventGuestlistEntry.id)).where(
+                EventGuestlistEntry.event_id == event.id,
+                EventGuestlistEntry.added_by_artist_profile_id == quota.artist_profile_id,
+                EventGuestlistEntry.status == GuestlistEntryStatus.active.value,
+            )
         )
-    ) or 0
+        or 0
+    )
     return GuestQuotaResponse(
         id=quota.id,
         event_id=event.id,
@@ -982,9 +994,7 @@ def _require_check_in_access(session: Session, event: Event, user_id: str) -> No
     if role in ALLOWED_ROLES:
         return
     door_staff = session.scalar(_door_staff_lock_query(event.id, user_id=user_id))
-    if door_staff is None or user_id not in users_client.get_active_user_refs(
-        settings, [user_id]
-    ):
+    if door_staff is None or user_id not in users_client.get_active_user_refs(settings, [user_id]):
         raise HTTPException(status_code=403, detail="not authorized to check in guests")
 
 
@@ -1032,8 +1042,7 @@ def get_event_viewer_context(
     ).one()
     can_check_in = is_manager or (
         door_staff_id is not None
-        and user.user_id
-        in users_client.get_active_user_refs(settings, [user.user_id])
+        and user.user_id in users_client.get_active_user_refs(settings, [user.user_id])
     )
     quota_summaries = _quota_summaries(session, event)
     quotas_by_artist = {quota.artist_profile_id: quota for quota in quota_summaries}
@@ -1228,9 +1237,7 @@ def revoke_door_staff(
     if door_staff_user_id is None:
         return Response(status_code=204)
     enforce_account_erasure_write_fence(session, [user.user_id, door_staff_user_id])
-    door_staff = session.scalar(
-        _door_staff_lock_query(event.id, assignment_id=assignment_id)
-    )
+    door_staff = session.scalar(_door_staff_lock_query(event.id, assignment_id=assignment_id))
     if door_staff is None:
         return Response(status_code=204)
     _write_access_audit(
@@ -1269,9 +1276,7 @@ def _guestlist_entry_lock_query(
         EventGuestlistEntry.guest_user_id == guest_user_id,
     )
     if active_only:
-        query = query.where(
-            EventGuestlistEntry.status == GuestlistEntryStatus.active.value
-        )
+        query = query.where(EventGuestlistEntry.status == GuestlistEntryStatus.active.value)
     return query.with_for_update()
 
 
@@ -1328,14 +1333,17 @@ def _require_artist_quota(
     )
     if quota is None:
         raise HTTPException(status_code=403, detail="guest quota not assigned")
-    used = session.scalar(
-        select(func.count(EventGuestlistEntry.id)).where(
-            EventGuestlistEntry.event_id == event.id,
-            EventGuestlistEntry.added_by_artist_profile_id == artist_profile_id,
-            EventGuestlistEntry.status == GuestlistEntryStatus.active.value,
-            EventGuestlistEntry.guest_user_id != guest_user_id,
+    used = (
+        session.scalar(
+            select(func.count(EventGuestlistEntry.id)).where(
+                EventGuestlistEntry.event_id == event.id,
+                EventGuestlistEntry.added_by_artist_profile_id == artist_profile_id,
+                EventGuestlistEntry.status == GuestlistEntryStatus.active.value,
+                EventGuestlistEntry.guest_user_id != guest_user_id,
+            )
         )
-    ) or 0
+        or 0
+    )
     if used >= quota.quota:
         raise HTTPException(status_code=409, detail="guest quota exhausted")
 

@@ -191,7 +191,6 @@ class EventUpdateListResponse(BaseModel):
     next_before: str | None = None
 
 
-
 class GuestlistAddRequest(BaseModel):
     guest_user_id: str | None = Field(default=None, min_length=1, max_length=36)
     guest_display_name: str | None = Field(default=None, min_length=1, max_length=160)
@@ -207,10 +206,7 @@ class GuestlistAddRequest(BaseModel):
     @property
     def resolved_display_name(self) -> str:
         return (
-            self.guest_display_name
-            or self.display_name
-            or self.username
-            or self.resolved_user_id
+            self.guest_display_name or self.display_name or self.username or self.resolved_user_id
         )
 
     @field_validator("guest_display_name", "display_name")

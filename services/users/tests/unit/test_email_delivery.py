@@ -117,9 +117,7 @@ def test_implicit_tls_uses_smtp_ssl_with_verified_context():
 
     create_context.assert_called_once_with(cafile=None)
     mock_smtp.assert_not_called()
-    mock_smtp_ssl.assert_called_once_with(
-        "mail.example.com", 465, timeout=8.0, context=context
-    )
+    mock_smtp_ssl.assert_called_once_with("mail.example.com", 465, timeout=8.0, context=context)
     server.login.assert_called_once_with("smtp-user", "smtp-password")
     server.send_message.assert_called_once()
 

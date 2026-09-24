@@ -725,11 +725,7 @@ def get_organizer_refs(
             ).where(Page.id.in_(page_ids))
         ).tuples()
     }
-    return [
-        page
-        for page_id in page_ids
-        if (page := pages.get(page_id)) is not None
-    ]
+    return [page for page_id in page_ids if (page := pages.get(page_id)) is not None]
 
 
 @router.post(
@@ -1365,9 +1361,7 @@ def unfollow_target(
 
     target_type = canonical_follow_target_type(target_type)
     if target_type == "page":
-        page = session.scalar(
-            select(Page).where(func.lower(Page.slug) == target_handle.lower())
-        )
+        page = session.scalar(select(Page).where(func.lower(Page.slug) == target_handle.lower()))
         follows = (
             session.scalars(
                 select(Follow).where(
@@ -1734,13 +1728,17 @@ def _public_page_response(
         )
         or 0
     )
-    is_following = viewer is not None and session.scalar(
-        select(Follow.id).where(
-            Follow.follower_user_id == viewer.id,
-            Follow.target_id == page.id,
-            Follow.target_type.in_(PAGE_FOLLOW_TARGET_TYPES),
+    is_following = (
+        viewer is not None
+        and session.scalar(
+            select(Follow.id).where(
+                Follow.follower_user_id == viewer.id,
+                Follow.target_id == page.id,
+                Follow.target_type.in_(PAGE_FOLLOW_TARGET_TYPES),
+            )
         )
-    ) is not None
+        is not None
+    )
 
     return PublicPageResponse(
         id=page.id,
@@ -1776,9 +1774,7 @@ def get_public_page(slug: str, request: Request, session: DbSession) -> PublicPa
     page = session.scalar(select(Page).where(Page.slug == slug))
     if page is None:
         raise HTTPException(status_code=404, detail="page not found")
-    viewer = get_user_by_session_token(
-        session, settings, request.cookies.get(SESSION_COOKIE)
-    )
+    viewer = get_user_by_session_token(session, settings, request.cookies.get(SESSION_COOKIE))
     return _public_page_response(session, page, viewer)
 
 

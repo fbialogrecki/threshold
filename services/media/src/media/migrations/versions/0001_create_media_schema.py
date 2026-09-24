@@ -33,9 +33,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("bucket", "original_key", name="uq_media_assets_bucket_original_key"),
     )
-    op.create_index(
-        "ix_media_assets_context_created", "media_assets", ["context", "created_at"]
-    )
+    op.create_index("ix_media_assets_context_created", "media_assets", ["context", "created_at"])
     op.create_index(
         "ix_media_assets_owner_context",
         "media_assets",

@@ -21,9 +21,7 @@ def fenced_erased_user_ids(session: Session, user_ids: Iterable[str | None]) -> 
         return set()
 
     if session.get_bind().dialect.name == "postgresql":
-        lock_statement = text(
-            "SELECT pg_advisory_xact_lock(hashtextextended(:id, :seed))"
-        )
+        lock_statement = text("SELECT pg_advisory_xact_lock(hashtextextended(:id, :seed))")
         for user_id in ordered_ids:
             session.execute(
                 lock_statement,
