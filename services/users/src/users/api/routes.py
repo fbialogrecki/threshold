@@ -5,7 +5,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
 from sqlalchemy import func, select, text
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from users.account_erasure import enqueue_account_erasure
 from users.api.schemas import (
     ActiveUserRefResponse,
@@ -15,6 +15,7 @@ from users.api.schemas import (
     ArtistReferencesRequest,
     BlockCheckResponse,
     BlockCreateRequest,
+    BlockPairResponse,
     CurrentPrincipalRequest,
     CurrentProfileResponse,
     EmailVerifyRequest,
@@ -785,6 +786,35 @@ def get_page_membership(
     if membership is None:
         raise HTTPException(status_code=404, detail="not a member")
     return PageMembershipResponse(role=membership.role.value)
+
+
+@router.get("/internal/v1/blocks", response_model=list[BlockPairResponse])
+def list_all_blocks(
+    _: Annotated[None, Depends(require_internal_token)],
+    session: DbSession,
+) -> list[BlockPairResponse]:
+    """Every canonical block, so social can reconcile its local copy."""
+    blocker = aliased(ApplicationUser)
+    blocked = aliased(ApplicationUser)
+    rows = session.execute(
+        select(
+            UserBlock.blocker_user_id,
+            func.coalesce(blocker.username_normalized, blocker.username),
+            UserBlock.blocked_user_id,
+            func.coalesce(blocked.username_normalized, blocked.username),
+        )
+        .join(blocker, blocker.id == UserBlock.blocker_user_id)
+        .join(blocked, blocked.id == UserBlock.blocked_user_id)
+    ).tuples()
+    return [
+        BlockPairResponse(
+            blocker_user_id=blocker_id,
+            blocker_username=blocker_name,
+            blocked_user_id=blocked_id,
+            blocked_username=blocked_name,
+        )
+        for blocker_id, blocker_name, blocked_id, blocked_name in rows
+    ]
 
 
 @router.get(

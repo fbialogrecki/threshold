@@ -5,8 +5,6 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response, status
 from social.api.schemas import (
     AnonymizeAuthorRequest,
-    BlockCreateRequest,
-    BlockResponse,
     CommentCreateRequest,
     CommentResponse,
     CommentUpdateRequest,
@@ -1432,70 +1430,6 @@ def remove_emoji_reaction(
         session.commit()
     response.status_code = status.HTTP_204_NO_CONTENT
     return response
-
-
-@router.post("/v1/blocks/{blocked_user_id}", response_model=BlockResponse)
-def block_user(
-    blocked_user_id: str,
-    payload: BlockCreateRequest,
-    user: CurrentPrincipal,
-    _: WriteQuota,
-    session: DbSession,
-) -> BlockResponse:
-    if blocked_user_id == user.user_id:
-        raise HTTPException(status_code=422, detail="cannot block yourself")
-    _fence_user_write(session, user.user_id, blocked_user_id)
-    block = _block_row(session, user.user_id, blocked_user_id)
-    if block is None:
-        block = UserBlock(
-            blocker_user_id=user.user_id,
-            blocker_username=_normalize_handle(user.username),
-            blocked_user_id=blocked_user_id,
-            blocked_username=payload.blocked_username,
-        )
-        session.add(block)
-        _write_safety_audit(
-            session,
-            actor_user_id=user.user_id,
-            action="user.blocked",
-            target_type="user",
-            target_id=blocked_user_id,
-            reason="block",
-            metadata={"blocked_username": payload.blocked_username},
-        )
-    else:
-        block.blocker_username = _normalize_handle(user.username)
-        block.blocked_username = payload.blocked_username or block.blocked_username
-    session.commit()
-    session.refresh(block)
-    return BlockResponse.model_validate(block)
-
-
-@router.delete("/v1/blocks/{blocked_user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def unblock_user(
-    blocked_user_id: str,
-    user: CurrentPrincipal,
-    _: WriteQuota,
-    session: DbSession,
-    response: Response,
-) -> Response:
-    _fence_user_write(session, user.user_id, blocked_user_id)
-    block = _block_row(session, user.user_id, blocked_user_id)
-    if block is not None:
-        session.delete(block)
-        session.commit()
-    response.status_code = status.HTTP_204_NO_CONTENT
-    return response
-
-
-@router.get("/v1/blocks", response_model=list[BlockResponse])
-def list_blocks(user: CurrentPrincipal, session: DbSession) -> list[BlockResponse]:
-    rows = session.scalars(
-        select(UserBlock)
-        .where(UserBlock.blocker_user_id == user.user_id)
-        .order_by(UserBlock.created_at.desc())
-    ).all()
-    return [BlockResponse.model_validate(row) for row in rows]
 
 
 @router.post("/v1/reports", response_model=ReportResponse, status_code=status.HTTP_201_CREATED)

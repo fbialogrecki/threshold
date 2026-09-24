@@ -360,26 +360,6 @@ class FeedResponse(BaseModel):
     next_before: str | None = None
 
 
-class BlockCreateRequest(BaseModel):
-    blocked_username: str | None = Field(default=None, max_length=150)
-
-    @field_validator("blocked_username")
-    @classmethod
-    def normalize_username(_cls, value: str | None) -> str | None:
-        if value is None:
-            return None
-        username = value.strip().lstrip("@").lower()
-        return username or None
-
-
-class BlockResponse(BaseModel):
-    blocked_user_id: str
-    blocked_username: str | None = None
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class ReportCreateRequest(BaseModel):
     target_type: str = Field(max_length=32)
     target_id: str = Field(min_length=1, max_length=150)
