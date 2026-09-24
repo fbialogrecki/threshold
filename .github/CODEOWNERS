@@ -1,0 +1,6 @@
+# Informational: review is not enforced while there is a single maintainer.
+/infra/ @fbialogrecki
+/ops/ @fbialogrecki
+/.woodpecker/ @fbialogrecki
+/ci/ @fbialogrecki
+/.github/ @fbialogrecki

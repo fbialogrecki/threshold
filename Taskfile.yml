@@ -316,6 +316,32 @@ tasks:
         print("no inline Secret data found")
         PY
 
+  # ─── Release ─────────────────────────────────────────────────────────
+
+  release:
+    desc: Tag origin/main and start the Woodpecker release pipeline, e.g. task release VERSION=v0.1.0
+    requires:
+      vars: [VERSION]
+    cmds:
+      - |
+        set -eu
+        version='{{.VERSION}}'
+        printf '%s\n' "$version" | grep -Eq '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' ||
+          { echo "VERSION must look like v1.2.3" >&2; exit 1; }
+        git fetch --quiet --tags origin main
+        [ -z "$(git status --porcelain)" ] || { echo "working tree is not clean" >&2; exit 1; }
+        sha=$(git rev-parse HEAD)
+        [ "$sha" = "$(git rev-parse origin/main)" ] || { echo "HEAD must equal origin/main" >&2; exit 1; }
+        if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
+          echo "tag $version already exists" >&2
+          exit 1
+        fi
+        ci=$(gh api "repos/fbialogrecki/threshold/commits/$sha/check-runs?check_name=ci-ok" --jq '.check_runs[0].conclusion // "missing"')
+        [ "$ci" = success ] || { echo "CI on $sha is not green (ci-ok: $ci)" >&2; exit 1; }
+        git tag -a "$version" -m "Release $version" "$sha"
+        git push origin "refs/tags/$version"
+        woodpecker-cli pipeline create fbialogrecki/threshold --branch main --var "RELEASE_TAG=$version"
+
   # ─── Repository safety ───────────────────────────────────────────────
 
   repo:secret-scan:

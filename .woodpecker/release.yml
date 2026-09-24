@@ -1,8 +1,8 @@
 when:
-  # Manual only: run it from the Woodpecker UI or with
-  # `woodpecker-cli pipeline create fbialogrecki/threshold --branch main`.
-  # Promotion opens a PR against the gitops repository, so a human still
-  # decides what reaches the cluster.
+  # Start releases with `task release VERSION=vX.Y.Z`: it pushes the tag and
+  # runs this manual pipeline on main with RELEASE_TAG set. GitHub cannot reach
+  # Woodpecker on the LAN, so a tag push alone would never trigger it.
+  # Promotion opens a digest PR against infra/ in this repository.
   - event: manual
     branch: main
 
@@ -10,7 +10,15 @@ labels:
   release: trusted
 
 steps:
+  verify-tag:
+    image: python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0
+    commands:
+      - apk add --no-cache git
+      - ci/woodpecker/verify-release-tag.sh
+
   build-images:
+    depends_on:
+      - verify-tag
     image: quay.io/buildah/stable@sha256:ca4edbaabf71ca330ec9b2714bf8e06c726a6e85ae215cfb1474d2e2c832aacb
     environment:
       STORAGE_DRIVER: vfs
@@ -59,6 +67,9 @@ steps:
         from_secret: release_gitops_repo_url
       IMAGE_REGISTRY:
         from_secret: release_image_registry
+      # Switch to "true" once a release has gone through end to end with a
+      # hand-merged digest PR.
+      AUTO_MERGE: "false"
     commands:
       - apk add --no-cache bash git curl
       - ci/woodpecker/woodpecker-promote-gitops.sh
