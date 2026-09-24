@@ -14,8 +14,6 @@ class Settings(ServiceSettings):
     users_service_url: str | None = Field(default=None, validation_alias="USERS_SERVICE_URL")
     events_service_url: str | None = Field(default=None, validation_alias="EVENTS_SERVICE_URL")
     media_service_url: str | None = None
-    post_created_subject: str = "social.post.created.v1"
-    comment_created_subject: str = "social.comment.created.v1"
     nats_request_timeout_seconds: float = 1.5
     media_request_timeout_seconds: float = 1.5
     # Repairs the local block copy if a users.block.changed event was lost.
