@@ -13,6 +13,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Decides which heavy steps a pull request needs. Every job below always
+  # runs, so required checks never sit at "expected"; untouched areas skip
+  # their steps and finish in seconds. Pushes to main run everything.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      python: ${{ steps.diff.outputs.python }}
+      web: ${{ steps.diff.outputs.web }}
+      containers: ${{ steps.diff.outputs.containers }}
+      infra: ${{ steps.diff.outputs.infra }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -eu
+          if [ -z "$BASE_SHA" ]; then
+            for area in python web containers infra; do echo "$area=true" >> "$GITHUB_OUTPUT"; done
+            exit 0
+          fi
+          files=$(git diff --name-only "$BASE_SHA"...HEAD)
+          printf '%s\n' "$files"
+          touched() {
+            if printf '%s\n' "$files" | grep -Eq "^(\.github/|$1)"; then echo true; else echo false; fi
+          }
+          {
+            echo "python=$(touched 'services/|libs/py/|ci/|pyproject\.toml$|uv\.lock$|\.python-version$')"
+            echo "web=$(touched 'apps/web/')"
+            echo "containers=$(touched 'services/|libs/py/|apps/web/|pyproject\.toml$|uv\.lock$|\.python-version$|\.dockerignore$')"
+            echo "infra=$(touched 'infra/|Taskfile\.yml$|\.gitleaks\.toml$')"
+          } >> "$GITHUB_OUTPUT"
+
   security:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -53,11 +89,16 @@ jobs:
       - run: python3 -m py_compile ci/woodpecker/bump-service-gitops.py
 
   infra:
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      RUN: ${{ needs.changes.outputs.infra }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: env.RUN == 'true'
       - name: Install Task
+        if: env.RUN == 'true'
         env:
           TASK_VERSION: 3.48.0
           TASK_SHA256: f4bfc4eef1b2557b262f3cc0a79976a421885cb7b9e71cfe75568a2ebe4d7ae5
@@ -69,6 +110,7 @@ jobs:
           echo "${TASK_SHA256}  /tmp/${archive}" | sha256sum --check --strict
           tar -xzf "/tmp/${archive}" -C /usr/local/bin task
       - name: Install kustomize
+        if: env.RUN == 'true'
         env:
           KUSTOMIZE_VERSION: 5.7.1
           KUSTOMIZE_SHA256: ea375e7372f9aa029129d4b2d16c66b7750b7f1213c4f66f910d981c895818d8
@@ -80,11 +122,15 @@ jobs:
           echo "${KUSTOMIZE_SHA256}  /tmp/${archive}" | sha256sum --check --strict
           tar -xzf "/tmp/${archive}" -C /usr/local/bin kustomize
       - name: Render every kustomization and reject inline secrets
+        if: env.RUN == 'true'
         run: task infra:check
 
   containers:
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      RUN: ${{ needs.changes.outputs.containers }}
     strategy:
       fail-fast: false
       matrix:
@@ -109,33 +155,47 @@ jobs:
             context: apps/web
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: env.RUN == 'true'
       - name: Build ${{ matrix.service }} image
+        if: env.RUN == 'true'
         run: docker build --file "${{ matrix.dockerfile }}" --tag "threshold/${{ matrix.service }}:ci" "${{ matrix.context }}"
 
   python:
-    needs: [security, containers]
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      RUN: ${{ needs.changes.outputs.python }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: env.RUN == 'true'
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7
+        if: env.RUN == 'true'
         with:
           enable-cache: true
       - run: uv lock --check
+        if: env.RUN == 'true'
       - run: uv sync --frozen
+        if: env.RUN == 'true'
       - run: uv run ruff check .
+        if: env.RUN == 'true'
       - run: uv run mypy .
+        if: env.RUN == 'true'
       - run: uv run pytest -q
+        if: env.RUN == 'true'
       - name: Export frozen runtime dependencies
+        if: env.RUN == 'true'
         run: >-
           uv export --frozen --no-dev --no-emit-workspace --no-hashes
           --format requirements.txt --output-file /tmp/threshold-requirements.txt
       - name: Audit frozen runtime dependencies
+        if: env.RUN == 'true'
         run: |
           uvx --from pip-audit==2.10.1 pip-audit --strict --format json --output /tmp/pip-audit.json -r /tmp/threshold-requirements.txt
           python3 ci/verify-pip-audit.py /tmp/pip-audit.json cryptography
 
   web:
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -143,14 +203,39 @@ jobs:
         working-directory: apps/web
     env:
       AUTH_COOKIE_SECURE: "true"
+      RUN: ${{ needs.changes.outputs.web }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        if: env.RUN == 'true'
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        if: env.RUN == 'true'
         with:
           bun-version: 1.4.0
       - run: bun install --frozen-lockfile
+        if: env.RUN == 'true'
       - run: bun audit
+        if: env.RUN == 'true'
       - run: bun test
+        if: env.RUN == 'true'
       - run: bunx tsc --noEmit
+        if: env.RUN == 'true'
       - run: bunx eslint
+        if: env.RUN == 'true'
       - run: bun --bun next build
+        if: env.RUN == 'true'
+
+  # The one check that covers every job, including the containers matrix.
+  # A job skipped because something it needs failed counts as a failure.
+  ci-ok:
+    if: always()
+    needs: [changes, security, infra, containers, python, web]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for result in $RESULTS; do
+            [ "$result" = success ] || exit 1
+          done

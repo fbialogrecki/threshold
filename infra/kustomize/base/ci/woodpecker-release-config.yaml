@@ -12,5 +12,5 @@ data:
   IMAGE_REGISTRY: core.harbor.domain/threshold
   HARBOR_IP: 192.168.0.108
   HARBOR_CA_SHA256: 3f61f661906a658191c6cdf33b03d108bda9d2e635f7d894e34a403ee70cc4e9
-  GITOPS_REPO_SLUG: fbialogrecki/threshold-gitops
-  GITOPS_REPO_URL: https://github.com/fbialogrecki/threshold-gitops.git
+  GITOPS_REPO_SLUG: fbialogrecki/threshold
+  GITOPS_REPO_URL: https://github.com/fbialogrecki/threshold.git

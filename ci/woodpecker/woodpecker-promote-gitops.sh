@@ -80,8 +80,8 @@ assert_output() {
 
 self_test() {
   local tmp output resolved_digest_dir
-  export GITOPS_REPO_SLUG=test/threshold-gitops
-  export GITOPS_REPO_URL=https://github.com/test/threshold-gitops.git
+  export GITOPS_REPO_SLUG=test/threshold
+  export GITOPS_REPO_URL=https://github.com/test/threshold.git
   export IMAGE_REGISTRY=registry.example.test/threshold
   tmp=$(mktemp -d)
   trap "rm -rf -- '$tmp'" EXIT
@@ -149,9 +149,13 @@ self_test() {
 #!/usr/bin/env bash
 if [[ "$*" == *"api.github.com"* ]]; then
   [[ "$*" == *"Authorization: Bearer t"* ]] || exit 42
-  if [[ "$*" == *"-X POST"* ]]; then
+  if [[ "$*" == *"api.github.com/graphql"* ]]; then
+    [[ "$*" == *'"prId": "PR_test"'* ]] || exit 43
+    echo auto-merge >> "$WOODPECKER_TEST_LOG"
+    printf '%s\n' '{"data":{}}'
+  elif [[ "$*" == *"-X POST"* ]]; then
     echo pr-create >> "$WOODPECKER_TEST_LOG"
-    printf '%s\n' '{}'
+    printf '%s\n' '{"node_id":"PR_test"}'
   else
     echo pr-list >> "$WOODPECKER_TEST_LOG"
     printf '%s\n' '[]'
@@ -183,15 +187,17 @@ PY
     ;;
   clone:*)
     destination=${!#}
-    mkdir -p "$destination/infra/kustomize/overlays/local/users"
-    cat > "$destination/infra/kustomize/overlays/local/users/kustomization.yaml" <<'YAML'
+    for app in auth-gateway events media social users web; do
+      mkdir -p "$destination/infra/kustomize/overlays/local/$app"
+      cat > "$destination/infra/kustomize/overlays/local/$app/kustomization.yaml" <<YAML
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:
-  - name: threshold/users
-    newName: registry.example.test/threshold/users
+  - name: threshold/$app
+    newName: registry.example.test/threshold/$app
     newTag: old
 YAML
+    done
     echo clone >> "$WOODPECKER_TEST_LOG"
     ;;
   config:*) echo config >> "$WOODPECKER_TEST_LOG" ;;
@@ -215,7 +221,7 @@ YAML
   add:*) echo add >> "$WOODPECKER_TEST_LOG" ;;
   commit:*) echo commit >> "$WOODPECKER_TEST_LOG" ;;
   push:*)
-    echo push >> "$WOODPECKER_TEST_LOG"
+    printf 'push:%s\n' "${!#}" >> "$WOODPECKER_TEST_LOG"
     count_file="$WOODPECKER_TEST_LOG.pushes"
     count=0
     [[ ! -f "$count_file" ]] || count=$(<"$count_file")
@@ -277,8 +283,29 @@ EOF
 
   local full_log
   full_log=$(<"$tmp/sequence")
-  [[ "$full_log" == $'fetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush\npr-list\npr-create' ]] ||
+  [[ "$full_log" == $'fetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\npr-list\npr-create' ]] ||
     die "self-test failed: fresh retry did not reapply selected bumps"
+
+  : > "$tmp/sequence"
+  rm -f "$tmp/sequence.pushes"
+  HOME="$tmp/home" GIT_USERNAME=u GIT_TOKEN=t \
+    WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
+    WOODPECKER_IMAGE_DIGEST_DIR="$tmp/digests" \
+    WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/ca" \
+    WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
+    WOODPECKER_TEST_LOG="$tmp/sequence" RELEASE_TAG=v1.2.3 AUTO_MERGE=true \
+    CI_PIPELINE_EVENT=manual CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
+    CI_REPO=test/threshold \
+    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
+    "$SCRIPT_PATH" >/dev/null
+  [[ "$(<"$tmp/sequence")" == $'clone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/release/v1.2.3\npr-list\npr-create\nauto-merge' ]] ||
+    die "self-test failed: tagged release did not open an auto-merging release PR"
+
+  if RELEASE_TAG=latest CI_PIPELINE_EVENT=manual CI_COMMIT_BRANCH=main \
+    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
+    "$SCRIPT_PATH" >/dev/null 2>&1; then
+    die "self-test failed: non-SemVer release tag was accepted"
+  fi
 
   echo "self-test passed"
 }
@@ -391,6 +418,11 @@ fi
   die "CI_COMMIT_SHA must be a full 40-character SHA"
 [[ "${CI_COMMIT_BRANCH:-}" == "${CI_REPO_DEFAULT_BRANCH:-main}" ]] ||
   die "Promotion is only allowed from the default branch"
+release_tag=${RELEASE_TAG:-}
+[[ -z "$release_tag" || "$release_tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] ||
+  die "RELEASE_TAG must look like v1.2.3"
+[[ "${AUTO_MERGE:-false}" == true || "${AUTO_MERGE:-false}" == false ]] ||
+  die "AUTO_MERGE must be true or false"
 
 trap cleanup EXIT
 promotion_tmp=$(mktemp -d)
@@ -422,9 +454,16 @@ mapfile -t selected_apps < <(print_selected)
 image_tag=${CI_COMMIT_SHA}
 gitops_branch=${GITOPS_BRANCH:-main}
 gitops_repo_slug=${GITOPS_REPO_SLUG:?GITOPS_REPO_SLUG is required}
-promotion_branch="ci/promote-${CI_COMMIT_SHA:0:12}"
-
 apps_csv=$(IFS=,; echo "${selected_apps[*]}")
+if [[ -n "$release_tag" ]]; then
+  promotion_branch="release/$release_tag"
+  commit_message="chore(release): promote $apps_csv to $release_tag"
+  pr_title="Release $release_tag: promote digests"
+else
+  promotion_branch="ci/promote-${CI_COMMIT_SHA:0:12}"
+  commit_message="chore(gitops): promote $apps_csv from $image_tag"
+  pr_title="Promote $apps_csv from $image_tag"
+fi
 repo_url=${GITOPS_REPO_URL:?GITOPS_REPO_URL is required}
 image_registry=${IMAGE_REGISTRY:?IMAGE_REGISTRY is required}
 
@@ -478,24 +517,38 @@ promote_attempt() {
       diff_status=$?
       [[ "$diff_status" == 1 ]] || exit 1
     fi
-    "$GIT_BIN" commit -m "chore(gitops): promote $apps_csv from $image_tag" ||
-      exit 1
+    "$GIT_BIN" commit -m "$commit_message" || exit 1
     "$GIT_BIN" push --force origin "HEAD:refs/heads/$promotion_branch" || exit 1
 
     existing_pr=$("$CURL_BIN" --fail --silent --show-error \
       -H "Authorization: Bearer $GIT_TOKEN" \
       -H "Accept: application/vnd.github+json" \
       "https://api.github.com/repos/$gitops_repo_slug/pulls?state=open&base=$gitops_branch&head=${gitops_repo_slug%%/*}:$promotion_branch") || exit 1
-    pr_count=$(printf '%s' "$existing_pr" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))') || exit 1
-    if [[ "$pr_count" == 0 ]]; then
+    pr_node_id=$(printf '%s' "$existing_pr" | python3 -c 'import json,sys; prs=json.load(sys.stdin); print(prs[0]["node_id"] if prs else "")') || exit 1
+    if [[ -z "$pr_node_id" ]]; then
       pr_payload=$(python3 -c 'import json,sys; print(json.dumps({"title": sys.argv[1], "head": sys.argv[2], "base": sys.argv[3], "body": sys.argv[4]}))' \
-        "Promote $apps_csv from $image_tag" "$promotion_branch" "$gitops_branch" \
+        "$pr_title" "$promotion_branch" "$gitops_branch" \
         "Automated digest-only promotion for source commit $CI_COMMIT_SHA.") || exit 1
-      "$CURL_BIN" --fail --silent --show-error -X POST \
+      created_pr=$("$CURL_BIN" --fail --silent --show-error -X POST \
         -H "Authorization: Bearer $GIT_TOKEN" \
         -H "Accept: application/vnd.github+json" \
         -H "Content-Type: application/json" \
-        -d "$pr_payload" "https://api.github.com/repos/$gitops_repo_slug/pulls" >/dev/null || exit 1
+        -d "$pr_payload" "https://api.github.com/repos/$gitops_repo_slug/pulls") || exit 1
+      pr_node_id=$(printf '%s' "$created_pr" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("node_id", ""))') || exit 1
+    fi
+
+    if [[ "${AUTO_MERGE:-false}" == true ]]; then
+      [[ -n "$pr_node_id" ]] || { echo "GitHub did not return the PR node id" >&2; exit 1; }
+      merge_payload=$(python3 -c 'import json,sys; print(json.dumps({"query": "mutation($prId: ID!) { enablePullRequestAutoMerge(input: {pullRequestId: $prId, mergeMethod: SQUASH}) { clientMutationId } }", "variables": {"prId": sys.argv[1]}}, separators=(", ", ": ")))' \
+        "$pr_node_id") || exit 1
+      merge_result=$("$CURL_BIN" --fail --silent --show-error -X POST \
+        -H "Authorization: Bearer $GIT_TOKEN" \
+        -H "Content-Type: application/json" \
+        -d "$merge_payload" "https://api.github.com/graphql") || exit 1
+      printf '%s' "$merge_result" | python3 -c 'import json,sys; r=json.load(sys.stdin); sys.exit(1 if r.get("errors") else 0)' || {
+        echo "Enabling auto-merge failed: $merge_result" >&2
+        exit 1
+      }
     fi
   )
 }
