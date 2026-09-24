@@ -2,6 +2,7 @@
 
 import shlex
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,7 +12,7 @@ SCRIPT = OPS_DIR / "rotate-release-token-from-bitwarden.sh"
 # The harness runs a copy of the script from a temp dir, so point OPS_DIR back at
 # ops/ (for lib-local-env.sh) and at an empty local.env so no operator settings leak in.
 OPS_DIR_LINE = 'OPS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"\n'
-FAKE = r"""#!/usr/bin/python3
+FAKE = r"""#!{python}
 import os, pathlib, shutil, signal, subprocess, sys
 root = pathlib.Path(os.environ['FAKE_ROOT'])
 a = sys.argv[1:]
@@ -79,7 +80,9 @@ class RotationCleanup(unittest.TestCase):
             (unknown / "credential").write_text("other-owner-synthetic")
             for name in ("kubectl", "bao", "bw", "rm"):
                 p = root / "bin" / name
-                p.write_text(FAKE)
+                # Absolute interpreter path: images such as the uv one keep python in
+                # /usr/local/bin, which is not on the harness PATH.
+                p.write_text(FAKE.replace("{python}", sys.executable, 1))
                 p.chmod(0o700)
             (root / "local.env").write_text("")
             env = {
