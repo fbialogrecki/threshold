@@ -67,9 +67,9 @@ steps:
         from_secret: release_gitops_repo_url
       IMAGE_REGISTRY:
         from_secret: release_image_registry
-      # Switch to "true" once a release has gone through end to end with a
-      # hand-merged digest PR.
-      AUTO_MERGE: "false"
+      # Digest PRs merge themselves once ci-ok passes (enabled after v0.1.0
+      # went through end to end with a hand-merged PR).
+      AUTO_MERGE: "true"
     commands:
       - apk add --no-cache bash git curl
       - ci/woodpecker/woodpecker-promote-gitops.sh
