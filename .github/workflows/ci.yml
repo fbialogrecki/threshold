@@ -43,7 +43,7 @@ jobs:
             if printf '%s\n' "$files" | grep -Eq "^(\.github/|$1)"; then echo true; else echo false; fi
           }
           {
-            echo "python=$(touched 'services/|libs/py/|ci/|pyproject\.toml$|uv\.lock$|\.python-version$')"
+            echo "python=$(touched 'services/|libs/py/|ci/|infra/kustomize/base/|pyproject\.toml$|uv\.lock$|\.python-version$')"
             echo "web=$(touched 'apps/web/')"
             echo "containers=$(touched 'services/|libs/py/|apps/web/|pyproject\.toml$|uv\.lock$|\.python-version$|\.dockerignore$')"
             echo "infra=$(touched 'infra/|Taskfile\.yml$|\.gitleaks\.toml$')"
