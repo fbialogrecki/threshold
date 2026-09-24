@@ -53,7 +53,6 @@ from social.domain.models import (
     utc_now,
 )
 from social.erasure import fenced_erased_user_ids
-from social.events import publish_event
 from social.main_dependencies import get_db_session, settings
 from social.mentions import MentionCandidate, extract_mention_candidates
 from social.users_client import (
@@ -935,16 +934,6 @@ async def _create_post(
     session.commit()
     session.refresh(post)
     await _notify_mentions(resolved_mentions, actor=user, target_type="post", target_id=post.id)
-    await publish_event(
-        settings,
-        settings.post_created_subject,
-        {
-            "post_id": post.id,
-            "author_user_id": post.author_user_id,
-            "group_id": post.group_id,
-            "created_at": post.created_at.isoformat(),
-        },
-    )
     return _post_response(session, post, user.user_id)
 
 
@@ -1167,17 +1156,6 @@ def _attach_comment_mentions(comment: Comment, mentions: list[ResolvedMention]) 
 async def _notify_comment_created(
     *, post: Post, comment: Comment, actor: CurrentUser, mentions: list[ResolvedMention]
 ) -> None:
-    await publish_event(
-        settings,
-        settings.comment_created_subject,
-        {
-            "comment_id": comment.id,
-            "post_id": comment.post_id,
-            "parent_id": comment.parent_id,
-            "author_user_id": comment.author_user_id,
-            "created_at": comment.created_at.isoformat(),
-        },
-    )
     await create_notification(
         settings,
         recipient_user_id=post.author_user_id,
