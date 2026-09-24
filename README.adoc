@@ -111,7 +111,7 @@ Focused issues and pull requests are welcome. Keep changes inside the stated MVP
 
 Untrusted pull-request jobs run without release, registry-push, signing, Kubernetes, or GitOps credentials.
 
-Release publication is disabled until the separately reviewed trusted operator flow passes end-to-end acceptance. A manual Woodpecker run on `main` will deliberately fail the disabled release workflow; read the other validation workflows separately. The public source repository provides secretless validation; its Woodpecker release workflow does not request registry or GitOps writer credentials. GitOps state is maintained in a separate repository, not a private mirror of product source.
+The manual trusted release pipeline builds from the exact public commit, pushes immutable image digests, and opens a digest-only pull request in the GitOps repository. Product source is never synchronized through a private mirror. Release credentials and environment-specific values are configured only in the trusted Woodpecker installation.
 
 == Security
 
