@@ -40,7 +40,7 @@ Run from the repository root; `go-task --list` shows everything.
 
 ```bash
 go-task check                               # lint, typecheck, test, build
-go-task web:lint | web:typecheck | web:test | web:build
+go-task web:audit | web:lint | web:typecheck | web:test | web:build
 go-task py:lint | py:typecheck | py:test
 go-task service:test SERVICE=users          # also service:lint, service:dev
 go-task infra:check                         # render every kustomization, reject inline Secret data

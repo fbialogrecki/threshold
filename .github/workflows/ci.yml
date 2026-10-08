@@ -213,7 +213,7 @@ jobs:
           bun-version: 1.4.0
       - run: bun install --frozen-lockfile
         if: env.RUN == 'true'
-      - run: bun audit
+      - run: sh ../../ci/audit-web.sh
         if: env.RUN == 'true'
       - run: bun test
         if: env.RUN == 'true'
