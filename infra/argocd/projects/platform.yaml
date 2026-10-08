@@ -53,12 +53,6 @@ spec:
     # cert-manager leader-election Roles/RoleBindings land in kube-system.
     - server: https://kubernetes.default.svc
       namespace: kube-system
-    - server: https://kubernetes.default.svc
-      namespace: puter
-    - server: https://kubernetes.default.svc
-      namespace: infra
-    - server: https://kubernetes.default.svc
-      namespace: harbor
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace

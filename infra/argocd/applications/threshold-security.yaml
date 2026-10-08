@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/part-of: threshold
 spec:
-  project: platform
+  project: security
   source:
     repoURL: https://github.com/fbialogrecki/threshold.git
     targetRevision: main
