@@ -35,7 +35,7 @@ Platform:
 
 There is one Kustomize overlay, `local`. Separate staging and production overlays are deferred until there is a second environment to run them in.
 
-Argo CD manages the application services and most of the platform (ESO, CNPG operator, cert-manager, Barman Cloud plugin, NATS, SeaweedFS, observability, Woodpecker). OpenBao, Harbor and Authentik run in the cluster but are installed and upgraded outside Argo CD. `threshold-security` owns targeted NetworkPolicies, TLS additions and notification RBAC; partial server-side apply owns only Authentik server hostPort/seccomp and Puter portal token/seccomp fields. Preserve these overrides when upgrading their external installations.
+Argo CD manages the application services and most of the platform (ESO, CNPG operator, cert-manager, Barman Cloud plugin, NATS, SeaweedFS, observability, Woodpecker). OpenBao, Harbor and Authentik run in the cluster but are installed and upgraded outside Argo CD. `threshold-security` owns targeted NetworkPolicies, TLS additions and notification RBAC; partial server-side apply owns only Authentik server hostPort/seccomp fields. Preserve these overrides when upgrading their external installations.
 
 ## Component Layout
 

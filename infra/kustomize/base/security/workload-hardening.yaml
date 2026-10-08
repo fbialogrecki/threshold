@@ -18,18 +18,3 @@ spec:
           containerPort: 9000
           protocol: TCP
           hostPort: 0
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: puter-home
-  namespace: puter
-  annotations:
-    argocd.argoproj.io/sync-options: ServerSideApply=true,Validate=false,DisableClientSideApplyMigration=true,Prune=false
-spec:
-  template:
-    spec:
-      securityContext:
-        seccompProfile:
-          type: RuntimeDefault
-      automountServiceAccountToken: false
