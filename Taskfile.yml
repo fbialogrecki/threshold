@@ -77,6 +77,12 @@ tasks:
     cmds:
       - bun run start
 
+  web:audit:
+    desc: Audit web dependencies with the expiring advisory exception
+    dir: '{{.WEB_DIR}}'
+    cmds:
+      - sh ../../ci/audit-web.sh
+
   web:lint:
     desc: Run ESLint for web app
     dir: '{{.WEB_DIR}}'

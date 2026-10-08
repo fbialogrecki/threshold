@@ -5,8 +5,15 @@ metadata:
   labels:
     app.kubernetes.io/name: auth-gateway
     app.kubernetes.io/part-of: threshold
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: threshold-https-redirect@kubernetescrd
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - auth.internal
+      secretName: auth-internal-tls
   rules:
     - host: auth.internal
       http:

@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: security
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '-1'
+spec:
+  description: Targeted security policies and access overrides; no Secret or operator
+    ownership.
+  sourceRepos:
+  - https://github.com/fbialogrecki/threshold.git
+  destinations:
+  - server: https://kubernetes.default.svc
+    namespace: argocd
+  - server: https://kubernetes.default.svc
+    namespace: authentik
+  - server: https://kubernetes.default.svc
+    namespace: puter
+  - server: https://kubernetes.default.svc
+    namespace: threshold
+  - server: https://kubernetes.default.svc
+    namespace: observability
+  - server: https://kubernetes.default.svc
+    namespace: nats
+  - server: https://kubernetes.default.svc
+    namespace: infra
+  - server: https://kubernetes.default.svc
+    namespace: harbor
+  - server: https://kubernetes.default.svc
+    namespace: woodpecker
+  clusterResourceWhitelist:
+  - group: rbac.authorization.k8s.io
+    kind: ClusterRole
+  namespaceResourceWhitelist:
+  - group: apps
+    kind: Deployment
+  - group: cert-manager.io
+    kind: Certificate
+  - group: networking.k8s.io
+    kind: NetworkPolicy
+  - group: networking.k8s.io
+    kind: Ingress
+  - group: traefik.io
+    kind: Middleware
+  - group: traefik.io
+    kind: IngressRoute

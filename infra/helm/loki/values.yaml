@@ -3,7 +3,17 @@
 
 deploymentMode: SingleBinary
 
+rbac:
+  namespaced: true
+sidecar:
+  rules:
+    searchNamespace: observability
+    resource: configmap
+
 loki:
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
   auth_enabled: false
   commonConfig:
     replication_factor: 1

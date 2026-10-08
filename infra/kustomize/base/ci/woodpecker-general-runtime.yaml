@@ -19,6 +19,7 @@ metadata:
   labels:
     app.kubernetes.io/name: woodpecker-agent-workload
     app.kubernetes.io/part-of: threshold
+automountServiceAccountToken: false
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

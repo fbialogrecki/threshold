@@ -1,0 +1,83 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-internal-tls
+  namespace: observability
+spec:
+  secretName: grafana-internal-tls
+  dnsNames:
+  - grafana.internal
+  duration: 8760h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+  - server auth
+  issuerRef:
+    name: threshold-internal-ca
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: woodpecker-internal-tls
+  namespace: woodpecker
+spec:
+  secretName: woodpecker-internal-tls
+  dnsNames:
+  - woodpecker.internal
+  duration: 8760h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+  - server auth
+  issuerRef:
+    name: threshold-internal-ca
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: adguard-internal-tls
+  namespace: puter
+spec:
+  secretName: adguard-internal-tls
+  dnsNames:
+  - adguard.internal
+  duration: 8760h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+  - server auth
+  issuerRef:
+    name: threshold-internal-ca
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: auth-internal-tls
+  namespace: threshold
+spec:
+  secretName: auth-internal-tls
+  dnsNames:
+  - auth.internal
+  duration: 8760h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+  - server auth
+  issuerRef:
+    name: threshold-internal-ca
+    kind: ClusterIssuer
