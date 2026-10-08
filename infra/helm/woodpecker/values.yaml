@@ -1,7 +1,10 @@
 server:
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
   env:
     WOODPECKER_ADMIN: "fbialogrecki"
-    WOODPECKER_HOST: "http://woodpecker.internal"
+    WOODPECKER_HOST: "https://woodpecker.internal"
     WOODPECKER_GITHUB: "true"
     WOODPECKER_BACKEND_KUBERNETES: "true"
   extraSecretNamesForEnvFrom:
@@ -9,6 +12,13 @@ server:
   ingress:
     enabled: true
     ingressClassName: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+      traefik.ingress.kubernetes.io/router.middlewares: woodpecker-https-redirect@kubernetescrd
+    tls:
+      - hosts:
+          - woodpecker.internal
+        secretName: woodpecker-internal-tls
     hosts:
       - host: woodpecker.internal
         paths:
@@ -18,6 +28,9 @@ server:
               servicePort: 80
 
 agent:
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
   env:
     WOODPECKER_AGENT_CONFIG_FILE: ""
     WOODPECKER_SERVER: "woodpecker-server:9000"

@@ -8,6 +8,7 @@ metadata:
     app.kubernetes.io/part-of: threshold
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: threshold-https-redirect@kubernetescrd
 spec:
   ingressClassName: traefik
   tls:

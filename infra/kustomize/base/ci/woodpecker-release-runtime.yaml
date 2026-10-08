@@ -5,6 +5,9 @@ metadata:
   labels:
     app.kubernetes.io/name: woodpecker-release
     app.kubernetes.io/part-of: threshold
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
 ---
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
@@ -55,6 +58,13 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  name: woodpecker-release-agent
+  namespace: woodpecker
+automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
   name: default
   namespace: woodpecker-release
 automountServiceAccountToken: false
@@ -82,7 +92,7 @@ metadata:
   namespace: woodpecker-release
 subjects:
   - kind: ServiceAccount
-    name: woodpecker-agent
+    name: woodpecker-release-agent
     namespace: woodpecker
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -108,9 +118,11 @@ spec:
         app.kubernetes.io/name: woodpecker-release-agent
         app.kubernetes.io/part-of: threshold
     spec:
-      serviceAccountName: woodpecker-agent
+      serviceAccountName: woodpecker-release-agent
       securityContext:
         fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: agent
           image: docker.io/woodpeckerci/woodpecker-agent:v3.15.0@sha256:aecf04600c2f19c7ea79202177fadda8b8331d105ed981f0a8fd4725cf1df9e7

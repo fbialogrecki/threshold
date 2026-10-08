@@ -29,7 +29,9 @@ service:
 grafana.ini:
   server:
     domain: grafana.internal
-    root_url: http://grafana.internal/
+    root_url: https://grafana.internal/
+  security:
+    cookie_secure: true
 
 # Secret must be provided separately via OpenBao/ExternalSecrets before live deploy.
 admin:
@@ -59,11 +61,15 @@ datasources:
         access: proxy
         url: http://tempo.observability.svc.cluster.local:3200
 
+rbac:
+  namespaced: true
+
 sidecar:
   dashboards:
     enabled: true
     label: grafana_dashboard
     searchNamespace: observability
+    resource: configmap
 
 # Keep helm test hooks out of the ArgoCD render (no-op for live resources).
 testFramework:

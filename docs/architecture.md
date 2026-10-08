@@ -35,7 +35,7 @@ Platform:
 
 There is one Kustomize overlay, `local`. Separate staging and production overlays are deferred until there is a second environment to run them in.
 
-Argo CD manages the application services and most of the platform (ESO, CNPG operator, cert-manager, Barman Cloud plugin, NATS, SeaweedFS, observability, Woodpecker). OpenBao, Harbor and Authentik run in the cluster but are installed and upgraded outside Argo CD.
+Argo CD manages the application services and most of the platform (ESO, CNPG operator, cert-manager, Barman Cloud plugin, NATS, SeaweedFS, observability, Woodpecker). OpenBao, Harbor and Authentik run in the cluster but are installed and upgraded outside Argo CD. `threshold-security` owns targeted NetworkPolicies, TLS additions and notification RBAC; partial server-side apply owns only Authentik server hostPort/seccomp and Puter portal token/seccomp fields. Preserve these overrides when upgrading their external installations.
 
 ## Component Layout
 
@@ -91,6 +91,8 @@ flowchart TB
 - Browsers never receive S3 credentials, bucket names or raw object keys.
 - NATS Core carries request/reply and non-critical pub/sub. A flow that must not lose messages needs an outbox, retries and idempotent consumers before it relies on NATS.
 - Every service has a `NetworkPolicy`. An HTTP caller must be listed in the callee's policy; a missing entry shows up as a timeout, not a 403.
+- `threshold-security` restricts Puter/Grafana ingress to Traefik, NATS to service clients and nats-box, Dragonfly to Authentik, Harbor Redis to Harbor. Observability query/write/gossip stays inside observability; Threshold can send OTLP to the collector. Egress remains unchanged. Node-local/hostNetwork traffic and any routed traffic SNATed to the node are not a NetworkPolicy security boundary; host/NetBird filtering must cover those paths.
+- Grafana/Loki sidecars discover ConfigMaps only in observability; kube-state-metrics excludes Secrets. Notifications retain namespace-local secret access, not cluster-wide. General and release CI agents have separate service accounts and namespace-scoped job permissions.
 
 ## Service-To-Service Transports
 
@@ -155,6 +157,7 @@ sequenceDiagram
 ## Private DNS And TLS
 
 - AdGuard Home on the host serves `.internal` rewrites (`threshold.internal`, `argocd.internal`, `grafana.internal`, `authentik.internal`, `openbao.internal`, `woodpecker.internal`). `.local` is avoided because of mDNS. Clients must use AdGuard as their resolver.
+- HTTP for Grafana, AdGuard, Woodpecker, auth-gateway and Threshold redirects to HTTPS. The legacy Threshold IP entry redirects to its canonical HTTPS hostname. Woodpecker OAuth clients must allow `https://woodpecker.internal/authorize`; this does not expose the LAN service publicly.
 - cert-manager holds a private ECDSA root CA (`threshold-internal-ca`) and issues leaf certificates for the `.internal` hosts. Only the public root certificate is installed on clients. If the CA secret is lost, the root rotates and every client needs the new root.
 
 ## Product Rules That Shape The Architecture

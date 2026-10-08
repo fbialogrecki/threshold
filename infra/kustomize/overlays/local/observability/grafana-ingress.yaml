@@ -5,8 +5,15 @@ metadata:
   labels:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/part-of: threshold
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.middlewares: observability-https-redirect@kubernetescrd
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - grafana.internal
+      secretName: grafana-internal-tls
   rules:
     - host: grafana.internal
       http:
