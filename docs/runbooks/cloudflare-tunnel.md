@@ -66,6 +66,8 @@ The web deployment retains `AUTH_COOKIE_SECURE=true`, `WEB_TRUSTED_LAN_HTTP=fals
 
 ## Verification and completion
 
+Before activation, apply and verify the host's [NetBird mark-range override](netbird-kubernetes-fwmark.md). The default range collides with kube-router policy bits on this NUC and can bypass the connector's egress allowlist. A NetworkPolicy manifest or blocked private-service probe alone is not sufficient evidence.
+
 ```bash
 kubectl -n argocd get application threshold-cloudflared
 kubectl -n cloudflared get externalsecret cloudflared-token

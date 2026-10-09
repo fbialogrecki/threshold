@@ -162,6 +162,7 @@ The approved public path is Cloudflare HTTPS → `cloudflared` → `http://web.t
 
 ## Private DNS And TLS
 
+- The host's NetBird packet-mark range must not overlap kube-router or kube-proxy bits. The native `NB_FWMARK_BASE` override and live egress verification are described in [the host runbook](runbooks/netbird-kubernetes-fwmark.md); default NetBird routed-pod marks can bypass NetworkPolicy egress rules.
 - AdGuard Home on the host serves `.internal` rewrites (`threshold.internal`, `argocd.internal`, `grafana.internal`, `authentik.internal`, `openbao.internal`, `woodpecker.internal`). `.local` is avoided because of mDNS. Clients must use AdGuard as their resolver.
 - HTTP for Grafana, AdGuard, Woodpecker, auth-gateway and Threshold redirects to HTTPS. The legacy Threshold IP entry redirects to its canonical HTTPS hostname. Woodpecker OAuth clients must allow `https://woodpecker.internal/authorize`; this does not expose the LAN service publicly.
 - cert-manager holds a private ECDSA root CA (`threshold-internal-ca`) and issues leaf certificates for the `.internal` hosts. Only the public root certificate is installed on clients. If the CA secret is lost, the root rotates and every client needs the new root.
