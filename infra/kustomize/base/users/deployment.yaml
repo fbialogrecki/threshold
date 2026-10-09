@@ -52,6 +52,9 @@ spec:
                 name: users-auth
             - secretRef:
                 name: social-secrets
+            - secretRef:
+                name: users-email
+                optional: true
           env:
             - name: HOME
               value: /tmp

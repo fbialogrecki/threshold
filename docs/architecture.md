@@ -152,7 +152,7 @@ sequenceDiagram
 
 ## Email
 
-`users` sends product-auth email (verification, password reset) through Resend SMTP at `smtp.resend.com:587` with STARTTLS. Host, port and security mode are in `users-config`. Credentials and sender settings belong in OpenBao `threshold/users/email`; no `ExternalSecret` for them is in `infra/` yet, so SMTP is off in the cluster (`smtp_enabled` defaults to false).
+`users` sends product-auth email (verification, password reset) through Resend SMTP at `smtp.resend.com:587` with STARTTLS. Host, port, security mode and timeout are in `users-config`. `ExternalSecret/users-email` reads enabled, username, password, sender and public web host from OpenBao `threshold/users/email`; the users Deployment consumes that Secret through optional `envFrom`. ESO synchronizes in Argo's wave -1 before the users rollout. With no Secret, SMTP remains off by default; after provisioning, real register/verify/reset delivery still requires a maintainer smoke.
 
 ## Public Tunnel
 

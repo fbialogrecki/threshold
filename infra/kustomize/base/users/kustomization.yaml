@@ -5,6 +5,7 @@ resources:
   - configmap.yaml
   - external-secret.yaml
   - auth-external-secret.yaml
+  - email-external-secret.yaml
   - cnpg-backup-s3-external-secret.yaml
   - postgres-backup-objectstore.yaml
   - postgres-scheduled-backup.yaml

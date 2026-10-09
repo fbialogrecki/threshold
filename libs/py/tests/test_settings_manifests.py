@@ -34,9 +34,7 @@ NOT_DEPLOYED: dict[str, set[str]] = {
     "users": {
         # Set only while rotating the pepper.
         "THRESHOLD_AUTH_PASSWORD_PEPPER_PREVIOUS",
-        # SMTP credentials wait for ExternalSecret/users-email (open MVP gate in AGENTS.md).
-        "THRESHOLD_SMTP_USERNAME",
-        "THRESHOLD_SMTP_PASSWORD",
+        # SMTP uses the system trust store, not a private CA bundle.
         "THRESHOLD_SMTP_CA_FILE",
     },
 }
