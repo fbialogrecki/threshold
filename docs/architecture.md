@@ -154,6 +154,12 @@ sequenceDiagram
 
 `users` sends product-auth email (verification, password reset) through Resend SMTP at `smtp.resend.com:587` with STARTTLS. Host, port and security mode are in `users-config`. Credentials and sender settings belong in OpenBao `threshold/users/email`; no `ExternalSecret` for them is in `infra/` yet, so SMTP is off in the cluster (`smtp_enabled` defaults to false).
 
+## Public Tunnel
+
+`perlimen.com` is the approved hostname for a remotely managed Cloudflare Tunnel, with `cloudflared` owned by the `threshold-cloudflared` Argo CD Application. The connector reads OpenBao `secret/threshold/cloudflared` property `token` through ESO and a read-only Secret volume; credentials never appear in command arguments or git.
+
+The approved public path is Cloudflare HTTPS → `cloudflared` → `http://web.threshold.svc.cluster.local:80`. It deliberately bypasses private Traefik redirects. NetworkPolicy allows the connector to reach only web pods, cluster DNS and Cloudflare's global IPv4 tunnel edges on TCP/UDP 7844. No admin, backend API, webhook or private-network routes are approved. LAN ingress remains unchanged. See [the activation and verification runbook](runbooks/cloudflare-tunnel.md); deployment alone does not prove that the tunnel or public hostname works.
+
 ## Private DNS And TLS
 
 - AdGuard Home on the host serves `.internal` rewrites (`threshold.internal`, `argocd.internal`, `grafana.internal`, `authentik.internal`, `openbao.internal`, `woodpecker.internal`). `.local` is avoided because of mDNS. Clients must use AdGuard as their resolver.
