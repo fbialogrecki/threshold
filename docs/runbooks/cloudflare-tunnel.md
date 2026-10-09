@@ -15,7 +15,7 @@ The image is pinned to `2026.10.0` and a digest. Automatic updates and optional 
 ## Create the remotely managed tunnel
 
 1. Verify that `perlimen.com` is Active in Cloudflare.
-2. In Cloudflare **Networking → Tunnels**, create a Cloudflared tunnel named `perlimen-nuc`.
+2. In Cloudflare **Networking → Tunnels**, use the existing Cloudflared tunnel `perlimen-puter`. For a fresh installation, create it before provisioning the connector token.
 3. Select Docker and copy only the token from the generated command. Do not run the command: GitOps owns the connector.
 4. Do not add a published route until the connector is healthy.
 5. Keep the token in the maintainer's password manager and OpenBao; never in chat, shell arguments/history, git, PRs or Kanban.
