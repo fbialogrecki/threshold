@@ -120,7 +120,7 @@ The local technical MVP is live on the NUC: `web`, `auth-gateway`, `users`, `soc
 
 Open MVP gates:
 
-1. `users-email` wiring: `infra/` has the SMTP ConfigMap values but no `ExternalSecret/users-email` or Deployment reference. Restore it, then the maintainer seeds OpenBao and verifies real register/verify/reset delivery.
+1. Resend delivery: `ExternalSecret/users-email` and the users Deployment reference are wired. The maintainer verifies real register/verify/reset delivery after seeding OpenBao `threshold/users/email`.
 2. The maintainer runs the disposable-account product-auth smoke. Internal admin SSO QA waits for trusted HTTPS on the Authentik chain.
 3. Confirm web memory stays stable (the earlier recurring OOM) before calling the cluster clean.
 

@@ -104,4 +104,12 @@ In OpenBao KV mount `secret`, key `threshold/users/email`, set these string prop
 
 The existing ConfigMap selects `smtp.resend.com:587`, STARTTLS and a 10-second timeout. Do not disable TLS verification.
 
-**The email wiring is still pending:** `ExternalSecret/users-email` and the users Deployment reference must be restored by the separate Kanban prerequisite before this KV key enables sending. After that change, require ESO Ready, a users rollout and real register → verify → password-reset → login delivery smoke. The tunnel PR does not enable or claim to verify email delivery.
+`ExternalSecret/users-email` materializes these five properties, and the users Deployment reads it through optional `envFrom`. The email ExternalSecret synchronizes before the rollout; a missing or incomplete OpenBao record keeps that sync wave blocked without replacing the running users pod. If an existing pod started before the Secret existed or after credentials changed, wait for ESO Ready and restart only users to reload its environment.
+
+```bash
+kubectl -n threshold annotate externalsecret users-email force-sync="$(date +%s)" --overwrite
+kubectl -n threshold wait --for=condition=Ready externalsecret/users-email --timeout=120s
+kubectl -n threshold rollout status deployment/users --timeout=180s
+```
+
+Require real register → verify → password-reset → login delivery smoke before closing the Resend card. ESO readiness, a healthy pod or SMTP authentication alone does not prove message delivery or working links.
