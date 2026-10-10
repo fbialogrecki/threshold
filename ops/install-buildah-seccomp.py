@@ -7,13 +7,14 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import Any
 
 PROFILE = Path("/var/lib/kubelet/seccomp/perlimen/buildah.json")
 # Buildah 1.43's rootless setup and chroot runner need only these namespaces.
 NAMESPACES = 0x10000000 | 0x00020000 | 0x04000000  # user, mount, UTS
 
 
-def buildah_profile(default: dict) -> dict:
+def buildah_profile(default: dict[str, Any]) -> dict[str, Any]:
     if default.get("defaultAction") != "SCMP_ACT_ERRNO":
         raise ValueError("expected a default-deny runtime profile")
     profile = copy.deepcopy(default)
@@ -39,8 +40,9 @@ def buildah_profile(default: dict) -> dict:
     return profile
 
 
-def read_json(*command: str) -> dict:
-    return json.loads(subprocess.check_output(command, text=True))
+def read_json(*command: str) -> dict[str, Any]:
+    result: dict[str, Any] = json.loads(subprocess.check_output(command, text=True))
+    return result
 
 
 def main() -> None:
