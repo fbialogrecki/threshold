@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
+import { AuthShell } from "@/components/auth/auth-shell"
 import { VerifyEmailForm } from "@/components/auth/verify-email-form"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,8 +18,8 @@ export default async function VerifyEmailPage({
 }) {
   const { token } = await searchParams
   return (
-    <main className="flex min-h-screen items-center justify-center bg-pitch px-6 text-raw-white">
+    <AuthShell>
       <VerifyEmailForm token={token ?? null} />
-    </main>
+    </AuthShell>
   )
 }

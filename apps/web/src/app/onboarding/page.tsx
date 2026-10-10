@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server"
 import { redirect } from "next/navigation"
 
 import { auth } from "@/auth"
-import { LocaleSwitcher } from "@/components/i18n/locale-switcher"
+import { AuthShell } from "@/components/auth/auth-shell"
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard"
 import {
   authenticatedHref,
@@ -32,22 +32,21 @@ export default async function OnboardingPage({
   const t = await getTranslations("onboarding")
 
   return (
-    <main className="min-h-screen bg-pitch px-4 py-10 text-raw-white sm:px-8">
-      <div className="mx-auto w-full max-w-2xl">
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="font-display text-5xl tracking-wide">{t("title")}</h1>
-          <LocaleSwitcher />
-        </div>
-        <p className="mt-2 font-mono text-[11px] uppercase tracking-label text-muted">
+    <AuthShell>
+      <div className="@container w-full max-w-3xl">
+        <h1 className="animate-rise font-display text-[min(12cqi,4.5rem)] leading-[0.9]">
+          {t("title")}
+        </h1>
+        <p className="mt-3 animate-rise text-[17px] leading-7 text-dim-white [animation-delay:80ms]">
           {t("subtitle")}
         </p>
-        <div className="mt-8">
+        <div className="mt-8 animate-rise [animation-delay:160ms]">
           <OnboardingWizard
             defaultNickname={session.user.username ?? ""}
             callbackUrl={safeCallback}
           />
         </div>
       </div>
-    </main>
+    </AuthShell>
   )
 }
