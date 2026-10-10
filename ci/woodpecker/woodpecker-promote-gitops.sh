@@ -4,7 +4,6 @@ set -euo pipefail
 readonly SCRIPT_PATH=$(realpath "$0")
 readonly SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 readonly BUMP_HELPER="$SCRIPT_DIR/bump-service-gitops.py"
-readonly BACKENDS=(auth-gateway events media social users)
 readonly APPLICATIONS=(auth-gateway events media social users web)
 readonly GIT_BIN=${WOODPECKER_GIT_BIN:-git}
 readonly CURL_BIN=${WOODPECKER_CURL_BIN:-curl}
@@ -20,62 +19,8 @@ die() {
 }
 
 usage() {
-  echo "usage: $0 [--dry-run] [--changed-files <file>] [--self-test]" >&2
+  echo "usage: $0 [--dry-run] [--self-test]" >&2
   exit 2
-}
-
-select_backends() {
-  local app
-  for app in "${BACKENDS[@]}"; do
-    selected["$app"]=1
-  done
-}
-
-select_all() {
-  local app
-  for app in "${APPLICATIONS[@]}"; do
-    selected["$app"]=1
-  done
-}
-
-map_path() {
-  local path=$1 app
-
-  case "$path" in
-    services/auth-gateway/*) selected[auth-gateway]=1 ;;
-    services/events/*) selected[events]=1 ;;
-    services/media/*) selected[media]=1 ;;
-    services/social/*) selected[social]=1 ;;
-    services/users/*) selected[users]=1 ;;
-    apps/web/*) selected[web]=1 ;;
-    libs/py/*|pyproject.toml|uv.lock|.python-version|.woodpecker/python-quality.yml)
-      select_backends
-      ;;
-    ci/woodpecker/woodpecker-build-push.sh|ci/woodpecker/woodpecker-promote-gitops.sh|ci/woodpecker/bump-service-gitops.py|ci/woodpecker/verify_main_ci.py|.woodpecker/deploy.yml|.woodpecker/release.yml|.dockerignore)
-      select_all
-      ;;
-    .woodpecker/auth-gateway.yml|.woodpecker/events.yml|.woodpecker/media.yml|.woodpecker/social.yml|.woodpecker/users.yml|.woodpecker/web.yml)
-      app=${path##*/}
-      selected["${app%.yml}"]=1
-      ;;
-  esac
-}
-
-print_selected() {
-  local app
-  for app in "${APPLICATIONS[@]}"; do
-    [[ -v "selected[$app]" ]] && printf '%s\n' "$app"
-  done
-  return 0
-}
-
-assert_output() {
-  local name=$1 fixture=$2 expected=$3 output
-  output=$(CI_PIPELINE_EVENT=push \
-    CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
-    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
-    "$SCRIPT_PATH" --dry-run --changed-files "$fixture")
-  [[ "$output" == "$expected" ]] || die "self-test failed: $name"
 }
 
 self_test() {
@@ -86,58 +31,22 @@ self_test() {
   tmp=$(mktemp -d)
   trap "rm -rf -- '$tmp'" EXIT
 
-  printf 'services/users/src/users/main.py\n' > "$tmp/users"
-  assert_output users-only "$tmp/users" users
-  output=$(WOODPECKER_GIT_BIN=/bin/false WOODPECKER_CURL_BIN=/bin/false \
-    CI_PIPELINE_EVENT=push \
-    CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
+  output=$(CI_PIPELINE_EVENT=push CI_COMMIT_BRANCH=main \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
-    "$SCRIPT_PATH" --dry-run --changed-files "$tmp/users")
-  [[ "$output" == users ]] || die "self-test failed: dry-run attempted external commands"
-
-  printf 'apps/web/src/app/page.tsx\n' > "$tmp/web"
-  assert_output web-only "$tmp/web" web
-
-  printf 'libs/py/perlimen_common/nats.py\n' > "$tmp/libs-py"
-  assert_output libs-py "$tmp/libs-py" $'auth-gateway\nevents\nmedia\nsocial\nusers'
-
-  printf 'ci/woodpecker/woodpecker-build-push.sh\n' > "$tmp/build-helper"
-  assert_output build-helper "$tmp/build-helper" $'auth-gateway\nevents\nmedia\nsocial\nusers\nweb'
-
-  printf '.woodpecker/users.yml\n' > "$tmp/workflow"
-  assert_output workflow-control "$tmp/workflow" users
-
-  printf '.woodpecker/python-quality.yml\n' > "$tmp/python-quality"
-  assert_output python-quality "$tmp/python-quality" $'auth-gateway\nevents\nmedia\nsocial\nusers'
-
-  for fixture in ci/woodpecker/woodpecker-promote-gitops.sh ci/woodpecker/bump-service-gitops.py ci/woodpecker/verify_main_ci.py .woodpecker/deploy.yml .woodpecker/release.yml .dockerignore; do
-    printf '%s\n' "$fixture" > "$tmp/all-control"
-    assert_output "$fixture" "$tmp/all-control" $'auth-gateway\nevents\nmedia\nsocial\nusers\nweb'
-  done
-
-  printf '.woodpecker/services.yml\n' > "$tmp/legacy-workflow"
-  assert_output legacy-workflow-removed "$tmp/legacy-workflow" ""
-
-  printf 'infra/kustomize/overlays/local/users/kustomization.yaml\n' > "$tmp/digest-promotion"
-  assert_output no-promotion-loop "$tmp/digest-promotion" ""
-  printf 'docs/release-and-deploy.md\n' > "$tmp/docs"
-  assert_output docs-no-publication "$tmp/docs" ""
-
-  output=$(CI_PIPELINE_EVENT=manual "$SCRIPT_PATH" --dry-run)
+    "$SCRIPT_PATH" --dry-run)
   [[ "$output" == $'auth-gateway\nevents\nmedia\nsocial\nusers\nweb' ]] ||
-    die "self-test failed: manual-all"
-
-  if CI_PIPELINE_EVENT=push CI_PREV_COMMIT_SHA=invalid \
-    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
-    "$SCRIPT_PATH" --dry-run --changed-files "$tmp/users" >/dev/null 2>&1; then
-    die "self-test failed: invalid SHA was accepted"
-  fi
-
-  if CI_PIPELINE_EVENT=push \
-    CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
+    die "self-test failed: consistent full image set"
+  for event in manual pull_request tag; do
+    if CI_PIPELINE_EVENT="$event" CI_COMMIT_BRANCH=main \
+      CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
+      "$SCRIPT_PATH" --dry-run >/dev/null 2>&1; then
+      die "self-test failed: non-push event accepted"
+    fi
+  done
+  if CI_PIPELINE_EVENT=push CI_COMMIT_BRANCH=feature \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" --dry-run >/dev/null 2>&1; then
-    die "self-test failed: unavailable diff was accepted"
+    die "self-test failed: non-main branch accepted"
   fi
 
   mkdir "$tmp/home" "$tmp/digests"
@@ -174,22 +83,6 @@ EOF
   cat > "$tmp/git" <<'EOF'
 #!/usr/bin/env bash
 case "${1:-}:${2:-}:${3:-}" in
-  fetch:*)
-    printf 'fetch:%s\n' "${!#}" >> "$WOODPECKER_TEST_LOG"
-    ;;
-  show:*)
-    echo show >> "$WOODPECKER_TEST_LOG"
-    cat <<'PY'
-import os
-import sys
-from pathlib import Path
-
-with Path(os.environ["WOODPECKER_TEST_LOG"]).open("a") as log:
-    service = sys.argv[sys.argv.index("--service") + 1]
-    tag = sys.argv[sys.argv.index("--tag") + 1]
-    log.write(f"invoke:{__file__}:{service}:{tag}\n")
-PY
-    ;;
   clone:*)
     destination=${!#}
     for app in auth-gateway events media social users web; do
@@ -214,15 +107,6 @@ YAML
     echo worktree-diff >> "$WOODPECKER_TEST_LOG"
     printf 'infra/kustomize/overlays/local/users/kustomization.yaml\n'
     ;;
-  diff:*)
-    echo diff >> "$WOODPECKER_TEST_LOG"
-    [[ "${WOODPECKER_TEST_FAIL_DIFF:-0}" == 0 ]] || exit 1
-    if [[ "${WOODPECKER_TEST_FULL_PATH:-0}" == 1 ]]; then
-      printf 'services/users/src/users/main.py\n'
-    else
-      printf 'docs/no-application-change.md\n'
-    fi
-    ;;
   add:*) echo add >> "$WOODPECKER_TEST_LOG" ;;
   commit:*) echo commit >> "$WOODPECKER_TEST_LOG" ;;
   push:*)
@@ -245,39 +129,17 @@ EOF
     WOODPECKER_IMAGE_DIGEST_DIR="$tmp/digests" \
     WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/ca" \
     WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
-    WOODPECKER_TEST_LOG="$tmp/sequence" WOODPECKER_TEST_FULL_PATH=1 \
+    WOODPECKER_TEST_LOG="$tmp/sequence" AUTO_MERGE=true \
     WOODPECKER_TEST_PUSH_FAILURES=1 \
     CI_PIPELINE_EVENT=push CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
     CI_REPO=test/perlimen \
-    CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" >/dev/null
 
   local full_log
   full_log=$(<"$tmp/sequence")
-  [[ "$full_log" == $'clone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\npr-list\npr-create' ]] ||
+  [[ "$full_log" == $'clone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\npr-list\npr-create\nauto-merge' ]] ||
     die "self-test failed: fresh retry did not reapply selected bumps"
-
-  : > "$tmp/sequence"
-  rm -f "$tmp/sequence.pushes"
-  HOME="$tmp/home" GIT_USERNAME=u GIT_TOKEN=t \
-    WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
-    WOODPECKER_IMAGE_DIGEST_DIR="$tmp/digests" \
-    WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/ca" \
-    WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
-    WOODPECKER_TEST_LOG="$tmp/sequence" RELEASE_TAG=v1.2.3 AUTO_MERGE=true \
-    CI_PIPELINE_EVENT=manual CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
-    CI_REPO=test/perlimen \
-    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
-    "$SCRIPT_PATH" >/dev/null
-  [[ "$(<"$tmp/sequence")" == $'clone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/release/v1.2.3\npr-list\npr-create\nauto-merge' ]] ||
-    die "self-test failed: tagged release did not open an auto-merging release PR"
-
-  if RELEASE_TAG=latest CI_PIPELINE_EVENT=manual CI_COMMIT_BRANCH=main \
-    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
-    "$SCRIPT_PATH" >/dev/null 2>&1; then
-    die "self-test failed: non-SemVer release tag was accepted"
-  fi
 
   echo "self-test passed"
 }
@@ -330,71 +192,25 @@ load_release_config() {
 }
 
 dry_run=0
-changed_files_file=
-self_test_requested=0
-
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run) dry_run=1 ;;
-    --changed-files)
-      [[ $# -ge 2 ]] || usage
-      changed_files_file=$2
-      shift
-      ;;
-    --self-test) self_test_requested=1 ;;
+    --self-test) self_test; exit 0 ;;
     *) usage ;;
   esac
   shift
 done
 
-[[ -z "$changed_files_file" || "$dry_run" == 1 ]] ||
-  die "--changed-files requires --dry-run"
-
-if [[ "$self_test_requested" == 1 ]]; then
-  [[ "$dry_run" == 0 && -z "$changed_files_file" ]] || usage
-  self_test
-  exit 0
-fi
-
-declare -A selected=()
-event=${CI_PIPELINE_EVENT:-}
-
-case "$event" in
-  manual)
-    [[ -z "$changed_files_file" ]] || die "--changed-files is only valid for push events"
-    select_all
-    ;;
-  push)
-    [[ "${CI_PREV_COMMIT_SHA:-}" =~ ^[0-9a-fA-F]{40}$ ]] ||
-      die "CI_PREV_COMMIT_SHA must be a full 40-character SHA"
-    [[ "${CI_COMMIT_SHA:-}" =~ ^[0-9a-fA-F]{40}$ ]] ||
-      die "CI_COMMIT_SHA must be a full 40-character SHA"
-
-    if [[ "$dry_run" == 1 ]]; then
-      [[ -n "$changed_files_file" && -f "$changed_files_file" ]] ||
-        die "Dry-run push requires an available --changed-files fixture"
-      while IFS= read -r path; do
-        [[ -z "$path" ]] || map_path "$path"
-      done < "$changed_files_file"
-    fi
-    ;;
-  *) die "CI_PIPELINE_EVENT must be push or manual" ;;
-esac
-
-if [[ "$dry_run" == 1 ]]; then
-  print_selected
-  exit 0
-fi
-
-[[ -n "${CI_COMMIT_SHA:-}" && "$CI_COMMIT_SHA" =~ ^[0-9a-fA-F]{40}$ ]] ||
-  die "CI_COMMIT_SHA must be a full 40-character SHA"
-[[ "${CI_COMMIT_BRANCH:-}" == "${CI_REPO_DEFAULT_BRANCH:-main}" ]] ||
-  die "Promotion is only allowed from the default branch"
-release_tag=${RELEASE_TAG:-}
-[[ -z "$release_tag" || "$release_tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] ||
-  die "RELEASE_TAG must look like v1.2.3"
+[[ "${CI_PIPELINE_EVENT:-}" == push ]] || die "Promotion requires a push event"
+[[ "${CI_COMMIT_BRANCH:-}" == main ]] || die "Promotion requires main"
+[[ "${CI_COMMIT_SHA:-}" =~ ^[0-9a-f]{40}$ ]] || die "CI_COMMIT_SHA must be a full SHA"
 [[ "${AUTO_MERGE:-false}" == true || "${AUTO_MERGE:-false}" == false ]] ||
   die "AUTO_MERGE must be true or false"
+
+if [[ "$dry_run" == 1 ]]; then
+  printf '%s\n' "${APPLICATIONS[@]}"
+  exit 0
+fi
 
 trap cleanup EXIT
 promotion_tmp=$(mktemp -d)
@@ -405,29 +221,15 @@ image_digest_dir=$(resolve_digest_dir "$IMAGE_DIGEST_DIR")
 load_release_config
 configure_credentials
 
-# CI_PREV_COMMIT_SHA can belong to a PR, not the preceding main tree.
-# The main-push workflow selects source changes; publish one consistent image set.
-select_all
-
-mapfile -t selected_apps < <(print_selected)
-[[ ${#selected_apps[@]} -gt 0 ]] || {
-  echo "No applications selected for promotion."
-  exit 0
-}
+selected_apps=("${APPLICATIONS[@]}")
 
 image_tag=${CI_COMMIT_SHA}
 gitops_branch=${GITOPS_BRANCH:-main}
 gitops_repo_slug=${GITOPS_REPO_SLUG:?GITOPS_REPO_SLUG is required}
 apps_csv=$(IFS=,; echo "${selected_apps[*]}")
-if [[ -n "$release_tag" ]]; then
-  promotion_branch="release/$release_tag"
-  commit_message="chore(release): promote $apps_csv to $release_tag"
-  pr_title="Release $release_tag: promote digests"
-else
-  promotion_branch="ci/promote-${CI_COMMIT_SHA:0:12}"
-  commit_message="chore(gitops): promote $apps_csv from $image_tag"
-  pr_title="Promote $apps_csv from $image_tag"
-fi
+promotion_branch="ci/promote-${CI_COMMIT_SHA:0:12}"
+commit_message="chore(gitops): promote $apps_csv from $image_tag"
+pr_title="Promote $apps_csv from $image_tag"
 repo_url=${GITOPS_REPO_URL:?GITOPS_REPO_URL is required}
 image_registry=${IMAGE_REGISTRY:?IMAGE_REGISTRY is required}
 

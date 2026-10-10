@@ -9,6 +9,7 @@ usage() {
 
 self_test() {
   local tmp output auth_file line
+  export CI_PIPELINE_EVENT=push
   tmp=$(mktemp -d)
   trap "rm -rf -- '$tmp'" EXIT
   mkdir -p "$tmp/repo/context"
@@ -23,19 +24,19 @@ self_test() {
     "build registry.example.test/threshold/users:2222222222222222222222222222222222222222 from Dockerfile with context context" ]] ||
     { echo "self-test failed: dry-run attempted side effects" >&2; exit 1; }
 
-  output=$(cd "$tmp/repo" && WOODPECKER_DRY_RUN=1 REGISTRY=registry.example.test \
-    WOODPECKER_CURL_BIN=/bin/false WOODPECKER_BUILDAH_BIN=/bin/false \
-    CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main RELEASE_TAG=v1.2.3 \
-    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
-    "$SCRIPT_PATH" users Dockerfile context)
-  [[ "$output" == *" also tagged registry.example.test/threshold/users:v1.2.3" ]] ||
-    { echo "self-test failed: release tag was not applied" >&2; exit 1; }
-
+  for event in manual pull_request tag; do
+    if (cd "$tmp/repo" && WOODPECKER_DRY_RUN=1 REGISTRY=registry.example.test \
+      CI_PIPELINE_EVENT="$event" CI_COMMIT_BRANCH=main \
+      CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
+      "$SCRIPT_PATH" users Dockerfile context >/dev/null 2>&1); then
+      echo "self-test failed: non-push publication accepted" >&2
+      exit 1
+    fi
+  done
   if (cd "$tmp/repo" && WOODPECKER_DRY_RUN=1 REGISTRY=registry.example.test \
-    CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main RELEASE_TAG=latest \
-    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
+    CI_COMMIT_BRANCH=feature CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" users Dockerfile context >/dev/null 2>&1); then
-    echo "self-test failed: non-SemVer release tag was accepted" >&2
+    echo "self-test failed: non-main publication accepted" >&2
     exit 1
   fi
 
@@ -160,7 +161,11 @@ KUBE_NAMESPACE_FILE=${WOODPECKER_KUBE_NAMESPACE_FILE:-/var/run/secrets/kubernete
 RELEASE_CONFIG_NAME=${WOODPECKER_RELEASE_CONFIG_NAME:-woodpecker-release-config}
 IMAGE_DIGEST_DIR=${WOODPECKER_IMAGE_DIGEST_DIR:-.woodpecker-digests}
 
-[[ "${CI_COMMIT_BRANCH:-}" == "${CI_REPO_DEFAULT_BRANCH:-main}" ]] || {
+[[ "${CI_PIPELINE_EVENT:-}" == push ]] || {
+  echo "Build/push is allowed only for push events" >&2
+  exit 1
+}
+[[ "${CI_COMMIT_BRANCH:-}" == main ]] || {
   echo "Build/push is allowed only from the default branch" >&2
   exit 1
 }
@@ -211,19 +216,10 @@ done
 
 IMAGE_TAG=${CI_COMMIT_SHA}
 IMAGE="$REGISTRY/$IMAGE_NAMESPACE/$SERVICE:$IMAGE_TAG"
-RELEASE_IMAGE=
-if [[ -n "${RELEASE_TAG:-}" ]]; then
-  [[ "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
-    echo "RELEASE_TAG must look like v1.2.3" >&2
-    exit 1
-  }
-  RELEASE_IMAGE="$REGISTRY/$IMAGE_NAMESPACE/$SERVICE:$RELEASE_TAG"
-fi
 
 if [[ "$WOODPECKER_DRY_RUN" == 1 ]]; then
   printf 'build %s from %s with context %s' "$IMAGE" "$DOCKERFILE" "$BUILD_CONTEXT"
   [[ -z "$CACHE_REFERENCE" ]] || printf ' using cache %s' "$CACHE_REFERENCE"
-  [[ -z "$RELEASE_IMAGE" ]] || printf ' also tagged %s' "$RELEASE_IMAGE"
   printf '\n'
   exit 0
 fi
@@ -300,10 +296,3 @@ digest=$(<"$digest_tmp")
 install -d -m 0700 "$IMAGE_DIGEST_DIR"
 printf '%s\n' "$digest" > "$IMAGE_DIGEST_DIR/$SERVICE.digest"
 echo "Pushed $IMAGE@$digest"
-if [[ -n "$RELEASE_IMAGE" ]]; then
-  # Harbor keeps v* tags immutable, so a second push of the same version fails
-  # here instead of silently moving the tag.
-  "$BUILDAH_BIN" tag --storage-driver=vfs "$IMAGE" "$RELEASE_IMAGE"
-  "$BUILDAH_BIN" push --storage-driver=vfs --tls-verify=true "$RELEASE_IMAGE"
-  echo "Pushed $RELEASE_IMAGE"
-fi

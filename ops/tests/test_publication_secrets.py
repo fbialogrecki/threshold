@@ -50,8 +50,8 @@ class PublicationSecretTests(unittest.TestCase):
                 check=True,
             )
             records = [json.loads(line) for line in (tmp / "log").read_text().splitlines()]
-            self.assertEqual(len(records), 11)
-            self.assertEqual(len({record["name"] for record in records}), 11)
+            self.assertEqual(len(records), 9)
+            self.assertEqual(len({record["name"] for record in records}), 9)
             for record in records:
-                self.assertEqual(record["events"], ["push", "manual"])
+                self.assertEqual(record["events"], ["push"])
                 self.assertFalse(Path(record["value_file"]).exists())
