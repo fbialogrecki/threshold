@@ -1,5 +1,6 @@
 "use client"
 
+import { Check, Plus } from "@phosphor-icons/react"
 import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
@@ -76,19 +77,20 @@ export function FollowButton({
         aria-describedby={error ? `profile-follow-error-${handle}` : undefined}
         disabled={pending}
         className={cn(
-          "border px-4 py-2 font-mono text-xs uppercase tracking-label transition-colors disabled:opacity-50",
+          "inline-flex min-h-11 items-center gap-2 rounded-control border px-5 text-[15px] font-semibold transition-[color,background-color,border-color,scale] duration-150 ease-press active:scale-[0.97] disabled:opacity-60",
           following
-            ? "border-acid bg-acid text-pitch"
-            : "border-acid text-acid hover:bg-acid hover:text-pitch",
+            ? "border-acid/50 bg-acid/10 text-acid hover:border-acid"
+            : "border-acid bg-acid text-pitch hover:bg-acid-bright",
         )}
       >
+        {following ? <Check size={16} weight="bold" aria-hidden /> : <Plus size={16} weight="bold" aria-hidden />}
         {following ? t("following") : t("follow")}
       </button>
       {error ? (
         <p
           id={`profile-follow-error-${handle}`}
           role="alert"
-          className="max-w-56 text-xs leading-5 text-error"
+          className="max-w-64 text-sm leading-5 text-orange"
         >
           {error}
         </p>

@@ -1,6 +1,9 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { useCallback, useEffect, useRef, useState } from "react"
+
+import { Button } from "@/components/ui/button"
 
 type Crop = { x: number; y: number; size: number }
 
@@ -17,6 +20,7 @@ export function AvatarCropModal({
   onConfirm: (blob: Blob) => void
   onCancel: () => void
 }) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement | null>(null)
   const [imgLoaded, setImgLoaded] = useState(false)
@@ -25,6 +29,14 @@ export function AvatarCropModal({
   const [dispH, setDispH] = useState(0)
   const dragRef = useRef<"move" | "resize" | null>(null)
   const dragStartRef = useRef<{ mx: number; my: number; cx: number; cy: number; cs: number } | null>(null)
+  const t = useTranslations("settings.crop")
+
+  useEffect(() => {
+    if (!imgLoaded) return
+    const dialog = dialogRef.current
+    dialog?.showModal()
+    return () => dialog?.close()
+  }, [imgLoaded])
 
   // Load image
   useEffect(() => {
@@ -42,7 +54,7 @@ export function AvatarCropModal({
   useEffect(() => {
     if (!imgLoaded || !imgRef.current) return
     const img = imgRef.current
-    const maxDim = 480
+    const maxDim = Math.max(MIN_SIZE, Math.min(480, document.documentElement.clientWidth - 96))
     const ratio = Math.min(maxDim / img.width, maxDim / img.height, 1)
     const w = Math.round(img.width * ratio)
     const h = Math.round(img.height * ratio)
@@ -172,20 +184,28 @@ export function AvatarCropModal({
   if (!imgLoaded) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-        <p className="font-mono text-sm text-muted">Loading image…</p>
+        <p role="status" className="text-sm text-dim-white">{t("loading")}</p>
       </div>
     )
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onClick={onCancel}>
+    <dialog
+      ref={dialogRef}
+      aria-labelledby="avatar-crop-title"
+      className="m-auto max-w-[calc(100%-2rem)] bg-transparent p-0 text-raw-white backdrop:bg-black/80 backdrop:backdrop-blur-sm"
+      onCancel={onCancel}
+      onClick={(event) => { if (event.target === event.currentTarget) onCancel() }}
+    >
       <div
-        className="flex flex-col gap-4 border border-border-gray bg-pitch p-6"
+        className="flex max-w-full animate-fade flex-col gap-4 rounded-surface border border-border-gray bg-graphite p-5 sm:p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="font-display text-lg text-raw-white">Crop your avatar</h2>
-        <p className="font-mono text-[11px] text-muted">Drag to reposition · drag corner to resize</p>
-        <div className="flex justify-center">
+        <div>
+          <h2 id="avatar-crop-title" className="text-lg font-semibold text-raw-white">{t("title")}</h2>
+          <p className="mt-1 text-sm text-dim-white">{t("help")}</p>
+        </div>
+        <div className="flex justify-center overflow-hidden rounded-control">
           <canvas
             ref={canvasRef}
             className="cursor-move touch-none"
@@ -195,23 +215,15 @@ export function AvatarCropModal({
             onPointerCancel={onPointerUp}
           />
         </div>
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            className="border border-border-gray px-4 py-2 font-mono text-[11px] uppercase tracking-label text-muted hover:border-raw-white hover:text-raw-white"
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="border border-acid px-4 py-2 font-mono text-[11px] uppercase tracking-label text-acid hover:bg-acid hover:text-pitch"
-            onClick={confirm}
-          >
-            Save crop
-          </button>
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+            {t("cancel")}
+          </Button>
+          <Button type="button" variant="primary" size="sm" autoFocus onClick={confirm}>
+            {t("save")}
+          </Button>
         </div>
       </div>
-    </div>
+    </dialog>
   )
 }

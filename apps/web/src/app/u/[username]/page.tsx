@@ -3,13 +3,18 @@ import { safetyAllowed } from "@/lib/safety/actions"
 import { getAccountBlockState } from "@/lib/safety/block-state"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { EventCard } from "@/components/cards/event-card"
 import { FollowButton } from "@/components/profile/follow-button"
+import {
+  EmptyNote,
+  ExternalLinks,
+  ProfileHeader,
+  ProfileSection,
+} from "@/components/profile/profile-blocks"
 import { Avatar } from "@/components/ui/avatar"
-import { Card, CardBody, CardHeader } from "@/components/ui/card"
-import { MonoLabel } from "@/components/ui/mono-label"
 import { listEvents } from "@/lib/api/events"
 import { getFollowedKeys, followKey, getProfile } from "@/lib/api/users-read"
 import {
@@ -88,9 +93,10 @@ export default async function ArtistProfilePage({
   const name = profile.username || t("deletedAccount")
 
   return (
-    <div className="text-raw-white">
-      <header className="flex flex-col gap-4 border-b border-border-gray pb-6 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex gap-4">
+    <div className="flex flex-col gap-8 text-raw-white">
+      <div>
+        <ProfileHeader
+          avatar={(
             <Avatar
               name={name}
               imageUrl={
@@ -100,22 +106,8 @@ export default async function ArtistProfilePage({
               }
               size="lg"
             />
-            <div className="min-w-0">
-              {/* One public name: the unique username, in the case its owner chose. */}
-              <h1 className="break-words text-[clamp(1.5rem,4vw,2.25rem)] font-semibold leading-tight">
-                {name}
-              </h1>
-              {profile.role || profile.location ? (
-                <p className="mt-2 font-mono text-[11px] uppercase tracking-label text-muted">
-                  {[profile.role, profile.location].filter(Boolean).join(" / ")}
-                </p>
-              ) : null}
-              <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-muted">
-                {t("followers", { count: profile.followerCount })}
-              </p>
-            </div>
-          </div>
-          {authUnavailable ? null : (
+          )}
+          actions={authUnavailable ? null : (
             <FollowButton
               handle={profile.username}
               targetType={targetType}
@@ -123,92 +115,82 @@ export default async function ArtistProfilePage({
               initialFollowing={initialFollowing}
             />
           )}
-        </header>
+        >
+          {/* One public name: the unique username, in the case its owner chose. */}
+          <h1 className="break-words text-[clamp(1.5rem,10cqi,2.25rem)] font-semibold leading-tight">
+            {name}
+          </h1>
+          {profile.role || profile.location ? (
+            <p className="mt-1.5 text-[15px] text-dim-white">
+              {[profile.role, profile.location].filter(Boolean).join(" · ")}
+            </p>
+          ) : null}
+          <p className="mt-1 text-[13px] text-muted">
+            {t("followers", { count: profile.followerCount })}
+          </p>
+        </ProfileHeader>
 
         <SafetyActions key={`${profile.id}:${blocked}`} allowed={canUseSafety} target={{ type: "profile", target: profile.username }} username={profile.username} initialBlocked={blocked} />
+      </div>
 
-        <div
-          className={
-            profile.links.length > 0
-              ? "mt-6 grid gap-6 lg:grid-cols-[1fr_320px]"
-              : "mt-6 grid gap-6"
-          }
-        >
-          <div className="flex flex-col gap-6">
-            <Card>
-              <CardHeader>
-                <MonoLabel tone="dim">{t("bio")}</MonoLabel>
-              </CardHeader>
-              <CardBody>
-                <p className="text-[15px] leading-7 text-dim-white">
-                  {profile.bio || t("noBio")}
-                </p>
-              </CardBody>
-            </Card>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <div className="flex min-w-0 flex-col gap-8">
+          <ProfileSection title={t("bio")}>
+            {profile.bio ? (
+              <p className="max-w-[65ch] whitespace-pre-wrap break-words text-[15px] leading-7 text-dim-white">
+                {profile.bio}
+              </p>
+            ) : (
+              <EmptyNote>{t("noBio")}</EmptyNote>
+            )}
+          </ProfileSection>
 
-            <Card>
-              <CardHeader>
-                <MonoLabel tone="dim">{t("upcoming")}</MonoLabel>
-              </CardHeader>
-              <CardBody className="flex flex-col gap-3">
-                {upcomingEvents.length > 0 ? (
-                  upcomingEvents.map((event) => (
+          <ProfileSection title={t("upcoming")}>
+            {upcomingEvents.length > 0 ? (
+              <ul className="flex flex-col gap-3">
+                {upcomingEvents.map((event) => (
+                  <li key={event.id}>
                     <EventCard
-                      key={event.id}
                       event={event}
                       loginHref={anonymousLoginHref}
                       variant={authUnavailable ? "feed" : "interactive"}
                     />
-                  ))
-                ) : (
-                  <p className="text-sm leading-7 text-muted">{t("noEvents")}</p>
-                )}
-              </CardBody>
-            </Card>
-
-            {profile.residencies.length > 0 ? (
-              <Card>
-                <CardHeader>
-                  <MonoLabel tone="dim">{t("residencies")}</MonoLabel>
-                </CardHeader>
-                <CardBody className="flex flex-col gap-2">
-                  {profile.residencies.map((residency) => (
-                    <a
-                      key={residency.pageHandle}
-                      href={`/pages/${residency.pageHandle}`}
-                      className="font-mono text-xs uppercase tracking-label text-raw-white hover:text-acid"
-                    >
-                      {residency.pageName} / {t("confirmed")}
-                    </a>
-                  ))}
-                </CardBody>
-              </Card>
-            ) : null}
-          </div>
-
-          {profile.links.length > 0 ? (
-            <div className="flex flex-col gap-6">
-              <Card>
-                <CardHeader>
-                  <MonoLabel tone="dim">{t("links")}</MonoLabel>
-                </CardHeader>
-                <CardBody className="flex flex-col gap-2">
-                  {profile.links.map((link) => (
-                    <a
-                      key={link.url}
-                      href={link.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="font-mono text-xs uppercase tracking-label text-raw-white hover:text-acid"
-                    >
-                      {link.label} ↗
-                    </a>
-                  ))}
-                </CardBody>
-              </Card>
-            </div>
-          ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyNote>{t("noEvents")}</EmptyNote>
+            )}
+          </ProfileSection>
         </div>
+
+        {profile.residencies.length > 0 || profile.links.length > 0 ? (
+          <aside className="flex min-w-0 flex-col gap-8">
+            {profile.residencies.length > 0 ? (
+              <ProfileSection title={t("residencies")}>
+                <ul className="flex flex-col gap-2">
+                  {profile.residencies.map((residency) => (
+                    <li key={residency.pageHandle}>
+                      <Link
+                        href={`/pages/${residency.pageHandle}`}
+                        className="flex items-center justify-between gap-3 rounded-control border border-border-gray bg-graphite/60 px-4 py-3 transition-colors hover:border-acid"
+                      >
+                        <span className="min-w-0 truncate font-display text-base">{residency.pageName}</span>
+                        <span className="shrink-0 text-xs text-muted">{t("confirmed")}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </ProfileSection>
+            ) : null}
+            {profile.links.length > 0 ? (
+              <ProfileSection title={t("links")}>
+                <ExternalLinks links={profile.links} />
+              </ProfileSection>
+            ) : null}
+          </aside>
+        ) : null}
+      </div>
     </div>
   )
 }

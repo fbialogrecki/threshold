@@ -66,10 +66,10 @@ export function NotificationPreferencesForm({
     return (
       <div
         aria-busy={pending}
-        className="flex flex-wrap items-center justify-between gap-3 border border-error/40 bg-pitch p-4"
+        className="flex flex-wrap items-center justify-between gap-3 rounded-control border border-orange/40 bg-orange/5 p-4"
       >
-        <p role="alert" className="text-sm text-error">{status || t("loadError")}</p>
-        <Button type="button" variant="secondary" disabled={pending} onClick={retry}>
+        <p role="alert" className="text-sm text-raw-white">{status || t("loadError")}</p>
+        <Button type="button" variant="secondary" size="sm" disabled={pending} onClick={retry}>
           {pending ? t("retrying") : t("retry")}
         </Button>
       </div>
@@ -87,15 +87,15 @@ export function NotificationPreferencesForm({
     <fieldset
       disabled={pending}
       aria-busy={pending}
-      className="flex min-w-0 flex-col gap-4 disabled:opacity-70"
+      className="flex min-w-0 flex-col gap-2 disabled:opacity-70"
     >
       {fields.map((field) => (
         <label
           key={field}
-          className="flex cursor-pointer items-start justify-between gap-4 border border-border-gray bg-pitch p-4"
+          className="flex cursor-pointer items-start justify-between gap-4 rounded-control border border-border-gray bg-pitch/60 p-4 transition-colors hover:border-status-neutral-border has-[:checked]:border-acid/40"
         >
-          <span>
-            <span className="block font-mono text-[11px] uppercase tracking-label text-raw-white">
+          <span className="min-w-0">
+            <span className="block text-[15px] font-semibold text-raw-white">
               {t(`${field}.title`)}
             </span>
             <span className="mt-1 block text-sm leading-6 text-muted">
@@ -113,10 +113,10 @@ export function NotificationPreferencesForm({
         </label>
       ))}
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border-gray pt-4">
-        <p aria-live="polite" className="text-sm text-muted">
+        <p aria-live="polite" className="text-sm text-dim-white">
           {pending ? t("saving") : status}
         </p>
-        <Button type="button" variant="primary" disabled={!dirty || pending} onClick={save}>
+        <Button type="button" variant="primary" size="sm" disabled={!dirty || pending} onClick={save}>
           {pending ? t("saving") : t("save")}
         </Button>
       </div>

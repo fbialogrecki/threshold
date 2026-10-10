@@ -1,12 +1,17 @@
 import type { Metadata } from "next"
 import { getLocale, getTranslations } from "next-intl/server"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { EventCard } from "@/components/cards/event-card"
 import { FollowButton } from "@/components/profile/follow-button"
+import {
+  EmptyNote,
+  ExternalLinks,
+  ProfileHeader,
+  ProfileSection,
+} from "@/components/profile/profile-blocks"
 import { Avatar } from "@/components/ui/avatar"
-import { Card, CardBody, CardHeader } from "@/components/ui/card"
-import { MonoLabel } from "@/components/ui/mono-label"
 import { listEvents } from "@/lib/api/events"
 import { getPage } from "@/lib/api/users-read"
 import {
@@ -78,118 +83,103 @@ export default async function PageProfileView({
   const initialFollowing = isAuthenticated && page.isFollowing
 
   return (
-    <div className="text-raw-white">
-      <header className="flex flex-col gap-4 border-b border-border-gray pb-6 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex gap-4">
-            <Avatar
-              name={page.name}
-              imageUrl={
-                page.avatarMediaAssetId
-                  ? mediaDerivativeUrl(page.avatarMediaAssetId, "avatar_512")
-                  : null
-              }
-              size="lg"
-            />
-            <div>
-              <h1 className="font-display text-5xl tracking-wide">{page.name}</h1>
-              <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-violet">
-                {[t(`types.${page.type}`), page.city ? cityLabel(page.city, locale) : null]
-                  .filter(Boolean)
-                  .join(" / ")}
-              </p>
-              <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-muted">
-                {t("followers", { count: page.followerCount })}
-              </p>
-            </div>
-          </div>
-          {authUnavailable ? null : (
-            <FollowButton
-              handle={page.slug}
-              targetType="page"
-              loginHref={anonymousLoginHref}
-              initialFollowing={initialFollowing}
-            />
-          )}
-        </header>
+    <div className="flex flex-col gap-8 text-raw-white">
+      <ProfileHeader
+        avatar={(
+          <Avatar
+            name={page.name}
+            imageUrl={
+              page.avatarMediaAssetId
+                ? mediaDerivativeUrl(page.avatarMediaAssetId, "avatar_512")
+                : null
+            }
+            size="lg"
+          />
+        )}
+        actions={authUnavailable ? null : (
+          <FollowButton
+            handle={page.slug}
+            targetType="page"
+            loginHref={anonymousLoginHref}
+            initialFollowing={initialFollowing}
+          />
+        )}
+      >
+        {/* Pages are entities: their own display name, in display type. */}
+        <h1 className="font-display text-[clamp(1.75rem,10cqi,3.5rem)] leading-[0.95] break-words">{page.name}</h1>
+        <p className="mt-2 flex flex-wrap items-center gap-2 text-[15px] text-dim-white">
+          <span className="rounded-full bg-raised px-2.5 py-0.5 text-[13px] font-medium capitalize text-raw-white">
+            {t(`types.${page.type}`)}
+          </span>
+          {page.city ? <span>{cityLabel(page.city, locale)}</span> : null}
+        </p>
+        <p className="mt-1.5 text-[13px] text-muted">
+          {t("followers", { count: page.followerCount })}
+        </p>
+      </ProfileHeader>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
-          <div className="flex flex-col gap-6">
-            <Card>
-              <CardHeader>
-                <MonoLabel tone="dim">{t("upcoming")}</MonoLabel>
-              </CardHeader>
-              <CardBody className="flex flex-col gap-3">
-                {upcomingEvents.length > 0 ? (
-                  upcomingEvents.map((event) => (
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <div className="flex min-w-0 flex-col gap-8">
+          <ProfileSection title={t("about")}>
+            {page.about ? (
+              <p className="max-w-[65ch] whitespace-pre-wrap break-words text-[15px] leading-7 text-dim-white">
+                {page.about}
+              </p>
+            ) : (
+              <EmptyNote>{t("noAbout")}</EmptyNote>
+            )}
+          </ProfileSection>
+
+          <ProfileSection title={t("upcoming")}>
+            {upcomingEvents.length > 0 ? (
+              <ul className="flex flex-col gap-3">
+                {upcomingEvents.map((event) => (
+                  <li key={event.id}>
                     <EventCard
-                      key={event.id}
                       event={event}
                       loginHref={anonymousLoginHref}
                       variant={authUnavailable ? "feed" : "interactive"}
                     />
-                  ))
-                ) : (
-                  <p className="text-sm leading-7 text-muted">{t("noEvents")}</p>
-                )}
-              </CardBody>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <MonoLabel tone="dim">{t("about")}</MonoLabel>
-              </CardHeader>
-              <CardBody>
-                <p className="text-[15px] leading-7 text-dim-white">
-                  {page.about || t("noAbout")}
-                </p>
-              </CardBody>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <MonoLabel tone="dim">{t("residents")}</MonoLabel>
-            </CardHeader>
-            <CardBody className="flex flex-col gap-2">
-              {page.residents.length === 0 ? (
-                <p className="text-sm text-muted">{t("noResidents")}</p>
-              ) : (
-                page.residents.map((resident) => (
-                  <a
-                    key={resident.handle}
-                    href={`/u/${resident.handle}`}
-                    className="font-mono text-xs uppercase tracking-label text-raw-white hover:text-acid"
-                  >
-                    {resident.displayName} / {t("confirmed")}
-                  </a>
-                ))
-              )}
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <MonoLabel tone="dim">{t("links")}</MonoLabel>
-            </CardHeader>
-            <CardBody className="flex flex-col gap-2">
-              {page.links.length === 0 ? (
-                <p className="text-sm text-muted">{t("noLinks")}</p>
-              ) : (
-                page.links.map((link) => (
-                  <a
-                    key={link.url}
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-mono text-xs uppercase tracking-label text-raw-white hover:text-acid"
-                  >
-                    {link.label} ↗
-                  </a>
-                ))
-              )}
-            </CardBody>
-          </Card>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyNote>{t("noEvents")}</EmptyNote>
+            )}
+          </ProfileSection>
         </div>
+
+        <aside className="flex min-w-0 flex-col gap-8">
+          <ProfileSection title={t("residents")}>
+            {page.residents.length === 0 ? (
+              <EmptyNote>{t("noResidents")}</EmptyNote>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {page.residents.map((resident) => (
+                  <li key={resident.handle}>
+                    {/* Residents are people: their username, natural case, no @. */}
+                    <Link
+                      href={`/u/${encodeURIComponent(resident.handle)}`}
+                      className="flex items-center justify-between gap-3 rounded-control border border-border-gray bg-graphite/60 px-4 py-3 transition-colors hover:border-acid"
+                    >
+                      <span className="min-w-0 truncate text-[15px] font-semibold">{resident.handle}</span>
+                      <span className="shrink-0 text-xs text-muted">{t("confirmed")}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </ProfileSection>
+
+          <ProfileSection title={t("links")}>
+            {page.links.length === 0 ? (
+              <EmptyNote>{t("noLinks")}</EmptyNote>
+            ) : (
+              <ExternalLinks links={page.links} />
+            )}
+          </ProfileSection>
+        </aside>
+      </div>
     </div>
   )
 }
