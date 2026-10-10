@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Seeds the repo secrets that .woodpecker/release.yml reads with from_secret.
-# Every secret is limited to the manual event, which is how releases start.
+# Seeds the repo secrets for the automatic .woodpecker/deploy.yml workflow.
+# Push enables main publication; manual temporarily preserves the legacy fallback.
 #
 # Values come from the in-cluster seed Secrets/ConfigMap in the woodpecker
 # namespace, plus HARBOR_IP from ops/local.env. Each value is written to a
@@ -61,7 +61,7 @@ set_secret() {
   printf '%s' "$value" > "$VALUE_FILE"
   unset value
 
-  local -a args=(--repository "$REPOSITORY" --name "$name" --value "@${VALUE_FILE}" --event manual)
+  local -a args=(--repository "$REPOSITORY" --name "$name" --value "@${VALUE_FILE}" --event push --event manual)
   if ! woodpecker-cli repo secret update "${args[@]}" >/dev/null 2>&1; then
     woodpecker-cli repo secret add "${args[@]}" >/dev/null
   fi
@@ -83,4 +83,4 @@ set_secret release_image_registry config_value IMAGE_REGISTRY
 set_secret release_gitops_repo_slug literal "$GITOPS_REPO_SLUG"
 set_secret release_gitops_repo_url literal "$GITOPS_REPO_URL"
 
-printf 'Configured manual-event-only release secrets for %s\n' "$REPOSITORY"
+printf 'Configured push/manual publication secrets for %s\n' "$REPOSITORY"

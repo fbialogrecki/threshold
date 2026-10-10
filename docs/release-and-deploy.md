@@ -16,23 +16,21 @@ Private values such as the Bitwarden account and item names live in `ops/local.e
 
 Argo CD tracks `https://github.com/fbialogrecki/perlimen.git`, branch `main`, path `infra/argocd` (root Application `threshold-root`). Anything merged to `main` under `infra/` is deployed.
 
-For native forge deliveries without exposing the private CI UI, see [Woodpecker public webhooks](runbooks/woodpecker-webhooks.md). Webhook connectivity does not enable automatic releases; the release workflow below remains manual.
+For native forge deliveries without exposing the private CI UI, see [Woodpecker public webhooks](runbooks/woodpecker-webhooks.md). Application/build-input pushes to `main` now explicitly authorize automatic publication through the workflow below; other branches and PRs only validate.
 
-## Releasing
+## Automatic Main Deployment
 
-```bash
-go-task release VERSION=v1.2.3
-```
+Push a commit to `main`, directly or by merging a PR. No version argument, tag or manual pipeline creation is needed. GitHub delivers the native webhook to the public hook-only endpoint; the CI UI/OAuth remain private.
 
-The task refuses to run unless the working tree is clean, `HEAD` equals `origin/main`, the tag does not exist yet, and the `ci-ok` check on that commit is green. It then pushes an annotated tag and starts the Woodpecker `release` pipeline on `main` with `RELEASE_TAG` set. GitHub cannot reach Woodpecker on the LAN, so pushing a tag alone does nothing.
+`.woodpecker/deploy.yml` runs only for application/build-input changes on `main`, on the existing `release: trusted` agent. Its publication credentials allow `push`, never PR/tag events. Public GitOps slug/URL are explicit non-secret workflow values:
 
-The pipeline (`.woodpecker/release.yml`) runs on the dedicated `release: trusted` agent; its credentials are limited to `manual` events. The public GitOps repository slug/URL are explicit non-secret workflow values, not stored secret metadata that can lag behind a rename:
+1. `verify-main-ci` waits up to 30 minutes for GitHub Actions `ci-ok` on the **exact source SHA**. Pending checks wait; failure, cancellation, wrong SHA, API failure and timeout prevent publication. No old success or another app's check is accepted.
+2. `build-images` builds all six images and pushes `core.harbor.domain/threshold/<service>:<full sha>`, recording the registry-provided immutable digests. It does not create SemVer tags.
+3. `promote-gitops` selects the services affected by the source diff (shared Python inputs select backends; publication controls select all), opens a digest-only PR from `ci/promote-<short sha>`, and enables squash auto-merge after its `ci-ok` passes. Argo CD deploys once it merges.
 
-1. `verify-tag` checks that the tag exists on origin and points at the commit being built.
-2. `build-images` builds `auth-gateway`, `events`, `media`, `social`, `users` and `web`, and pushes each to `core.harbor.domain/threshold/<service>` as `:<full sha>` and `:vX.Y.Z`.
-3. `promote-gitops` opens the PR **`Release vX.Y.Z: promote digests`** from branch `release/vX.Y.Z`. It changes only the image digests in `infra/kustomize/overlays/local/<service>/kustomization.yaml`.
+Docs and `infra/`-only pushes are excluded from publication. In particular, merging the digest PR cannot start another build/promotion loop. Infrastructure changes still sync through Argo CD as before. Existing SemVer tags/history are retained; routine deployments are identified by source SHA and image digest.
 
-`AUTO_MERGE` in `release.yml` controls the last step. While it is `false`, a human merges the digest PR. After the first release has gone through end to end, it becomes `true` and the pipeline enables GitHub auto-merge (squash), so the PR merges once its checks pass. Argo CD syncs after the merge.
+During first-path verification only, the old manual workflow/task and `manual` secret scope are temporarily retained as a working fallback. Remove them only after the real automatic build/promotion/deploy succeeds.
 
 ## Buildah Runtime Profile
 
@@ -47,7 +45,7 @@ python3 -m unittest discover -s ops/tests -p 'test_buildah_seccomp.py'
 
 The installer reads the running release agent's actual default-deny runtime profile, appends only the Buildah exceptions and atomically installs `/var/lib/kubelet/seccomp/perlimen/buildah.json`. Re-run on every builder node if the cluster later grows. Verify actual image pull/build/run and a denied network-namespace probe before release. A missing profile must fail loudly, not fall back to `Unconfined`. The additional kernel syscall surface is limited to CI builders, but remains a residual risk.
 
-If the release task pushed a tag but failed before pipeline creation, do not retag: start only the pipeline via the HTTPS server. If the fix changes the tagged source, keep the failed tag and issue a new version after green CI.
+If automatic publication fails, inspect the native pipeline before retrying. Redeliver the original GitHub main-push delivery to retry the same source SHA, or merge a fix for a new source SHA. Do not create or move tags, bypass `ci-ok`, or edit desired image digests by hand.
 
 ## Rollback
 

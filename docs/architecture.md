@@ -26,7 +26,7 @@ Platform:
 | Ingress | Traefik bundled with k3s |
 | Secrets | OpenBao (KV v2 mount `secret`) + External Secrets Operator through `ClusterSecretStore/openbao` |
 | Images | Harbor, `core.harbor.domain/threshold/<service>` |
-| CI | GitHub Actions for pull requests (`ci-ok`), Woodpecker for releases |
+| CI | GitHub Actions for pull requests (`ci-ok`), Woodpecker for automatic main-push publication |
 | Postgres | CloudNativePG, one cluster per service |
 | Postgres backups | Barman Cloud plugin (`barman-cloud.cloudnative-pg.io`) with `ObjectStore` resources; needs cert-manager |
 | Object storage | SeaweedFS S3 gateway |

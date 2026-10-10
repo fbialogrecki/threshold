@@ -4,7 +4,7 @@
 
 The application domain alone does not make GitHub webhooks work. Woodpecker is served privately at `https://woodpecker.internal`; the tunnel's connector NetworkPolicy allows only web, the dedicated webhook proxy, cluster DNS and Cloudflare tunnel edges. Do not send forge hooks to the product BFF or resume the suspended synthetic-push poller.
 
-Woodpecker workflows already support path-filtered `pull_request` and `push` on `main`. A merge produces a `push` to `main`; no synthetic merge trigger is needed. The release workflow remains `event: manual`, with event-restricted release credentials. **Receiving forge webhooks does not authorize automatic image promotion, deployment or releases.** GitHub Actions `ci-ok` remains the PR merge gate unless the maintainer changes that process.
+Woodpecker workflows already support path-filtered `pull_request` and `push` on `main`. A merge produces a `push` to `main`; no synthetic merge trigger is needed. The maintainer has explicitly enabled automatic publication for application/build-input pushes to `main`, after that exact commit passes GitHub Actions `ci-ok`; it opens an auto-merging digest PR, then Argo deploys. Docs/infra-only pushes are excluded, preventing promotion recursion. PRs and other branches only validate. GitHub Actions `ci-ok` remains the merge gate. See [the deployment flow](../release-and-deploy.md).
 
 ## GitOps Origin
 
