@@ -89,6 +89,14 @@
       "anonymous": {
         "question": "Czy mogę czytać bez konta?",
         "answer": "Strony wydarzeń, profile i strony organizacji tak. Aktualności, katalog wydarzeń i grupy wymagają konta."
+      },
+      "images": {
+        "question": "Czy mogę dodawać zdjęcia?",
+        "answer": "Tak. Posty mogą zawierać zdjęcia, wydarzenia mają plakat, a profile i strony awatar."
+      },
+      "app": {
+        "question": "Czy jest aplikacja?",
+        "answer": "Perlimen działa w przeglądarce, na telefonie i komputerze. Nie ma aplikacji mobilnej."
       }
     },
     "who": {
