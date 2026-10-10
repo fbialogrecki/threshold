@@ -16,6 +16,8 @@ Private values such as the Bitwarden account and item names live in `ops/local.e
 
 Argo CD tracks `https://github.com/fbialogrecki/perlimen.git`, branch `main`, path `infra/argocd` (root Application `threshold-root`). Anything merged to `main` under `infra/` is deployed.
 
+For native forge deliveries without exposing the private CI UI, see [Woodpecker public webhooks](runbooks/woodpecker-webhooks.md). Webhook connectivity does not enable automatic releases; the release workflow below remains manual.
+
 ## Releasing
 
 ```bash
