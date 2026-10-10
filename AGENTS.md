@@ -32,7 +32,7 @@ graphify-out/             Generated code graph (ignored)
 - This repository is the only one. `main` is both code history and ArgoCD desired state (`infra/`). Secrets live in OpenBao/ESO and Bitwarden, never in git; private operator values live in the ignored `ops/local.env`.
 - ArgoCD + Kustomize/Helm own local Kubernetes resources. Manual `kubectl apply` is only for reviewed bootstrap or emergency recovery.
 - Each deployable app should have one ArgoCD application or generated ApplicationSet entry.
-- Public tunnel: cloudflared in k3s to web Service only; token in OpenBao. See `docs/runbooks/cloudflare-tunnel.md`.
+- Public tunnel: cloudflared in k3s to web plus the webhook-only proxy; token in OpenBao. See `docs/runbooks/cloudflare-tunnel.md`.
 - Adopted Helm releases are managed by ArgoCD. Do not use `helm upgrade` on them unless a runbook explicitly says so.
 
 ## Commands

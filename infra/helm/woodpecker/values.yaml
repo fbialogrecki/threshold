@@ -5,6 +5,7 @@ server:
   env:
     WOODPECKER_ADMIN: "fbialogrecki"
     WOODPECKER_HOST: "https://woodpecker.internal"
+    WOODPECKER_EXPERT_WEBHOOK_HOST: "https://hooks.perlimen.com"
     WOODPECKER_GITHUB: "true"
     WOODPECKER_BACKEND_KUBERNETES: "true"
   extraSecretNamesForEnvFrom:

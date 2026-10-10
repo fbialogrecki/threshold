@@ -36,6 +36,16 @@ spec:
       ports:
         - protocol: TCP
           port: 3000
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: woodpecker
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: woodpecker-webhook
+      ports:
+        - protocol: TCP
+          port: 8080
     # Cloudflare's global IPv4 tunnel edges, not arbitrary Internet egress.
     - to:
         - ipBlock:
