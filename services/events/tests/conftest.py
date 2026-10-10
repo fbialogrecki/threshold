@@ -17,7 +17,7 @@ PAGE_ID = "00000000-0000-0000-0000-000000000001"
 
 @pytest.fixture(autouse=True)
 def configure_test_settings() -> None:
-    settings.threshold_internal_token = "test-internal-token"
+    settings.perlimen_internal_token = "test-internal-token"
     settings.media_service_url = None
     settings.media_request_timeout_seconds = 1.5
     settings.write_rate_limit_count = 60

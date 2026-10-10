@@ -9,8 +9,8 @@ from opentelemetry.context import Context
 from opentelemetry.trace import NonRecordingSpan, SpanContext, TraceFlags, TraceState
 from pytest import MonkeyPatch
 
-from threshold_common.http_observability import request_id_context
-from threshold_common.logging import OtelLogDefaultsFilter, redact_mapping
+from perlimen_common.http_observability import request_id_context
+from perlimen_common.logging import OtelLogDefaultsFilter, redact_mapping
 
 TRACE_ID = 0xABCDEF1234567890ABCDEF1234567890
 SPAN_ID = 0x1234567890ABCDEF
@@ -34,7 +34,7 @@ def test_otel_log_defaults_filter_populates_trace_fields_from_current_span(
     token = _attach_sample_span()
     try:
         record = logging.LogRecord(
-            name="threshold.test",
+            name="perlimen.test",
             level=logging.INFO,
             pathname=__file__,
             lineno=1,
@@ -59,7 +59,7 @@ def test_log_filter_correlates_request_and_removes_raw_exception() -> None:
             raise RuntimeError("private raw exception text")
         except RuntimeError:
             record = logging.LogRecord(
-                name="threshold.test",
+                name="perlimen.test",
                 level=logging.ERROR,
                 pathname=__file__,
                 lineno=1,
@@ -102,7 +102,7 @@ def test_redaction_covers_auth_cookies_body_email_and_nested_tokens() -> None:
 
 def test_log_filter_redacts_case_insensitive_recursive_extras() -> None:
     record = logging.LogRecord(
-        name="threshold.test",
+        name="perlimen.test",
         level=logging.INFO,
         pathname=__file__,
         lineno=1,
@@ -122,7 +122,7 @@ def test_log_filter_redacts_case_insensitive_recursive_extras() -> None:
 
 def test_log_filter_sanitizes_message_args_without_breaking_formatting() -> None:
     record = logging.LogRecord(
-        name="threshold.test",
+        name="perlimen.test",
         level=logging.ERROR,
         pathname=__file__,
         lineno=1,
@@ -147,7 +147,7 @@ def test_log_filter_sanitizes_message_args_without_breaking_formatting() -> None
 
 def test_log_filter_removes_preformatted_exception_text_and_sanitizes_exception_message() -> None:
     record = logging.LogRecord(
-        name="threshold.test",
+        name="perlimen.test",
         level=logging.ERROR,
         pathname=__file__,
         lineno=1,

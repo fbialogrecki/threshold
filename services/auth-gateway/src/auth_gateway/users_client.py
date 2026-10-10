@@ -6,7 +6,7 @@ import nats
 from opentelemetry import trace
 from opentelemetry.trace import SpanKind
 
-from threshold_common.otel_nats import inject_trace_context
+from perlimen_common.otel_nats import inject_trace_context
 
 
 class UsersProfileClientError(RuntimeError):

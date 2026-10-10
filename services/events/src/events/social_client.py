@@ -9,13 +9,13 @@ logger = logging.getLogger(__name__)
 
 
 def announce_event(settings: Settings, event: Event) -> bool:
-    if not settings.social_service_url or not settings.threshold_internal_token:
+    if not settings.social_service_url or not settings.perlimen_internal_token:
         logger.warning("social event announcement is not configured", extra={"event_id": event.id})
         return False
     try:
         response = httpx.post(
             f"{settings.social_service_url.rstrip('/')}/internal/v1/event-announcements",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token},
             json={
                 "event_id": event.id,
                 "event_slug": event.slug,

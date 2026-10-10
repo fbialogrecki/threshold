@@ -4,16 +4,16 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 
+from perlimen_common.health import ok
+from perlimen_common.http_observability import instrument_http_observability
+from perlimen_common.logging import configure_logging
+from perlimen_common.telemetry import configure_telemetry, instrument_fastapi
 from social import main_dependencies
 from social.api.routes import router
 from social.block_sync import run_block_sync_loop
 from social.db.readiness import check_database_ready
 from social.main_dependencies import create_schema_for_local_sqlite, settings
 from social.nats_server import SocialNatsServer
-from threshold_common.health import ok
-from threshold_common.http_observability import instrument_http_observability
-from threshold_common.logging import configure_logging
-from threshold_common.telemetry import configure_telemetry, instrument_fastapi
 
 configure_logging()
 configure_telemetry(settings.service_name)
@@ -32,7 +32,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         )
         await social_nats_server.start()
     block_sync: asyncio.Task[None] | None = None
-    if settings.users_service_url and settings.threshold_internal_token:
+    if settings.users_service_url and settings.perlimen_internal_token:
         block_sync = asyncio.create_task(
             run_block_sync_loop(settings, main_dependencies.session_factory)
         )
@@ -46,7 +46,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
             social_nats_server = None
 
 
-app = FastAPI(title="Threshold social", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Perlimen social", version="0.1.0", lifespan=lifespan)
 instrument_fastapi(app)
 instrument_http_observability(app, service_name=settings.service_name)
 app.include_router(router)

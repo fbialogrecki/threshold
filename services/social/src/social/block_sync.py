@@ -32,12 +32,12 @@ class CanonicalBlock:
 
 
 async def fetch_canonical_blocks(settings: Settings) -> list[CanonicalBlock]:
-    if not settings.users_service_url or not settings.threshold_internal_token:
+    if not settings.users_service_url or not settings.perlimen_internal_token:
         raise RuntimeError("users service URL or internal token is not configured")
     async with httpx.AsyncClient(timeout=settings.block_sync_timeout_seconds) as client:
         response = await client.get(
             f"{settings.users_service_url.rstrip('/')}/internal/v1/blocks",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token},
         )
         response.raise_for_status()
         payload: Any = response.json()

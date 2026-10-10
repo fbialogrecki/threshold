@@ -5,16 +5,16 @@ from fastapi import FastAPI, Header, HTTPException
 
 from auth_gateway.settings import Settings
 from auth_gateway.users_client import UsersProfileClient, UsersProfileClientError
-from threshold_common.auth import (
+from perlimen_common.auth import (
     AuthConfigurationError,
     AuthError,
     JwtVerifier,
     require_bearer_token,
 )
-from threshold_common.health import ok
-from threshold_common.http_observability import instrument_http_observability
-from threshold_common.logging import configure_logging
-from threshold_common.telemetry import configure_telemetry, instrument_fastapi
+from perlimen_common.health import ok
+from perlimen_common.http_observability import instrument_http_observability
+from perlimen_common.logging import configure_logging
+from perlimen_common.telemetry import configure_telemetry, instrument_fastapi
 
 settings = Settings()
 configure_logging()
@@ -29,7 +29,7 @@ jwt_verifier = JwtVerifier(
 
 
 def _build_users_profile_client(config: Settings) -> UsersProfileClient:
-    internal_token = config.threshold_internal_token
+    internal_token = config.perlimen_internal_token
     return UsersProfileClient(
         base_url=config.users_base_url,
         timeout_seconds=config.users_timeout_seconds,
@@ -42,7 +42,7 @@ def _build_users_profile_client(config: Settings) -> UsersProfileClient:
 
 users_profile_client = _build_users_profile_client(settings)
 
-app = FastAPI(title="Threshold auth-gateway", version="0.1.0")
+app = FastAPI(title="Perlimen auth-gateway", version="0.1.0")
 instrument_fastapi(app)
 instrument_http_observability(app, service_name=settings.service_name)
 

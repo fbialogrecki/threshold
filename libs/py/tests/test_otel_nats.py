@@ -6,7 +6,7 @@ from opentelemetry.context import Context
 from opentelemetry.trace import NonRecordingSpan, SpanContext, TraceFlags, TraceState
 
 import otel_nats
-from threshold_common.otel_nats import (
+from perlimen_common.otel_nats import (
     decode_traced_json_payload,
     encode_traced_json_payload,
     extract_traceparent,

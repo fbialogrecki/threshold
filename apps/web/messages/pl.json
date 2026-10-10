@@ -10,7 +10,7 @@
   },
   "landing": {
     "metadata": {
-      "title": "Threshold",
+      "title": "Perlimen",
       "description": "Chronologiczne miejsce dla wydarzeń, artystów, klubów i kolektywów niezależnej sceny. Bez rankingu, bez reklam, bez trackerów."
     },
     "navigation": "Nawigacja publiczna",
@@ -24,10 +24,10 @@
     "registrationOpen": "Rejestracja otwarta",
     "createAccount": "Załóż konto →",
     "enterFeed": "Wejdź do Aktualności →",
-    "thresholdLabel": "Manifest ↓",
+    "manifestLabel": "Manifest ↓",
     "manifest": {
       "title": "Manifest",
-      "lede": "Threshold jest zbudowany wokół tego, czego nie robi.",
+      "lede": "Perlimen jest zbudowany wokół tego, czego nie robi.",
       "ranking": {
         "label": "Bez rankingu",
         "body": "Aktualności są chronologiczne. Żaden algorytm nie decyduje, co zobaczysz."
@@ -101,9 +101,9 @@
   "authFlow": {
     "metadata": {
       "loginTitle": "Zaloguj się",
-      "loginDescription": "Zaloguj się do Threshold.",
+      "loginDescription": "Zaloguj się do Perlimen.",
       "registerTitle": "Utwórz konto",
-      "registerDescription": "Utwórz konto Threshold. Rejestracja jest otwarta."
+      "registerDescription": "Utwórz konto Perlimen. Rejestracja jest otwarta."
     },
     "login": "Zaloguj się",
     "createAccount": "Utwórz konto",
@@ -158,9 +158,9 @@
   "authUtility": {
     "metadata": {
       "resetTitle": "Zresetuj hasło",
-      "resetDescription": "Zresetuj hasło Threshold.",
+      "resetDescription": "Zresetuj hasło Perlimen.",
       "verifyTitle": "Zweryfikuj e-mail",
-      "verifyDescription": "Zweryfikuj adres e-mail konta Threshold."
+      "verifyDescription": "Zweryfikuj adres e-mail konta Perlimen."
     },
     "backToLogin": "← Wróć do logowania",
     "reset": {
@@ -207,7 +207,7 @@
       "service": "Weryfikacja e-mail jest chwilowo niedostępna. Spróbuj ponownie.",
       "rateLimited": "Zbyt wiele prób. Poczekaj i spróbuj ponownie.",
       "retry": "Spróbuj ponownie",
-      "continue": "→ Przejdź do Threshold"
+      "continue": "→ Przejdź do Perlimen"
     },
     "banner": {
       "body": "Zweryfikuj e-mail dla bezpieczeństwa i odzyskiwania konta.",
@@ -219,7 +219,7 @@
   "authServiceUnavailable": {
     "eyebrow": "Usługa logowania",
     "title": "Status konta jest niedostępny",
-    "body": "Threshold nie mógł zweryfikować sesji. Konto i pliki cookie pozostały bez zmian.",
+    "body": "Perlimen nie mógł zweryfikować sesji. Konto i pliki cookie pozostały bez zmian.",
     "publicBanner": "Interakcje konta są chwilowo niedostępne. Publiczne szczegóły pozostają czytelne.",
     "retry": "Spróbuj ponownie",
     "retrying": "Ponawianie…"
@@ -227,7 +227,7 @@
   "onboarding": {
     "metadata": {
       "title": "Skonfiguruj konto",
-      "description": "Wybierz tożsamość, miasto i preferencje sceny w Threshold."
+      "description": "Wybierz tożsamość, miasto i preferencje sceny w Perlimen."
     },
     "title": "Przekrocz próg",
     "subtitle": "Wybierz miasto, aby przejść do Aktualności",
@@ -280,7 +280,7 @@
       "types": { "club": "Klub", "collective": "Kolektyw", "project": "Projekt", "festival": "Festiwal" }
     },
     "access": {
-      "body": "Threshold dołączy Twoje konto do oficjalnej grupy wybranego miasta.",
+      "body": "Perlimen dołączy Twoje konto do oficjalnej grupy wybranego miasta.",
       "hint": "Żaden artysta, klub ani kolektyw nie będzie obserwowany automatycznie."
     },
     "done": {
@@ -307,12 +307,12 @@
   "privacy": {
     "metadata": {
       "title": "Granica prywatności",
-      "description": "Obecne ograniczenia prywatności i prywatnego dostępu w Threshold."
+      "description": "Obecne ograniczenia prywatności i prywatnego dostępu w Perlimen."
     },
-    "eyebrow": "Threshold / Granica prywatności",
+    "eyebrow": "Perlimen / Granica prywatności",
     "title": "Metadane prywatnego dostępu są widoczne dla serwera.",
     "limit": "Obecna wersja / jawne ograniczenie",
-    "intro": "Dostęp przez listę gości działa w tej wersji, ale szyfrowane ujawnianie dokładnej lokalizacji nie. Threshold nie twierdzi, że dokładne tajne adresy chroni funkcja, która nie została wydana.",
+    "intro": "Dostęp przez listę gości działa w tej wersji, ale szyfrowane ujawnianie dokładnej lokalizacji nie. Perlimen nie twierdzi, że dokładne tajne adresy chroni funkcja, która nie została wydana.",
     "points": {
       "one": "Organizatorzy i upoważniona obsługa mogą zarządzać listami gości i odprawą przy wejściu.",
       "two": "Serwer przetwarza status dostępu, działania organizatorów, identyfikatory kont i zapisy audytowe.",
@@ -339,7 +339,7 @@
   "publicProfile": {
     "notFound": "Nie znaleziono profilu",
     "deletedAccount": "Konto usunięte",
-    "metadataFallback": "@{username} w Threshold",
+    "metadataFallback": "@{username} w Perlimen",
     "followers": "{count, plural, one {# obserwujący} few {# obserwujących} other {# obserwujących}}",
     "bio": "Bio",
     "noBio": "Brak bio.",
@@ -351,7 +351,7 @@
   },
   "publicPage": {
     "notFound": "Nie znaleziono strony",
-    "metadataFallback": "{name} to {type} w mieście {city} w Threshold.",
+    "metadataFallback": "{name} to {type} w mieście {city} w Perlimen.",
     "unknownCity": "nieokreślonym",
     "types": {
       "club": "klub",
@@ -384,7 +384,7 @@
   "eventsCatalog": {
     "metadata": {
       "title": "Wydarzenia",
-      "description": "Nadchodzące wydarzenia Threshold w porządku chronologicznym."
+      "description": "Nadchodzące wydarzenia Perlimen w porządku chronologicznym."
     },
     "title": "Wydarzenia",
     "subtitle": "Nadchodzące / wszystkie obsługiwane miasta / chronologicznie",
@@ -400,7 +400,7 @@
   "searchPage": {
     "metadata": {
       "title": "Szukaj",
-      "description": "Szukaj profili, Stron, grup i wydarzeń w Threshold."
+      "description": "Szukaj profili, Stron, grup i wydarzeń w Perlimen."
     },
     "title": "Szukaj",
     "subtitle": "Profile / Strony / grupy / wydarzenia",
@@ -441,11 +441,11 @@
   "notifications": {
     "metadata": {
       "title": "Powiadomienia",
-      "description": "Aktywność konta, wydarzeń i sceny w Threshold."
+      "description": "Aktywność konta, wydarzeń i sceny w Perlimen."
     },
     "eyebrow": "Skrzynka",
     "title": "Powiadomienia",
-    "subtitle": "Aktywność konta i wydarzeń zapisana w Threshold. Powiadomienia push i e-mail nie są włączone.",
+    "subtitle": "Aktywność konta i wydarzeń zapisana w Perlimen. Powiadomienia push i e-mail nie są włączone.",
     "emptyEyebrow": "[ skrzynka pusta ]",
     "emptyTitle": "Nic do czytania",
     "emptyBody": "Nie masz powiadomień.",
@@ -524,7 +524,7 @@
   "groups": {
     "metadata": {
       "title": "Grupy",
-      "description": "Oficjalne grupy sceny w Threshold."
+      "description": "Oficjalne grupy sceny w Perlimen."
     },
     "title": "Grupy",
     "subtitle": "Oficjalne kanały sceny",
@@ -540,8 +540,8 @@
   },
   "groupDetail": {
     "metadata": {
-      "title": "Grupa | Threshold",
-      "description": "Oficjalna grupa sceny w Threshold."
+      "title": "Grupa | Perlimen",
+      "description": "Oficjalna grupa sceny w Perlimen."
     },
     "back": "Grupy",
     "official": "Oficjalna",
@@ -563,7 +563,7 @@
   "settings": {
     "metadata": {
       "title": "Ustawienia",
-      "description": "Zarządzaj publiczną tożsamością, powiadomieniami i kontem Threshold."
+      "description": "Zarządzaj publiczną tożsamością, powiadomieniami i kontem Perlimen."
     },
     "title": "Ustawienia",
     "subtitle": "Publiczna tożsamość / powiadomienia / konto",
@@ -681,7 +681,7 @@
   "organizerPages": {
     "metadata": {
       "title": "Strony organizatorów",
-      "description": "Twórz i zarządzaj Stronami organizatorów w Threshold."
+      "description": "Twórz i zarządzaj Stronami organizatorów w Perlimen."
     },
     "title": "Strony organizatorów",
     "subtitle": "Kluby / kolektywy / projekty / festiwale",
@@ -719,7 +719,7 @@
   "savedPage": {
     "metadata": {
       "title": "Zapisane",
-      "description": "Zapisane elementy w Threshold."
+      "description": "Zapisane elementy w Perlimen."
     },
     "title": "Zapisane",
     "subtitle": "Prywatne zapisane elementy",
@@ -748,7 +748,7 @@
   "guestlistPage": {
     "metadata": {
       "title": "Dostęp",
-      "description": "Twój prywatny dostęp do wydarzeń w Threshold."
+      "description": "Twój prywatny dostęp do wydarzeń w Perlimen."
     },
     "title": "Dostęp",
     "subtitle": "Prywatny dostęp do wydarzeń",
@@ -772,7 +772,7 @@
     "suggestionFollows": "Obserwuj artystów, kluby i kolektywy",
     "suggestionCityEvents": "Przeglądaj nadchodzące wydarzenia: {city}",
     "accessUpdate": "Zmiana dostępu",
-    "thresholdSystem": "System Threshold",
+    "perlimenSystem": "System Perlimen",
     "verified": "zweryfikowano",
     "viewDetails": "Zobacz szczegóły",
     "eventUpdate": "Aktualizacja wydarzenia",
@@ -787,7 +787,7 @@
   "composer": {
     "metadata": {
       "title": "Utwórz post",
-      "description": "Opublikuj post w Threshold."
+      "description": "Opublikuj post w Perlimen."
     },
     "title": "+ Post",
     "subtitle": "Udostępnij tekst, zdjęcia i opcjonalne wydarzenie",

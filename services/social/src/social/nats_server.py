@@ -7,10 +7,10 @@ from nats.aio.client import Client as NatsClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
+from perlimen_common.otel_nats import get_message_headers, nats_consumer_span
 from social.domain.models import UserBlock
 from social.erasure import fenced_erased_user_ids
 from social.settings import Settings
-from threshold_common.otel_nats import get_message_headers, nats_consumer_span
 
 logger = logging.getLogger(__name__)
 

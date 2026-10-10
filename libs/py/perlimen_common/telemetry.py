@@ -20,7 +20,7 @@ _client_instrumented = False
 
 
 def configure_telemetry(service_name: str) -> None:
-    """Configure OpenTelemetry tracing for a Threshold service.
+    """Configure OpenTelemetry tracing for a Perlimen service.
 
     The OTLP exporter follows standard OTEL_* environment variables. In Kubernetes we point
     OTEL_EXPORTER_OTLP_ENDPOINT at the in-cluster collector; locally the SDK default is fine.

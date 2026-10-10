@@ -1,4 +1,4 @@
-# Threshold media service
+# Perlimen media service
 
 FastAPI service for image metadata and the SeaweedFS/S3-backed media pipeline.
 

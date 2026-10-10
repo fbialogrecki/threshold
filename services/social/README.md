@@ -1,4 +1,4 @@
-# Threshold social service
+# Perlimen social service
 
 FastAPI service for Slice 3 groups, posts, comments, reactions, and feed.
 

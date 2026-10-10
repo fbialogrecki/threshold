@@ -42,15 +42,15 @@ describe("single-instance local rate limiting", () => {
   })
 
   it("uses one conservative fallback key when proxy trust is not configured", () => {
-    const request = new Request("https://threshold.test/api/auth/login", {
+    const request = new Request("https://perlimen.test/api/auth/login", {
       headers: { "x-forwarded-for": "203.0.113.8, 10.0.0.4" },
     })
     expect(requestClientKey(request)).toBe("unknown")
-    expect(requestClientKey(new Request("https://threshold.test"))).toBe("unknown")
+    expect(requestClientKey(new Request("https://perlimen.test"))).toBe("unknown")
   })
 
   it("selects the configured proxy depth from the right of the forwarded chain", () => {
-    const request = new Request("https://threshold.test/api/auth/login", {
+    const request = new Request("https://perlimen.test/api/auth/login", {
       headers: { "x-forwarded-for": "spoofed, 203.0.113.8, 10.0.0.4" },
     })
     expect(requestClientKey(request, 2)).toBe("203.0.113.8")
@@ -58,14 +58,14 @@ describe("single-instance local rate limiting", () => {
   })
 
   it("falls back conservatively for invalid trust or forwarded chains", () => {
-    const malformed = new Request("https://threshold.test", {
+    const malformed = new Request("https://perlimen.test", {
       headers: { "x-forwarded-for": "203.0.113.8, not-an-ip" },
     })
     expect(requestClientKey(malformed, 1)).toBe("unknown")
     expect(requestClientKey(malformed, 0)).toBe("unknown")
     expect(requestClientKey(malformed, 11)).toBe("unknown")
-    expect(requestClientKey(new Request("https://threshold.test"), 1)).toBe("unknown")
-    expect(requestClientKey(new Request("https://threshold.test", {
+    expect(requestClientKey(new Request("https://perlimen.test"), 1)).toBe("unknown")
+    expect(requestClientKey(new Request("https://perlimen.test", {
       headers: { "x-forwarded-for": "deadbeef" },
     }), 1)).toBe("unknown")
   })

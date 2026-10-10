@@ -19,7 +19,7 @@ spec:
         releaseName: alloy
         valueFiles:
           - $values/infra/helm/alloy/values.yaml
-    - repoURL: https://github.com/fbialogrecki/threshold.git
+    - repoURL: https://github.com/fbialogrecki/perlimen.git
       targetRevision: main
       ref: values
   destination:

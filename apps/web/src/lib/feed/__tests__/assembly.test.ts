@@ -7,7 +7,7 @@ import {
   type FeedAssemblySource,
 } from "@/lib/feed/assembly"
 import type { NotificationItem } from "@/lib/auth/product-auth"
-import type { FeedItem, Post, ThresholdEvent } from "@/lib/types"
+import type { FeedItem, Post, PerlimenEvent } from "@/lib/types"
 
 function post(id: string, createdAtIso: string): Post {
   return {
@@ -31,7 +31,7 @@ function post(id: string, createdAtIso: string): Post {
   }
 }
 
-function event(overrides: Partial<ThresholdEvent>): ThresholdEvent {
+function event(overrides: Partial<PerlimenEvent>): PerlimenEvent {
   return {
     id: "event-1",
     slug: "bass-theory",

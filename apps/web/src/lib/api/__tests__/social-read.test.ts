@@ -2,7 +2,7 @@ import { describe, expect, it, mock } from "bun:test"
 
 import { assembleFeed } from "@/lib/feed/assembly"
 import type { SocialPost } from "@/lib/api/social-read"
-import type { ThresholdEvent } from "@/lib/types"
+import type { PerlimenEvent } from "@/lib/types"
 
 mock.module("server-only", () => ({}))
 const { getEventAnnouncementPosts, mapPost } = await import("@/lib/api/social-read")
@@ -10,8 +10,8 @@ const { getEventAnnouncementPosts, mapPost } = await import("@/lib/api/social-re
 const raw: SocialPost = {
   id: "post-1",
   author_user_id: "user-1",
-  author_username: "threshold-events",
-  author_display_name: "Threshold Events",
+  author_username: "perlimen-events",
+  author_display_name: "Perlimen Events",
   author_type: "system",
   group_id: null,
   event_id: "event-1",
@@ -100,7 +100,7 @@ describe("social post mapping", () => {
       },
       async () => ({}),
     )
-    const event = (id: string, slug: string): ThresholdEvent => ({
+    const event = (id: string, slug: string): PerlimenEvent => ({
       id,
       slug,
       title: slug,

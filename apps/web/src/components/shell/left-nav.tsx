@@ -26,7 +26,7 @@ export function LeftNav() {
     <div>
       <Link href="/app" className="block">
         <span className="font-display text-2xl tracking-[0.08em] text-raw-white">
-          THRESHOLD<span className="text-acid">▮</span>
+          PERLIMEN<span className="text-acid">▮</span>
         </span>
       </Link>
 

@@ -175,7 +175,7 @@ ActiveUser = Annotated[ApplicationUser, Depends(get_current_user)]
 def require_internal_token(
     token: Annotated[str | None, Header(alias="X-Threshold-Internal-Token")] = None,
 ) -> None:
-    expected = settings.threshold_internal_token
+    expected = settings.perlimen_internal_token
     if not expected:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

@@ -67,8 +67,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.selectable import Select
 
+from perlimen_common.pagination import clamp_limit
 from social import media_client
-from threshold_common.pagination import clamp_limit
 
 router = APIRouter(dependencies=[Depends(require_internal_token)])
 DbSession = Annotated[Session, Depends(get_db_session)]
@@ -713,8 +713,8 @@ def create_event_announcement(
 
     post = Post(
         author_user_id=payload.actor_user_id,
-        author_username="threshold-events",
-        author_display_name="Threshold Events",
+        author_username="perlimen-events",
+        author_display_name="Perlimen Events",
         author_type="system",
         group_id=group.id,
         event_id=payload.event_id,

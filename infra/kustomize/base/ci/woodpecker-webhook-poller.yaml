@@ -65,7 +65,7 @@ data:
 
     NAMESPACE = os.getenv("POD_NAMESPACE", "woodpecker")
     STATE_CONFIGMAP = os.getenv("STATE_CONFIGMAP", "woodpecker-webhook-poller-state")
-    REPO = os.getenv("GITHUB_REPO", "fbialogrecki/threshold")
+    REPO = os.getenv("GITHUB_REPO", "fbialogrecki/perlimen")
     BRANCH = os.getenv("GITHUB_BRANCH", "main")
     WOODPECKER_HOOK_URL = os.getenv(
         "WOODPECKER_HOOK_URL", "http://woodpecker-server/api/hook"
@@ -367,7 +367,7 @@ spec:
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: GITHUB_REPO
-                  value: fbialogrecki/threshold
+                  value: fbialogrecki/perlimen
                 - name: GITHUB_BRANCH
                   value: main
                 - name: WOODPECKER_HOOK_URL

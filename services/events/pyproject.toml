@@ -1,7 +1,7 @@
 [project]
-name = "threshold-events"
+name = "perlimen-events"
 version = "0.1.0"
-description = "Threshold events service"
+description = "Perlimen events service"
 requires-python = ">=3.13"
 dependencies = [
   "alembic>=1.17",
@@ -16,12 +16,12 @@ dependencies = [
   "opentelemetry-instrumentation-psycopg>=0.63b1",
   "psycopg[binary]>=3.2",
   "sqlalchemy>=2.0",
-  "threshold-common",
+  "perlimen-common",
   "uvicorn[standard]>=0.38",
 ]
 
 [tool.uv.sources]
-threshold-common = { workspace = true }
+perlimen-common = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

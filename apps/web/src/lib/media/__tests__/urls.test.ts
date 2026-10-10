@@ -11,10 +11,10 @@ describe("media urls", () => {
 
   test("builds absolute metadata URL without raw storage keys", () => {
     const previous = process.env.NEXTAUTH_URL
-    process.env.NEXTAUTH_URL = "https://threshold.example/"
+    process.env.NEXTAUTH_URL = "https://perlimen.example/"
 
     expect(absoluteMediaDerivativeUrl("asset-1", "avatar_512")).toBe(
-      "https://threshold.example/api/media/assets/assets/asset-1/avatar_512.webp",
+      "https://perlimen.example/api/media/assets/assets/asset-1/avatar_512.webp",
     )
 
     if (previous === undefined) {

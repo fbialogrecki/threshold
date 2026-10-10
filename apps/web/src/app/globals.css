@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
-  Threshold design system.
+  Perlimen design system.
   Brutalist, dark, terminal-like. Color is meaning, not decoration:
   it only marks action, status or access.
 */
@@ -132,7 +132,7 @@ textarea:focus-visible {
 }
 
 /* Boost flip animation, gated behind reduced-motion */
-@keyframes threshold-flip {
+@keyframes perlimen-flip {
   0% {
     transform: translateY(0);
   }
@@ -150,7 +150,7 @@ textarea:focus-visible {
   }
 }
 
-@keyframes threshold-pulse {
+@keyframes perlimen-pulse {
   0%,
   100% {
     opacity: 1;
@@ -160,12 +160,12 @@ textarea:focus-visible {
   }
 }
 
-.threshold-flip {
-  animation: threshold-flip 280ms ease-out;
+.perlimen-flip {
+  animation: perlimen-flip 280ms ease-out;
 }
 
-.threshold-pulse {
-  animation: threshold-pulse 2s ease-in-out infinite;
+.perlimen-pulse {
+  animation: perlimen-pulse 2s ease-in-out infinite;
 }
 
 ::selection {
@@ -176,7 +176,7 @@ textarea:focus-visible {
 /* ───────────────────────── Landing page atmosphere ───────────────────────── */
 
 /*
-  Atmosphere is scoped to the hero band and stops at the threshold rule.
+  Atmosphere is scoped to the hero band and stops at the hero boundary.
   This is wash, not semantic colour: the violet haze is an unfocusable
   background field, so it does not claim the vote axis.
 */
@@ -195,7 +195,7 @@ textarea:focus-visible {
     var(--color-pitch);
 }
 
-/* Faint engineering grid, faded out before the threshold rule. */
+/* Faint engineering grid, faded out before the hero boundary. */
 .landing-grid {
   background-image:
     linear-gradient(to right, rgba(242, 242, 234, 0.04) 1px, transparent 1px),
@@ -222,17 +222,17 @@ textarea:focus-visible {
   opacity: 0.35;
 }
 
-/* The threshold line: glowing acid rule that draws in on load. */
-.landing-threshold {
+/* The hero boundary: glowing acid rule that draws in on load. */
+.landing-boundary {
   transform: scaleX(0);
   transform-origin: left center;
-  animation: threshold-draw 1.1s 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: perlimen-draw 1.1s 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   box-shadow:
     0 0 12px rgba(198, 255, 0, 0.7),
     0 0 40px rgba(198, 255, 0, 0.35);
 }
 
-@keyframes threshold-draw {
+@keyframes perlimen-draw {
   to {
     transform: scaleX(1);
   }
@@ -275,7 +275,7 @@ textarea:focus-visible {
     transition-duration: 0.001ms !important;
   }
 
-  .landing-threshold {
+  .landing-boundary {
     transform: scaleX(1);
   }
 }

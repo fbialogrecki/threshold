@@ -78,7 +78,7 @@ export function StatusBadge({
     >
       {tone === "protected" ? <PadlockGlyph /> : null}
       {showPulse ? (
-        <span aria-hidden className="threshold-pulse text-current">
+        <span aria-hidden className="perlimen-pulse text-current">
           ●
         </span>
       ) : null}

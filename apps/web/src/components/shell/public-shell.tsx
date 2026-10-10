@@ -41,7 +41,7 @@ export async function PublicShell({
       <header className="border-b border-border-gray bg-graphite">
         <div className="mx-auto flex w-full max-w-feed items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/" className="font-display text-xl tracking-[0.08em] text-raw-white">
-            THRESHOLD<span className="text-acid">▮</span>
+            PERLIMEN<span className="text-acid">▮</span>
           </Link>
           <div className="flex items-center gap-2">
             <LocaleSwitcher />

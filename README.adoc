@@ -1,14 +1,14 @@
-= Threshold
+= Perlimen
 :toc:
 :toclevels: 2
 
-Threshold is an open-source social and event-discovery platform for local music scenes. It combines chronological community feeds, public profiles and pages, groups, events, media, notifications, and organizer-managed guestlists without algorithmic ranking or third-party tracking.
+Perlimen is an open-source social and event-discovery platform for local music scenes. It combines chronological community feeds, public profiles and pages, groups, events, media, notifications, and organizer-managed guestlists without algorithmic ranking or third-party tracking.
 
 NOTE: Active MVP development. APIs, data models, and deployment procedures may change before the first stable release.
 
 == Product direction
 
-Threshold focuses on direct community relationships:
+Perlimen focuses on direct community relationships:
 
 * chronological content from followed people, pages, groups, and events;
 * public artist, venue, collective, promoter, and user profiles;
@@ -74,7 +74,7 @@ Container workflows additionally require an OCI builder.
 
 [source,bash]
 ----
-git clone https://github.com/fbialogrecki/threshold.git
+git clone https://github.com/fbialogrecki/perlimen.git
 cd threshold
 uv sync --frozen
 go-task web:install
@@ -126,4 +126,4 @@ Do not report suspected vulnerabilities in a public issue. Use GitHub private vu
 
 Copyright 2026 Filip Białogrecki.
 
-Threshold is licensed under the Apache License, Version 2.0. See link:LICENSE[LICENSE] and link:NOTICE[NOTICE]. Redistributed copies must preserve required license, copyright, and attribution notices. The license does not grant rights to the Threshold name or trademarks.
+Perlimen is licensed under the Apache License, Version 2.0. See link:LICENSE[LICENSE] and link:NOTICE[NOTICE]. Redistributed copies must preserve required license, copyright, and attribution notices. The license does not grant rights to the Perlimen name or trademarks.

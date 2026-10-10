@@ -9,11 +9,12 @@ metadata:
     app.kubernetes.io/part-of: threshold
 spec:
   description: >-
-    Threshold product services (web, auth-gateway, users, social) with their
+    Perlimen product services (web, auth-gateway, users, social) with their
     databases, secrets, and network policies. Namespaced resources only.
   sourceRepos:
     - git@github.com:fbialogrecki/threshold-gitops.git
     - https://github.com/fbialogrecki/threshold.git
+    - https://github.com/fbialogrecki/perlimen.git
   destinations:
     - server: https://kubernetes.default.svc
       namespace: threshold

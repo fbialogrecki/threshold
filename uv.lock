@@ -9,13 +9,13 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "threshold-auth-gateway",
-    "threshold-common",
-    "threshold-events",
-    "threshold-media",
-    "threshold-social",
-    "threshold-users",
-    "threshold-workspace",
+    "perlimen-auth-gateway",
+    "perlimen-common",
+    "perlimen-events",
+    "perlimen-media",
+    "perlimen-social",
+    "perlimen-users",
+    "perlimen-workspace",
 ]
 constraints = [
     { name = "cryptography", specifier = ">=50,<51" },
@@ -973,6 +973,281 @@ wheels = [
 ]
 
 [[package]]
+name = "perlimen-auth-gateway"
+version = "0.1.0"
+source = { editable = "services/auth-gateway" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "nats-py" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-distro" },
+    { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-instrumentation-fastapi" },
+    { name = "opentelemetry-instrumentation-httpx" },
+    { name = "opentelemetry-instrumentation-logging" },
+    { name = "perlimen-common" },
+    { name = "pyjwt", extra = ["crypto"] },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.124" },
+    { name = "httpx", specifier = ">=0.28" },
+    { name = "nats-py", specifier = ">=2.12" },
+    { name = "opentelemetry-api", specifier = ">=1.42.1" },
+    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
+    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
+    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
+    { name = "perlimen-common", editable = "libs/py" },
+    { name = "pyjwt", extras = ["crypto"], specifier = ">=2.10" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
+]
+
+[[package]]
+name = "perlimen-common"
+version = "0.1.0"
+source = { editable = "libs/py" }
+dependencies = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-instrumentation-fastapi" },
+    { name = "opentelemetry-instrumentation-httpx" },
+    { name = "opentelemetry-instrumentation-logging" },
+    { name = "opentelemetry-sdk" },
+    { name = "pydantic-settings" },
+    { name = "structlog" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.124" },
+    { name = "httpx", specifier = ">=0.28" },
+    { name = "opentelemetry-api", specifier = ">=1.42.1" },
+    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
+    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
+    { name = "opentelemetry-sdk", specifier = ">=1.42.1" },
+    { name = "pydantic-settings", specifier = ">=2.8" },
+    { name = "structlog", specifier = ">=25.1" },
+]
+
+[[package]]
+name = "perlimen-events"
+version = "0.1.0"
+source = { editable = "services/events" }
+dependencies = [
+    { name = "alembic" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-distro" },
+    { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-instrumentation-fastapi" },
+    { name = "opentelemetry-instrumentation-httpx" },
+    { name = "opentelemetry-instrumentation-logging" },
+    { name = "opentelemetry-instrumentation-psycopg" },
+    { name = "perlimen-common" },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "sqlalchemy" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = ">=1.17" },
+    { name = "fastapi", specifier = ">=0.124" },
+    { name = "httpx", specifier = ">=0.28" },
+    { name = "opentelemetry-api", specifier = ">=1.42.1" },
+    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
+    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
+    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-psycopg", specifier = ">=0.63b1" },
+    { name = "perlimen-common", editable = "libs/py" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
+    { name = "sqlalchemy", specifier = ">=2.0" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
+]
+
+[[package]]
+name = "perlimen-media"
+version = "0.1.0"
+source = { editable = "services/media" }
+dependencies = [
+    { name = "alembic" },
+    { name = "boto3" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-distro" },
+    { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-instrumentation-fastapi" },
+    { name = "opentelemetry-instrumentation-httpx" },
+    { name = "opentelemetry-instrumentation-logging" },
+    { name = "opentelemetry-instrumentation-psycopg" },
+    { name = "perlimen-common" },
+    { name = "pillow" },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "python-multipart" },
+    { name = "sqlalchemy" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = ">=1.17" },
+    { name = "boto3", specifier = ">=1.42" },
+    { name = "fastapi", specifier = ">=0.124" },
+    { name = "httpx", specifier = ">=0.28" },
+    { name = "opentelemetry-api", specifier = ">=1.42.1" },
+    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
+    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
+    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-psycopg", specifier = ">=0.63b1" },
+    { name = "perlimen-common", editable = "libs/py" },
+    { name = "pillow", specifier = ">=12.0" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
+    { name = "python-multipart", specifier = ">=0.0.20" },
+    { name = "sqlalchemy", specifier = ">=2.0" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
+]
+
+[[package]]
+name = "perlimen-social"
+version = "0.1.0"
+source = { editable = "services/social" }
+dependencies = [
+    { name = "alembic" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "nats-py" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-distro" },
+    { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-instrumentation-fastapi" },
+    { name = "opentelemetry-instrumentation-httpx" },
+    { name = "opentelemetry-instrumentation-logging" },
+    { name = "opentelemetry-instrumentation-psycopg" },
+    { name = "perlimen-common" },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "sqlalchemy" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = ">=1.17" },
+    { name = "fastapi", specifier = ">=0.124" },
+    { name = "httpx", specifier = ">=0.28" },
+    { name = "nats-py", specifier = ">=2.12" },
+    { name = "opentelemetry-api", specifier = ">=1.42.1" },
+    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
+    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
+    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-psycopg", specifier = ">=0.63b1" },
+    { name = "perlimen-common", editable = "libs/py" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
+    { name = "sqlalchemy", specifier = ">=2.0" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
+]
+
+[[package]]
+name = "perlimen-users"
+version = "0.1.0"
+source = { editable = "services/users" }
+dependencies = [
+    { name = "alembic" },
+    { name = "argon2-cffi" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "nats-py" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-distro" },
+    { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-instrumentation-fastapi" },
+    { name = "opentelemetry-instrumentation-httpx" },
+    { name = "opentelemetry-instrumentation-logging" },
+    { name = "opentelemetry-instrumentation-psycopg" },
+    { name = "perlimen-common" },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "sqlalchemy" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "alembic", specifier = ">=1.17" },
+    { name = "argon2-cffi", specifier = ">=25.1.0" },
+    { name = "fastapi", specifier = ">=0.124" },
+    { name = "httpx", specifier = ">=0.28" },
+    { name = "nats-py", specifier = ">=2.12" },
+    { name = "opentelemetry-api", specifier = ">=1.42.1" },
+    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
+    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
+    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
+    { name = "opentelemetry-instrumentation-psycopg", specifier = ">=0.63b1" },
+    { name = "perlimen-common", editable = "libs/py" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
+    { name = "sqlalchemy", specifier = ">=2.0" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
+]
+
+[[package]]
+name = "perlimen-workspace"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "perlimen-auth-gateway" },
+    { name = "perlimen-events" },
+    { name = "perlimen-media" },
+    { name = "perlimen-social" },
+    { name = "perlimen-users" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "httpx" },
+    { name = "httpx2" },
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "perlimen-auth-gateway", editable = "services/auth-gateway" },
+    { name = "perlimen-events", editable = "services/events" },
+    { name = "perlimen-media", editable = "services/media" },
+    { name = "perlimen-social", editable = "services/social" },
+    { name = "perlimen-users", editable = "services/users" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "httpx", specifier = ">=0.28" },
+    { name = "httpx2", specifier = ">=2.12,<3" },
+    { name = "mypy", specifier = ">=1.19" },
+    { name = "pytest", specifier = ">=9.0" },
+    { name = "pytest-asyncio", specifier = ">=1.3" },
+    { name = "ruff", specifier = ">=0.14" },
+]
+
+[[package]]
 name = "pillow"
 version = "12.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1434,281 +1709,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ef/52/9ba0f43b686e7f3ddfeaa78ac3af750292662284b3661e91ad5494f21dbc/structlog-25.5.0.tar.gz", hash = "sha256:098522a3bebed9153d4570c6d0288abf80a031dfdb2048d59a49e9dc2190fc98", size = 1460830, upload-time = "2025-10-27T08:28:23.028Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a8/45/a132b9074aa18e799b891b91ad72133c98d8042c70f6240e4c5f9dabee2f/structlog-25.5.0-py3-none-any.whl", hash = "sha256:a8453e9b9e636ec59bd9e79bbd4a72f025981b3ba0f5837aebf48f02f37a7f9f", size = 72510, upload-time = "2025-10-27T08:28:21.535Z" },
-]
-
-[[package]]
-name = "threshold-auth-gateway"
-version = "0.1.0"
-source = { editable = "services/auth-gateway" }
-dependencies = [
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "nats-py" },
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-distro" },
-    { name = "opentelemetry-exporter-otlp" },
-    { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-httpx" },
-    { name = "opentelemetry-instrumentation-logging" },
-    { name = "pyjwt", extra = ["crypto"] },
-    { name = "threshold-common" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", specifier = ">=0.124" },
-    { name = "httpx", specifier = ">=0.28" },
-    { name = "nats-py", specifier = ">=2.12" },
-    { name = "opentelemetry-api", specifier = ">=1.42.1" },
-    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
-    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
-    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
-    { name = "pyjwt", extras = ["crypto"], specifier = ">=2.10" },
-    { name = "threshold-common", editable = "libs/py" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
-]
-
-[[package]]
-name = "threshold-common"
-version = "0.1.0"
-source = { editable = "libs/py" }
-dependencies = [
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-exporter-otlp" },
-    { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-httpx" },
-    { name = "opentelemetry-instrumentation-logging" },
-    { name = "opentelemetry-sdk" },
-    { name = "pydantic-settings" },
-    { name = "structlog" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", specifier = ">=0.124" },
-    { name = "httpx", specifier = ">=0.28" },
-    { name = "opentelemetry-api", specifier = ">=1.42.1" },
-    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
-    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
-    { name = "opentelemetry-sdk", specifier = ">=1.42.1" },
-    { name = "pydantic-settings", specifier = ">=2.8" },
-    { name = "structlog", specifier = ">=25.1" },
-]
-
-[[package]]
-name = "threshold-events"
-version = "0.1.0"
-source = { editable = "services/events" }
-dependencies = [
-    { name = "alembic" },
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-distro" },
-    { name = "opentelemetry-exporter-otlp" },
-    { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-httpx" },
-    { name = "opentelemetry-instrumentation-logging" },
-    { name = "opentelemetry-instrumentation-psycopg" },
-    { name = "psycopg", extra = ["binary"] },
-    { name = "sqlalchemy" },
-    { name = "threshold-common" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = ">=1.17" },
-    { name = "fastapi", specifier = ">=0.124" },
-    { name = "httpx", specifier = ">=0.28" },
-    { name = "opentelemetry-api", specifier = ">=1.42.1" },
-    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
-    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
-    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-psycopg", specifier = ">=0.63b1" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
-    { name = "sqlalchemy", specifier = ">=2.0" },
-    { name = "threshold-common", editable = "libs/py" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
-]
-
-[[package]]
-name = "threshold-media"
-version = "0.1.0"
-source = { editable = "services/media" }
-dependencies = [
-    { name = "alembic" },
-    { name = "boto3" },
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-distro" },
-    { name = "opentelemetry-exporter-otlp" },
-    { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-httpx" },
-    { name = "opentelemetry-instrumentation-logging" },
-    { name = "opentelemetry-instrumentation-psycopg" },
-    { name = "pillow" },
-    { name = "psycopg", extra = ["binary"] },
-    { name = "python-multipart" },
-    { name = "sqlalchemy" },
-    { name = "threshold-common" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = ">=1.17" },
-    { name = "boto3", specifier = ">=1.42" },
-    { name = "fastapi", specifier = ">=0.124" },
-    { name = "httpx", specifier = ">=0.28" },
-    { name = "opentelemetry-api", specifier = ">=1.42.1" },
-    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
-    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
-    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-psycopg", specifier = ">=0.63b1" },
-    { name = "pillow", specifier = ">=12.0" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
-    { name = "python-multipart", specifier = ">=0.0.20" },
-    { name = "sqlalchemy", specifier = ">=2.0" },
-    { name = "threshold-common", editable = "libs/py" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
-]
-
-[[package]]
-name = "threshold-social"
-version = "0.1.0"
-source = { editable = "services/social" }
-dependencies = [
-    { name = "alembic" },
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "nats-py" },
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-distro" },
-    { name = "opentelemetry-exporter-otlp" },
-    { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-httpx" },
-    { name = "opentelemetry-instrumentation-logging" },
-    { name = "opentelemetry-instrumentation-psycopg" },
-    { name = "psycopg", extra = ["binary"] },
-    { name = "sqlalchemy" },
-    { name = "threshold-common" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = ">=1.17" },
-    { name = "fastapi", specifier = ">=0.124" },
-    { name = "httpx", specifier = ">=0.28" },
-    { name = "nats-py", specifier = ">=2.12" },
-    { name = "opentelemetry-api", specifier = ">=1.42.1" },
-    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
-    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
-    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-psycopg", specifier = ">=0.63b1" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
-    { name = "sqlalchemy", specifier = ">=2.0" },
-    { name = "threshold-common", editable = "libs/py" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
-]
-
-[[package]]
-name = "threshold-users"
-version = "0.1.0"
-source = { editable = "services/users" }
-dependencies = [
-    { name = "alembic" },
-    { name = "argon2-cffi" },
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "nats-py" },
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-distro" },
-    { name = "opentelemetry-exporter-otlp" },
-    { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-httpx" },
-    { name = "opentelemetry-instrumentation-logging" },
-    { name = "opentelemetry-instrumentation-psycopg" },
-    { name = "psycopg", extra = ["binary"] },
-    { name = "sqlalchemy" },
-    { name = "threshold-common" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "alembic", specifier = ">=1.17" },
-    { name = "argon2-cffi", specifier = ">=25.1.0" },
-    { name = "fastapi", specifier = ">=0.124" },
-    { name = "httpx", specifier = ">=0.28" },
-    { name = "nats-py", specifier = ">=2.12" },
-    { name = "opentelemetry-api", specifier = ">=1.42.1" },
-    { name = "opentelemetry-distro", specifier = ">=0.63b1" },
-    { name = "opentelemetry-exporter-otlp", specifier = ">=1.42.1" },
-    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.63b1" },
-    { name = "opentelemetry-instrumentation-psycopg", specifier = ">=0.63b1" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
-    { name = "sqlalchemy", specifier = ">=2.0" },
-    { name = "threshold-common", editable = "libs/py" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.38" },
-]
-
-[[package]]
-name = "threshold-workspace"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "threshold-auth-gateway" },
-    { name = "threshold-events" },
-    { name = "threshold-media" },
-    { name = "threshold-social" },
-    { name = "threshold-users" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "httpx" },
-    { name = "httpx2" },
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "threshold-auth-gateway", editable = "services/auth-gateway" },
-    { name = "threshold-events", editable = "services/events" },
-    { name = "threshold-media", editable = "services/media" },
-    { name = "threshold-social", editable = "services/social" },
-    { name = "threshold-users", editable = "services/users" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "httpx", specifier = ">=0.28" },
-    { name = "httpx2", specifier = ">=2.12,<3" },
-    { name = "mypy", specifier = ">=1.19" },
-    { name = "pytest", specifier = ">=9.0" },
-    { name = "pytest-asyncio", specifier = ">=1.3" },
-    { name = "ruff", specifier = ">=0.14" },
 ]
 
 [[package]]

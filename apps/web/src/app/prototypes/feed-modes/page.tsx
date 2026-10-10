@@ -4,8 +4,8 @@ import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 
 export const metadata: Metadata = {
-  title: "Feed mode prototype | Threshold",
-  description: "Compare classic, focus, and compact feed modes for Threshold discovery.",
+  title: "Feed mode prototype | Perlimen",
+  description: "Compare classic, focus, and compact feed modes for Perlimen discovery.",
 }
 
 export default async function FeedModesPrototypeRedirectPage() {

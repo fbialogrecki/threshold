@@ -12,7 +12,7 @@ import { cityLabel } from "@/lib/cities"
 import { formatEventDate } from "@/lib/format"
 import { mediaDerivativeUrl } from "@/lib/media/urls"
 import { safeInternalHref } from "@/lib/safe-href"
-import type { LocationMode, ThresholdEvent } from "@/lib/types"
+import type { LocationMode, PerlimenEvent } from "@/lib/types"
 
 const LOCATION_STATUS: Record<LocationMode, string> = {
   public_location: "public",
@@ -25,7 +25,7 @@ export async function EventCard({
   variant = "interactive",
   loginHref,
 }: {
-  event: ThresholdEvent
+  event: PerlimenEvent
   variant?: "interactive" | "feed"
   loginHref?: string
 }) {

@@ -1,4 +1,4 @@
-# NUC-sized Loki values for Threshold observability MVP.
+# NUC-sized Loki values for Perlimen observability MVP.
 # Render target: grafana/loki.
 
 deploymentMode: SingleBinary

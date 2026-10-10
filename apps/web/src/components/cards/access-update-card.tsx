@@ -8,7 +8,7 @@ import { formatRelative } from "@/lib/format"
 import type { AccessUpdate } from "@/lib/types"
 
 /**
- * Unique Threshold card type: the feed surfaces changes to the viewer's own
+ * Unique Perlimen card type: the feed surfaces changes to the viewer's own
  * access status, not just posts. This reinforces the access-first product.
  */
 export async function AccessUpdateCard({ update }: { update: AccessUpdate }) {
@@ -22,7 +22,7 @@ export async function AccessUpdateCard({ update }: { update: AccessUpdate }) {
 
       <div className="px-4 py-4">
         <p className="font-mono text-[11px] uppercase tracking-label text-muted">
-          {t("thresholdSystem")}
+          {t("perlimenSystem")}
         </p>
         <p className="mt-2 text-[15px] leading-7 text-raw-white">{update.note}</p>
 

@@ -1,4 +1,4 @@
-# Threshold Grafana dashboards
+# Perlimen Grafana dashboards
 
 MVP dashboards provisioned through generated Kubernetes ConfigMaps labeled `grafana_dashboard=1`.
 

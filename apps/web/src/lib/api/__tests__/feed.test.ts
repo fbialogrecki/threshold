@@ -1,12 +1,12 @@
 import { describe, expect, it, mock } from "bun:test"
 
 import type { FeedServices } from "@/lib/api/feed"
-import type { Post, ThresholdEvent } from "@/lib/types"
+import type { Post, PerlimenEvent } from "@/lib/types"
 
 mock.module("server-only", () => ({}))
 const { getFeedWithServices } = await import("@/lib/api/feed")
 
-const candidate: ThresholdEvent = {
+const candidate: PerlimenEvent = {
   id: "event-1",
   slug: "bass-theory",
   title: "Bass Theory",
@@ -34,8 +34,8 @@ const announcement: Post = {
   author: {
     id: "system",
     type: "consumer",
-    handle: "threshold-events",
-    displayName: "Threshold Events",
+    handle: "perlimen-events",
+    displayName: "Perlimen Events",
   },
   systemOwned: true,
   createdAtIso: "2026-07-01T10:00:00.000Z",

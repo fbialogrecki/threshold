@@ -26,7 +26,7 @@ Every series should be `1`.
 
 ## Alert Rules
 
-Rules are provisioned as code in folder **Threshold Alerts** and evaluated every minute.
+Rules are provisioned as code in folder **Perlimen Alerts** and evaluated every minute.
 
 Group `threshold-infra` in `infra/helm/grafana/values.yaml`:
 
@@ -45,7 +45,7 @@ Group `threshold-applications` in `infra/helm/grafana/application-alerts.yaml`:
 | `threshold-app-http-5xx` | More than 5% of a service's requests return 5xx | 10m | warning |
 | `threshold-app-http-latency` | A service's p95 latency exceeds 1 s | 10m | warning |
 
-The HTTP rules use the `threshold_http_server_*` metrics from `libs/py/threshold_common/http_observability.py` and ignore health, metrics and docs routes.
+The HTTP rules use the `threshold_http_server_*` metrics from `libs/py/perlimen_common/http_observability.py` and ignore health, metrics and docs routes.
 
 Why a WAL alert and not a base-backup-age alert: CNPG's `cnpg_collector_last_available_backup_timestamp` is not reliable with the Barman Cloud plugin. Stuck WAL archiving is the failure that breaks continuous backup and point-in-time recovery, and it is exported reliably. Nothing alerts on a missed daily base backup yet; check `kubectl -n threshold get backups.postgresql.cnpg.io` by hand. `authentik-postgres` is not covered by the WAL rule.
 

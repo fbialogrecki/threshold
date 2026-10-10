@@ -1,4 +1,4 @@
-# NUC-sized OpenTelemetry Collector values for Threshold observability MVP.
+# NUC-sized OpenTelemetry Collector values for Perlimen observability MVP.
 # Render target: open-telemetry/opentelemetry-collector.
 #
 # Reconciled from the live helm release during the 2026-06-13 GitOps adoption:

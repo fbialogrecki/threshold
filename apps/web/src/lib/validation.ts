@@ -6,7 +6,7 @@
 */
 export const USERNAME_PATTERN = "[A-Za-z0-9_.\\-ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]{3,30}"
 const USERNAME_RE = new RegExp(`^${USERNAME_PATTERN}$`)
-const RESERVED_USERNAMES = new Set(["admin", "root", "support", "threshold"])
+const RESERVED_USERNAMES = new Set(["admin", "root", "support", "threshold", "perlimen"])
 
 /** Mirrors `fold_username` in the users service: case and diacritics folded. */
 function foldUsername(username: string): string {

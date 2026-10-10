@@ -1,4 +1,4 @@
-# NUC-sized Grafana values for Threshold observability MVP.
+# NUC-sized Grafana values for Perlimen observability MVP.
 # Render target: grafana/grafana.
 
 replicas: 1
@@ -86,7 +86,7 @@ alerting:
     groups:
       - orgId: 1
         name: threshold-infra
-        folder: Threshold Alerts
+        folder: Perlimen Alerts
         interval: 1m
         rules:
           - uid: threshold-cnpg-down

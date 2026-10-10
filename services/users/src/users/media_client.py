@@ -13,12 +13,12 @@ class MediaAssetValidationError(Exception):
 
 
 def erase_media_assets(settings: Settings, user_id: str) -> None:
-    if not settings.media_service_url or not settings.threshold_internal_token:
+    if not settings.media_service_url or not settings.perlimen_internal_token:
         raise RuntimeError("media erasure config is missing")
     try:
         response = httpx.post(
             f"{settings.media_service_url.rstrip('/')}/internal/v1/account-erasure",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token},
             json={"user_id": user_id},
             timeout=settings.media_request_timeout_seconds,
         )
@@ -37,12 +37,12 @@ class MediaAssetRef:
 
 
 def get_media_asset(settings: Settings, asset_id: str) -> MediaAssetRef:
-    if not settings.media_service_url or not settings.threshold_internal_token:
+    if not settings.media_service_url or not settings.perlimen_internal_token:
         raise MediaAssetValidationError("media validation is not configured")
     try:
         response = httpx.get(
             f"{settings.media_service_url.rstrip('/')}/internal/v1/assets/{asset_id}",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token},
             timeout=settings.media_request_timeout_seconds,
         )
     except httpx.HTTPError as exc:

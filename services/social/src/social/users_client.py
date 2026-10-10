@@ -52,7 +52,7 @@ async def create_notification(
 ) -> None:
     if actor_user_id == recipient_user_id:
         return
-    if not settings.users_service_url or not settings.threshold_internal_token:
+    if not settings.users_service_url or not settings.perlimen_internal_token:
         logger.warning("users notification client is not configured; skipping notification")
         return
     import httpx
@@ -61,7 +61,7 @@ async def create_notification(
         async with httpx.AsyncClient(timeout=settings.nats_request_timeout_seconds) as client:
             response = await client.post(
                 f"{settings.users_service_url.rstrip('/')}/internal/v1/notifications",
-                headers={"X-Threshold-Internal-Token": settings.threshold_internal_token},
+                headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token},
                 json={
                     "recipient_user_id": recipient_user_id,
                     "actor_user_id": actor_user_id,
@@ -83,7 +83,7 @@ async def create_notification(
 async def resolve_profile_or_page_mention(
     settings: Settings, handle: str
 ) -> dict[str, str | None] | None:
-    if not settings.users_service_url or not settings.threshold_internal_token:
+    if not settings.users_service_url or not settings.perlimen_internal_token:
         logger.warning("users mention resolver is not configured")
         return None
     import httpx
@@ -92,7 +92,7 @@ async def resolve_profile_or_page_mention(
         for kind in ("profiles", "pages"):
             response = await client.get(
                 f"{settings.users_service_url.rstrip('/')}/internal/v1/mention-targets/{kind}/{handle}",
-                headers={"X-Threshold-Internal-Token": settings.threshold_internal_token},
+                headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token},
             )
             if response.status_code == 404:
                 continue
@@ -104,7 +104,7 @@ async def resolve_profile_or_page_mention(
 
 
 async def resolve_event_mention(settings: Settings, slug: str) -> dict[str, str | None] | None:
-    if not settings.events_service_url or not settings.threshold_internal_token:
+    if not settings.events_service_url or not settings.perlimen_internal_token:
         logger.warning("events mention resolver is not configured")
         return None
     import httpx
@@ -112,7 +112,7 @@ async def resolve_event_mention(settings: Settings, slug: str) -> dict[str, str 
     async with httpx.AsyncClient(timeout=settings.nats_request_timeout_seconds) as client:
         response = await client.get(
             f"{settings.events_service_url.rstrip('/')}/internal/v1/mention-targets/events/{slug}",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token},
         )
         if response.status_code == 404:
             return None

@@ -1,14 +1,14 @@
 [project]
-name = "threshold-workspace"
+name = "perlimen-workspace"
 version = "0.1.0"
-description = "Threshold backend workspace"
+description = "Perlimen backend workspace"
 requires-python = ">=3.13"
 dependencies = [
-  "threshold-auth-gateway",
-  "threshold-events",
-  "threshold-media",
-  "threshold-social",
-  "threshold-users",
+  "perlimen-auth-gateway",
+  "perlimen-events",
+  "perlimen-media",
+  "perlimen-social",
+  "perlimen-users",
 ]
 
 [dependency-groups]
@@ -34,11 +34,11 @@ constraint-dependencies = [
 ]
 
 [tool.uv.sources]
-threshold-auth-gateway = { workspace = true }
-threshold-events = { workspace = true }
-threshold-media = { workspace = true }
-threshold-social = { workspace = true }
-threshold-users = { workspace = true }
+perlimen-auth-gateway = { workspace = true }
+perlimen-events = { workspace = true }
+perlimen-media = { workspace = true }
+perlimen-social = { workspace = true }
+perlimen-users = { workspace = true }
 
 [tool.uv.workspace]
 members = [
@@ -65,5 +65,5 @@ testpaths = ["services", "libs/py/tests", "ops/tests"]
 [tool.mypy]
 python_version = "3.13"
 strict = true
-packages = ["threshold_common", "auth_gateway", "events", "media", "users", "social"]
+packages = ["perlimen_common", "auth_gateway", "events", "media", "users", "social"]
 exclude = "(services/.*/migrations|services/.*/tests|ops/tests|scripts)"

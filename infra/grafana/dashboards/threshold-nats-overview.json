@@ -34,7 +34,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "Per-NATS MVP dashboard. Targets common NATS Prometheus exporter metric families (`gnatsd_*` / `nats_*`). Threshold MVP uses NATS Core without JetStream, so JetStream lag panels stay useful only after JetStream/exporter metrics are enabled."
+        "content": "Per-NATS MVP dashboard. Targets common NATS Prometheus exporter metric families (`gnatsd_*` / `nats_*`). Perlimen MVP uses NATS Core without JetStream, so JetStream lag panels stay useful only after JetStream/exporter metrics are enabled."
       }
     },
     {
@@ -344,7 +344,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Threshold / NATS overview",
+  "title": "Perlimen / NATS overview",
   "uid": "threshold-nats-overview",
   "version": 1,
   "weekStart": ""

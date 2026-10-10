@@ -22,7 +22,7 @@ import {
   missingPostEventSlugs,
   organizerPageIds,
 } from "@/lib/feed/hydration"
-import type { FeedFilter, FeedItem, FollowTarget, ThresholdEvent } from "@/lib/types"
+import type { FeedFilter, FeedItem, FollowTarget, PerlimenEvent } from "@/lib/types"
 
 function asNotifications(body: unknown): NotificationItem[] {
   return Array.isArray(body) ? (body as NotificationItem[]) : []
@@ -118,7 +118,7 @@ export async function getFeedWithServices(
   ])
   const { followedPageIds, followedUserIds } = splitFollowTargets(follows)
 
-  let candidateEvents: ThresholdEvent[] = []
+  let candidateEvents: PerlimenEvent[] = []
   if (includesEvents) {
     const candidates = await services.getEventFeedCandidates({
       city: canonicalCity(viewerCity),

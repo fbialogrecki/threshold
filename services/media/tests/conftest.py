@@ -11,7 +11,7 @@ from sqlalchemy.pool import StaticPool
 
 @pytest.fixture(autouse=True)
 def configure_test_settings() -> None:
-    settings.threshold_internal_token = "test-internal-token"
+    settings.perlimen_internal_token = "test-internal-token"
     settings.s3_endpoint_url = "http://127.0.0.1:8333"
     settings.s3_bucket = "threshold-media"
     settings.s3_region = "us-east-1"

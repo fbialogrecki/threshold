@@ -36,7 +36,7 @@ def test_configure_telemetry_instruments_http_and_database_clients(
         module_with_instrumentor("PsycopgInstrumentor", "psycopg"),
     )
 
-    telemetry = importlib.import_module("threshold_common.telemetry")
+    telemetry = importlib.import_module("perlimen_common.telemetry")
     telemetry = importlib.reload(telemetry)
 
     telemetry.configure_telemetry("test-service")
@@ -47,7 +47,7 @@ def test_configure_telemetry_instruments_http_and_database_clients(
 def test_configure_telemetry_exports_metrics_over_existing_otlp_pipeline(
     monkeypatch: MonkeyPatch,
 ) -> None:
-    telemetry = importlib.import_module("threshold_common.telemetry")
+    telemetry = importlib.import_module("perlimen_common.telemetry")
     telemetry = importlib.reload(telemetry)
     configured: dict[str, object] = {}
 
@@ -83,7 +83,7 @@ def test_configure_telemetry_exports_metrics_over_existing_otlp_pipeline(
 def test_instrument_fastapi_keeps_tracing_but_uses_noop_metrics_provider(
     monkeypatch: MonkeyPatch,
 ) -> None:
-    telemetry = importlib.import_module("threshold_common.telemetry")
+    telemetry = importlib.import_module("perlimen_common.telemetry")
     telemetry = importlib.reload(telemetry)
     captured: dict[str, Any] = {}
 

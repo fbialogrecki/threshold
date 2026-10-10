@@ -48,7 +48,7 @@ export function SignalButtonView({
       >
         ↑
       </span>
-      <span className={cn("tabular-nums", flip && "threshold-flip inline-block")}>
+      <span className={cn("tabular-nums", flip && "perlimen-flip inline-block")}>
         {count}
       </span>
     </button>

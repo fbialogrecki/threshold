@@ -10,8 +10,8 @@ import { LogoutButton } from "@/components/auth/logout-button"
 import { ButtonLink } from "@/components/ui/button"
 import { authenticatedHref } from "@/lib/auth/routing"
 
-const REPO_URL = "https://github.com/fbialogrecki/threshold"
-const REPO_LABEL = "github.com/fbialogrecki/threshold"
+const REPO_URL = "https://github.com/fbialogrecki/perlimen"
+const REPO_LABEL = "github.com/fbialogrecki/perlimen"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("landing.metadata")
@@ -65,7 +65,7 @@ export default async function Landing() {
     <main className="flex min-h-screen flex-col bg-pitch text-raw-white">
       {/*
         The hero band is the only atmospheric region: the wash, grid, scanlines
-        and grain end exactly where the threshold rule is drawn. Below it the
+        and grain end exactly where the hero boundary is drawn. Below it the
         page uses the panel's language, so registration is not a visual break.
       */}
       <div className="landing-void relative flex min-h-[92vh] flex-col overflow-hidden">
@@ -86,7 +86,7 @@ export default async function Landing() {
               translate="no"
               className="font-display text-xl tracking-[0.12em] sm:text-2xl"
             >
-              THRESHOLD<span className="text-acid" aria-hidden>▮</span>
+              PERLIMEN<span className="text-acid" aria-hidden>▮</span>
             </Link>
             <nav aria-label={t("navigation")} className="flex items-center gap-2 sm:gap-4">
               <LocaleSwitcher />
@@ -153,9 +153,9 @@ export default async function Landing() {
           </div>
 
           <div className="mt-auto flex items-center gap-3 pb-8">
-            <span className="landing-threshold h-px flex-1 bg-acid" />
+            <span className="landing-boundary h-px flex-1 bg-acid" />
             <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-acid">
-              {t("thresholdLabel")}
+              {t("manifestLabel")}
             </span>
           </div>
         </div>

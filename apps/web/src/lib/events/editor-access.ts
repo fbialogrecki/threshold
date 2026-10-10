@@ -1,13 +1,13 @@
 import type { ManagedPage } from "@/components/pages/page-management-panel"
-import type { ThresholdEvent } from "@/lib/types"
+import type { PerlimenEvent } from "@/lib/types"
 
 type EditorServices = {
   getSessionState: () => Promise<{ status: string }>
   listManagedPages: () => Promise<{ status: number; body: unknown }>
   getEventViewerContext: (slug: string) => Promise<{ event_slug: string; can_post_update: boolean } | null>
-  getEvent: (slug: string) => Promise<ThresholdEvent | null>
+  getEvent: (slug: string) => Promise<PerlimenEvent | null>
 }
-export type EditorAccess = { status: "ready"; pages: ManagedPage[]; event?: ThresholdEvent }
+export type EditorAccess = { status: "ready"; pages: ManagedPage[]; event?: PerlimenEvent }
   | { status: "unauthenticated" | "forbidden" | "unavailable" | "missing" }
 
 export function managedEventPages(body: unknown): ManagedPage[] {

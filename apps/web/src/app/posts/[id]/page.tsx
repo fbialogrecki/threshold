@@ -9,7 +9,7 @@ import { getComments, getPost } from "@/lib/api/social-read"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Post | Threshold",
+  title: "Post | Perlimen",
 }
 
 export default async function PostDetailPage({

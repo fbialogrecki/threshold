@@ -1,7 +1,7 @@
 [project]
-name = "threshold-auth-gateway"
+name = "perlimen-auth-gateway"
 version = "0.1.0"
-description = "Threshold auth gateway service"
+description = "Perlimen auth gateway service"
 requires-python = ">=3.13"
 dependencies = [
   "fastapi>=0.124",
@@ -14,12 +14,12 @@ dependencies = [
   "opentelemetry-instrumentation-httpx>=0.63b1",
   "opentelemetry-instrumentation-logging>=0.63b1",
   "pyjwt[crypto]>=2.10",
-  "threshold-common",
+  "perlimen-common",
   "uvicorn[standard]>=0.38",
 ]
 
 [tool.uv.sources]
-threshold-common = { workspace = true }
+perlimen-common = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

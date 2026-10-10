@@ -7,7 +7,7 @@ from nats.aio.client import Client as NatsClient
 from pydantic import ValidationError
 from sqlalchemy.orm import Session, sessionmaker
 
-from threshold_common.otel_nats import get_message_headers, nats_consumer_span
+from perlimen_common.otel_nats import get_message_headers, nats_consumer_span
 from users.api.routes import _profile_response
 from users.api.schemas import CurrentPrincipalRequest, ListFollowingRequest
 from users.domain.follows import canonical_follow_target_type

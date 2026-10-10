@@ -1,4 +1,4 @@
-# NUC-sized Mimir values for Threshold observability MVP.
+# NUC-sized Mimir values for Perlimen observability MVP.
 # Render target: grafana/mimir-distributed.
 #
 # Reconciled from the live helm release during the 2026-06-13 GitOps adoption:

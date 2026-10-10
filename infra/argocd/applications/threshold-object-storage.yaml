@@ -10,7 +10,7 @@ metadata:
 spec:
   project: platform
   source:
-    repoURL: https://github.com/fbialogrecki/threshold.git
+    repoURL: https://github.com/fbialogrecki/perlimen.git
     targetRevision: main
     path: infra/kustomize/base/object-storage
   destination:

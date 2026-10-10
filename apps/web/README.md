@@ -1,6 +1,6 @@
-# Threshold Web
+# Perlimen Web
 
-Next.js app for Threshold, run with Bun by default.
+Next.js app for Perlimen, run with Bun by default.
 
 ## Default Bun workflow
 

@@ -4,10 +4,10 @@ from typing import Annotated
 from events.main_dependencies import settings
 from fastapi import Depends, Header
 
-from threshold_common.api_security import (
+from perlimen_common.api_security import (
     CurrentUser as CurrentUser,
 )
-from threshold_common.api_security import (
+from perlimen_common.api_security import (
     check_internal_token,
     check_write_quota,
     current_user_from_headers,
@@ -19,7 +19,7 @@ _write_attempts: dict[str, deque[float]] = defaultdict(deque)
 def require_internal_token(
     token: Annotated[str | None, Header(alias="X-Threshold-Internal-Token")] = None,
 ) -> None:
-    check_internal_token(settings.threshold_internal_token, token)
+    check_internal_token(settings.perlimen_internal_token, token)
 
 
 def require_current_user(

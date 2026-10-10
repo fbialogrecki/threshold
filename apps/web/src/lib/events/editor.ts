@@ -1,4 +1,4 @@
-import type { ThresholdEvent } from "@/lib/types"
+import type { PerlimenEvent } from "@/lib/types"
 
 export type EventDraft = {
   title: string; slug: string; page_id: string; starts_at: string; city: string
@@ -6,7 +6,7 @@ export type EventDraft = {
   address: string; poster_media_asset_id: string; lineup: Record<string, string>[]
 }
 
-export function eventDraft(event?: ThresholdEvent): EventDraft {
+export function eventDraft(event?: PerlimenEvent): EventDraft {
   return {
     title: event?.title ?? "", slug: event?.slug ?? "", page_id: event?.page_id ?? "",
     starts_at: event ? new Date(event.starts_at).toISOString().slice(0, -1) : "",
@@ -28,7 +28,7 @@ function utcTime(value: string): string {
   return date.toISOString()
 }
 
-export function eventPayload(draft: EventDraft, original?: ThresholdEvent): Record<string, unknown> {
+export function eventPayload(draft: EventDraft, original?: PerlimenEvent): Record<string, unknown> {
   const before = original ? eventDraft(original) : null
   const payload: Record<string, unknown> = {}
   const changed = (key: keyof EventDraft) => !before || JSON.stringify(draft[key]) !== JSON.stringify(before[key])

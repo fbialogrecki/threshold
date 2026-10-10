@@ -38,7 +38,7 @@ export function TopBar({
     <>
       <header className="sticky top-0 z-30 flex h-12 shrink-0 items-center gap-3 border-b border-border-gray bg-pitch px-4 lg:hidden">
         <Link href="/app" className="font-display text-2xl text-raw-white">
-          Threshold<span className="text-acid">▮</span>
+          Perlimen<span className="text-acid">▮</span>
         </Link>
         <span className="flex-1" />
         <Link

@@ -6,9 +6,9 @@ import {
   missingPostEventSlugs,
   organizerPageIds,
 } from "@/lib/feed/hydration"
-import type { Post, ThresholdEvent } from "@/lib/types"
+import type { Post, PerlimenEvent } from "@/lib/types"
 
-const event: ThresholdEvent = {
+const event: PerlimenEvent = {
   id: "event-1",
   slug: "bass-theory",
   title: "Bass Theory",

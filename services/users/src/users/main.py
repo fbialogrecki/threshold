@@ -6,10 +6,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from threshold_common.health import ok
-from threshold_common.http_observability import instrument_http_observability
-from threshold_common.logging import configure_logging
-from threshold_common.telemetry import configure_telemetry, instrument_fastapi
+from perlimen_common.health import ok
+from perlimen_common.http_observability import instrument_http_observability
+from perlimen_common.logging import configure_logging
+from perlimen_common.telemetry import configure_telemetry, instrument_fastapi
 from users import main_dependencies
 from users.account_erasure import account_erasure_worker
 from users.api.routes import SessionAuthenticationError, _clear_auth_cookies, router
@@ -59,7 +59,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
             nats_server = None
 
 
-app = FastAPI(title="Threshold users", version="0.1.1", lifespan=lifespan)
+app = FastAPI(title="Perlimen users", version="0.1.1", lifespan=lifespan)
 instrument_fastapi(app)
 instrument_http_observability(app, service_name=settings.service_name)
 app.include_router(router)

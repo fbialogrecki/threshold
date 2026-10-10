@@ -25,7 +25,7 @@ describe("media service upload client", () => {
     spyOn(socialClient, "trustedAuthorHeaders").mockResolvedValue({ "X-Threshold-User-Id": "user-1" })
     process.env.MEDIA_SERVICE_URL = "http://media.test"
     process.env.THRESHOLD_INTERNAL_TOKEN = "secret"
-    const request = new Request("http://threshold.test/api/media/assets", {
+    const request = new Request("http://perlimen.test/api/media/assets", {
       method: "POST",
       headers: {
         "content-type": "multipart/form-data; boundary=test",

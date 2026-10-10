@@ -12,10 +12,10 @@ import type {
   EventViewerContext,
   LocationMode,
   ManagerGuestlistEntry,
-  ThresholdEvent,
+  PerlimenEvent,
 } from "@/lib/types"
 
-type EventResponse = Omit<ThresholdEvent, "location_mode"> & {
+type EventResponse = Omit<PerlimenEvent, "location_mode"> & {
   location_mode: LocationMode | "public"
 }
 
@@ -75,7 +75,7 @@ function isDoorStaffList(body: unknown): body is DoorStaffAssignment[] {
   )
 }
 
-function normalizeEvent(event: EventResponse): ThresholdEvent {
+function normalizeEvent(event: EventResponse): PerlimenEvent {
   return {
     ...event,
     location_mode: event.location_mode === "public" ? "public_location" : event.location_mode,
@@ -98,13 +98,13 @@ function normalizeEventUpdate(update: EventUpdateResponse): EventUpdate {
 
 export async function listEvents(
   options: EventListOptions = {},
-): Promise<ThresholdEvent[]> {
+): Promise<PerlimenEvent[]> {
   return (await listEventsResult(options)).items
 }
 
 export async function listEventsResult(
   options: EventListOptions = {},
-): Promise<{ items: ThresholdEvent[]; error: boolean }> {
+): Promise<{ items: PerlimenEvent[]; error: boolean }> {
   try {
     const { status, body } = await eventsCall("/v1/events", {
       query: buildEventListQuery(options),
@@ -118,13 +118,13 @@ export async function listEventsResult(
   }
 }
 
-export async function searchEvents(query: string): Promise<ThresholdEvent[]> {
+export async function searchEvents(query: string): Promise<PerlimenEvent[]> {
   return (await searchEventsResult(query)).items
 }
 
 export async function searchEventsResult(
   query: string,
-): Promise<{ items: ThresholdEvent[]; error: boolean }> {
+): Promise<{ items: PerlimenEvent[]; error: boolean }> {
   const q = query.trim().replace(/^#/, "")
   if (!q) return { items: [], error: false }
   try {
@@ -140,7 +140,7 @@ export async function searchEventsResult(
   }
 }
 
-export async function getEvent(slug: string): Promise<ThresholdEvent | null> {
+export async function getEvent(slug: string): Promise<PerlimenEvent | null> {
   try {
     const { status, body } = await eventsCall(`/v1/events/${encodeURIComponent(slug)}`, {
       includeViewer: true,
@@ -209,7 +209,7 @@ export type EventFeedCandidateInput = {
 export async function getEventFeedCandidates(
   input: EventFeedCandidateInput,
   call: typeof eventsCall = eventsCall,
-): Promise<{ items: ThresholdEvent[]; supported: boolean }> {
+): Promise<{ items: PerlimenEvent[]; supported: boolean }> {
   const pageIds = [...new Set(input.followedPageIds)]
   const creatorIds = [...new Set(input.followedCreatorUserIds)]
   const request = (
@@ -265,7 +265,7 @@ export async function getEventFeedCandidates(
 
 export async function getEventsBatchResult(
   slugs: string[],
-): Promise<{ items: ThresholdEvent[]; supported: boolean }> {
+): Promise<{ items: PerlimenEvent[]; supported: boolean }> {
   const unique = [...new Set(slugs.map((slug) => slug.trim().toLowerCase()).filter(Boolean))]
   if (unique.length === 0) return { items: [], supported: true }
   const batches = Array.from(
@@ -290,7 +290,7 @@ export async function getEventsBatchResult(
   return { items, supported: true }
 }
 
-export async function getEventsBatch(slugs: string[]): Promise<ThresholdEvent[]> {
+export async function getEventsBatch(slugs: string[]): Promise<PerlimenEvent[]> {
   return (await getEventsBatchResult(slugs)).items
 }
 
