@@ -409,11 +409,11 @@
     },
     "title": "Events",
     "subtitle": "Upcoming / all supported cities / chronological",
-    "emptyEyebrow": "[ events ]",
+    "emptyEyebrow": "Events",
     "emptyTitle": "No upcoming events",
     "emptyBody": "No published upcoming events match this catalog right now.",
     "emptyAction": "Search the scene",
-    "errorEyebrow": "[ unavailable ]",
+    "errorEyebrow": "Unavailable",
     "loadErrorTitle": "Events unavailable",
     "loadErrorBody": "The event catalog could not be loaded.",
     "retry": "Try again"
@@ -425,7 +425,7 @@
     },
     "title": "Search",
     "subtitle": "Profiles / Pages / groups / events",
-    "emptyEyebrow": "[ search ]",
+    "emptyEyebrow": "Search",
     "filterLabel": "Filter search results",
     "filters": {
       "all": "All",
@@ -454,7 +454,7 @@
       "groups": "Browse groups",
       "pages": "Browse Pages"
     },
-    "errorEyebrow": "[ unavailable ]",
+    "errorEyebrow": "Unavailable",
     "loadErrorTitle": "Search unavailable",
     "loadErrorBody": "Search services could not be reached.",
     "retry": "Try again"
@@ -467,7 +467,7 @@
     "eyebrow": "Inbox",
     "title": "Notifications",
     "subtitle": "Account and event activity stored in Perlimen. Push and email delivery are not enabled.",
-    "emptyEyebrow": "[ inbox empty ]",
+    "emptyEyebrow": "Inbox empty",
     "emptyTitle": "Nothing to read",
     "emptyBody": "You have no notifications.",
     "unreadCount": "{count, plural, one {# unread} other {# unread}}",
@@ -483,7 +483,7 @@
     "readAllError": "Notifications could not be marked read.",
     "markedRead": "Notification marked read.",
     "markedAll": "All notifications marked read.",
-    "errorEyebrow": "[ unavailable ]",
+    "errorEyebrow": "Unavailable",
     "loadErrorTitle": "Notifications unavailable",
     "retry": "Try again",
     "roles": {
@@ -549,12 +549,12 @@
     },
     "title": "Groups",
     "subtitle": "Official scene channels",
-    "emptyEyebrow": "[ groups ]",
+    "emptyEyebrow": "Groups",
     "official": "Official",
     "emptyTitle": "No groups available",
     "emptyBody": "No official scene groups are available right now.",
     "backToFeed": "Back to feed",
-    "errorEyebrow": "[ unavailable ]",
+    "errorEyebrow": "Unavailable",
     "loadErrorTitle": "Groups unavailable",
     "loadErrorBody": "Groups could not be loaded.",
     "retry": "Try again"
@@ -566,11 +566,11 @@
     },
     "back": "Groups",
     "official": "Official",
-    "emptyEyebrow": "[ group empty ]",
+    "emptyEyebrow": "Group empty",
     "emptyTitle": "No posts yet",
     "emptyJoined": "Be the first to post in this group.",
     "emptyNotJoined": "Join this group to post and follow the conversation.",
-    "errorEyebrow": "[ unavailable ]",
+    "errorEyebrow": "Unavailable",
     "loadErrorTitle": "Group unavailable",
     "loadErrorBody": "This group could not be loaded.",
     "retry": "Try again",
@@ -588,7 +588,7 @@
     },
     "title": "Settings",
     "subtitle": "Public identity / notifications / account",
-    "loadErrorEyebrow": "[ unavailable ]",
+    "loadErrorEyebrow": "Unavailable",
     "loadErrorTitle": "Settings unavailable",
     "loadErrorBody": "Your profile settings could not be loaded.",
     "retry": "Try again",
@@ -721,7 +721,7 @@
     "loadError": "Managed Pages could not be loaded.",
     "createError": "Page could not be created.",
     "loadErrorTitle": "Organizer Pages unavailable",
-    "errorEyebrow": "[ unavailable ]",
+    "errorEyebrow": "Unavailable",
     "retry": "Try again",
     "types": {
       "club": "Club",
@@ -744,7 +744,7 @@
     },
     "title": "Saved",
     "subtitle": "Personal saved items",
-    "emptyEyebrow": "[ saved ]",
+    "emptyEyebrow": "Saved",
     "emptyTitle": "Saving is unavailable",
     "emptyBody": "This release does not store saved posts or events.",
     "action": "Back to feed"
@@ -760,7 +760,7 @@
     "notifications": "Notifications",
     "notificationsUnread": "Notifications, {count} unread",
     "search": "Search",
-    "post": "+ Post",
+    "post": "New post",
     "saved": "Saved",
     "settings": "Settings",
     "profile": "Profile",
@@ -773,7 +773,7 @@
     },
     "title": "Access",
     "subtitle": "Private event access",
-    "emptyEyebrow": "[ access ]",
+    "emptyEyebrow": "Access",
     "emptyTitle": "No private access yet",
     "emptyBody": "Organizer-added guestlist access and QR check-in are available on event pages. This release has no global access inbox, public request flow or encrypted exact-location reveal.",
     "action": "Back to feed"
@@ -781,7 +781,7 @@
   "feed": {
     "title": "Feed",
     "newest": "Newest",
-    "emptyEyebrow": "[ feed empty ]",
+    "emptyEyebrow": "Feed empty",
     "emptyTitle": "No posts yet",
     "emptyBody": "Follow clubs, DJs and collectives to build your chronological feed. Everything they publish lands here, newest first.",
     "emptyAction": "Find your scene",
@@ -810,7 +810,7 @@
       "title": "Create post",
       "description": "Publish a post to Perlimen."
     },
-    "title": "+ Post",
+    "title": "New post",
     "subtitle": "Share text, images, and an optional event",
     "textLabel": "Post text",
     "placeholder": "Share something with the scene. Tag @people.",
@@ -1025,6 +1025,8 @@
     "mobileNavigation": "Primary mobile navigation",
     "accountNavigation": "Account",
     "closeAccountMenu": "Close account menu",
+    "skipToContent": "Skip to content",
+    "sidebar": "Sidebar",
     "privateAccess": "Private Access",
     "tonight": "Tonight",
     "railQuiet": "Quiet. Access and tonight's events land here.",
@@ -1036,8 +1038,8 @@
     },
     "search": {
       "label": "Search events, artists, collectives, locations",
-      "compactPlaceholder": "search...",
-      "placeholder": "search events, artists, collectives, locations..."
+      "compactPlaceholder": "Search…",
+      "placeholder": "Search events, artists, collectives, locations…"
     }
   },
   "actions": {

@@ -12,7 +12,7 @@ export function Card({
   as?: "div" | "article" | "section" | "aside"
 }) {
   return (
-    <Tag className={cn("border border-border-gray", className)}>
+    <Tag className={cn("rounded-surface border border-border-gray bg-graphite/60", className)}>
       {children}
     </Tag>
   )

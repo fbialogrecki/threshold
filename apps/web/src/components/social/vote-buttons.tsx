@@ -77,12 +77,16 @@ export function VoteButtons({
   }
 
   const compact = size === "sm"
+  const pill = cn(
+    "inline-flex items-center gap-1 rounded-full border transition-[color,background-color,border-color,scale] duration-150 ease-press active:scale-90",
+    compact ? "min-h-7 px-2 py-0.5" : "min-h-9 px-2.5 py-1",
+  )
 
   return (
     <div
       className={cn(
-        "inline-flex items-center font-mono uppercase tracking-label",
-        compact ? "gap-1 text-[10px]" : "gap-1.5 text-xs",
+        "inline-flex items-center font-mono tabular-nums",
+        compact ? "gap-1 text-[11px]" : "gap-1.5 text-xs",
       )}
     >
       <button
@@ -91,8 +95,7 @@ export function VoteButtons({
         aria-pressed={state.vote === "up"}
         aria-label={state.vote === "up" ? t("removeUpvote") : t("upvote")}
         className={cn(
-          "inline-flex items-center gap-1 border transition-colors",
-          compact ? "px-1.5 py-0.5" : "px-2 py-1",
+          pill,
           state.vote === "up"
             ? "border-acid bg-acid/15 text-acid"
             : "border-border-gray text-dim-white hover:border-acid hover:text-acid",
@@ -107,8 +110,7 @@ export function VoteButtons({
         aria-pressed={state.vote === "down"}
         aria-label={state.vote === "down" ? t("removeDownvote") : t("downvote")}
         className={cn(
-          "inline-flex items-center gap-1 border transition-colors",
-          compact ? "px-1.5 py-0.5" : "px-2 py-1",
+          pill,
           state.vote === "down"
             ? "border-violet bg-violet/15 text-violet"
             : "border-border-gray text-dim-white hover:border-violet hover:text-violet",

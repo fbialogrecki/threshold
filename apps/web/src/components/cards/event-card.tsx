@@ -40,9 +40,9 @@ export async function EventCard({
   // and the poster plus title scale already mark this as an event.
   return (
     <Card as="article">
-      <div className="flex items-center justify-between border-b border-border-gray px-4 py-2">
+      <div className="flex items-center justify-between gap-3 border-b border-border-gray px-4 py-2.5 sm:px-5">
         <MonoLabel tone="muted">{t("event")}</MonoLabel>
-        <MonoLabel tone="muted">{city ?? "—"}</MonoLabel>
+        <span className="truncate text-[13px] text-muted">{city ?? "—"}</span>
       </div>
 
       {posterUrl ? (
@@ -59,21 +59,18 @@ export async function EventCard({
         </Link>
       ) : null}
 
-      <div className="px-4 py-4">
+      <div className="px-4 py-4 sm:px-5">
         <Link href={`/events/${event.slug}`}>
-          <h3 className="font-display text-4xl leading-[0.95] tracking-wide text-raw-white hover:text-acid">
+          <h3 className="font-display text-3xl leading-[0.95] tracking-[0.01em] break-words text-raw-white transition-colors hover:text-acid sm:text-4xl">
             {event.title}
           </h3>
         </Link>
 
-        <div className="mt-3 flex flex-wrap items-stretch gap-2">
-          <div className="border border-border-gray px-3 py-1.5">
-            <p className="font-mono text-xs uppercase tracking-label text-raw-white">
-              {formatEventDate(event.starts_at, locale)}
-            </p>
-          </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <p className="rounded-full bg-raised px-3 py-1 text-[13px] font-medium text-raw-white">
+            {formatEventDate(event.starts_at, locale)}
+          </p>
           <StatusBadge
-            className="self-center"
             status={LOCATION_STATUS[event.location_mode]}
             label={`${locationLabel} · ${city ?? t("tba")}`}
           />
@@ -81,18 +78,14 @@ export async function EventCard({
 
         {event.venue_name && event.location_mode !== "secret_location" ? (
           <p className="mt-3 text-sm text-dim-white">
-            <span className="font-mono text-[11px] uppercase tracking-label text-muted">
-              {t("venue")}:{" "}
-            </span>
+            <span className="text-muted">{t("venue")}: </span>
             {event.venue_name}
           </p>
         ) : null}
 
         {event.lineup.length > 0 ? (
-          <div className="mt-3 text-sm text-dim-white">
-            <span className="font-mono text-[11px] uppercase tracking-label text-muted">
-              {t("lineup")}:{" "}
-            </span>
+          <div className="mt-2 text-sm leading-6 text-dim-white">
+            <span className="text-muted">{t("lineup")}: </span>
             {event.lineup.map((item, index) => {
               const name = typeof item === "string" ? item : item.display_name ?? item.name
               const targetUrl =
@@ -115,9 +108,9 @@ export async function EventCard({
 
         <TagRow className="mt-3" tags={event.genres} />
 
-        <div className="mt-4 flex items-center justify-between gap-4 border-t border-border-gray pt-3">
-          <div className="flex items-center gap-2">
-            <ButtonLink href={`/events/${event.slug}`} variant="secondary">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border-gray pt-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <ButtonLink href={`/events/${event.slug}`} variant="secondary" size="sm">
               {t("view")} →
             </ButtonLink>
             {variant === "interactive" ? (

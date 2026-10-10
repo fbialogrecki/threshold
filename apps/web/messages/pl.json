@@ -409,11 +409,11 @@
     },
     "title": "Wydarzenia",
     "subtitle": "Nadchodzące / wszystkie obsługiwane miasta / chronologicznie",
-    "emptyEyebrow": "[ wydarzenia ]",
+    "emptyEyebrow": "Wydarzenia",
     "emptyTitle": "Brak nadchodzących wydarzeń",
     "emptyBody": "W katalogu nie ma teraz opublikowanych nadchodzących wydarzeń.",
     "emptyAction": "Przeszukaj scenę",
-    "errorEyebrow": "[ niedostępne ]",
+    "errorEyebrow": "Niedostępne",
     "loadErrorTitle": "Wydarzenia są niedostępne",
     "loadErrorBody": "Nie udało się załadować katalogu wydarzeń.",
     "retry": "Spróbuj ponownie"
@@ -425,7 +425,7 @@
     },
     "title": "Szukaj",
     "subtitle": "Profile / Strony / grupy / wydarzenia",
-    "emptyEyebrow": "[ wyszukiwanie ]",
+    "emptyEyebrow": "Wyszukiwanie",
     "filterLabel": "Filtruj wyniki wyszukiwania",
     "filters": {
       "all": "Wszystko",
@@ -454,7 +454,7 @@
       "groups": "Przeglądaj grupy",
       "pages": "Przeglądaj Strony"
     },
-    "errorEyebrow": "[ niedostępne ]",
+    "errorEyebrow": "Niedostępne",
     "loadErrorTitle": "Wyszukiwanie jest niedostępne",
     "loadErrorBody": "Nie udało się połączyć z usługami wyszukiwania.",
     "retry": "Spróbuj ponownie"
@@ -467,7 +467,7 @@
     "eyebrow": "Skrzynka",
     "title": "Powiadomienia",
     "subtitle": "Aktywność konta i wydarzeń zapisana w Perlimen. Powiadomienia push i e-mail nie są włączone.",
-    "emptyEyebrow": "[ skrzynka pusta ]",
+    "emptyEyebrow": "Skrzynka pusta",
     "emptyTitle": "Nic do czytania",
     "emptyBody": "Nie masz powiadomień.",
     "unreadCount": "{count, plural, one {# nieprzeczytane} few {# nieprzeczytane} other {# nieprzeczytanych}}",
@@ -483,7 +483,7 @@
     "readAllError": "Nie udało się oznaczyć powiadomień.",
     "markedRead": "Oznaczono powiadomienie jako przeczytane.",
     "markedAll": "Oznaczono wszystkie powiadomienia jako przeczytane.",
-    "errorEyebrow": "[ niedostępne ]",
+    "errorEyebrow": "Niedostępne",
     "loadErrorTitle": "Powiadomienia są niedostępne",
     "retry": "Spróbuj ponownie",
     "roles": {
@@ -549,12 +549,12 @@
     },
     "title": "Grupy",
     "subtitle": "Oficjalne kanały sceny",
-    "emptyEyebrow": "[ grupy ]",
+    "emptyEyebrow": "Grupy",
     "official": "Oficjalna",
     "emptyTitle": "Brak dostępnych grup",
     "emptyBody": "Obecnie nie ma dostępnych oficjalnych grup sceny.",
     "backToFeed": "Wróć do aktualności",
-    "errorEyebrow": "[ niedostępne ]",
+    "errorEyebrow": "Niedostępne",
     "loadErrorTitle": "Grupy są niedostępne",
     "loadErrorBody": "Nie udało się załadować grup.",
     "retry": "Spróbuj ponownie"
@@ -566,11 +566,11 @@
     },
     "back": "Grupy",
     "official": "Oficjalna",
-    "emptyEyebrow": "[ grupa pusta ]",
+    "emptyEyebrow": "Grupa pusta",
     "emptyTitle": "Brak postów",
     "emptyJoined": "Napisz pierwszy post w tej grupie.",
     "emptyNotJoined": "Dołącz do grupy, aby publikować i śledzić rozmowę.",
-    "errorEyebrow": "[ niedostępne ]",
+    "errorEyebrow": "Niedostępne",
     "loadErrorTitle": "Grupa jest niedostępna",
     "loadErrorBody": "Nie udało się załadować tej grupy.",
     "retry": "Spróbuj ponownie",
@@ -588,7 +588,7 @@
     },
     "title": "Ustawienia",
     "subtitle": "Publiczna tożsamość / powiadomienia / konto",
-    "loadErrorEyebrow": "[ niedostępne ]",
+    "loadErrorEyebrow": "Niedostępne",
     "loadErrorTitle": "Ustawienia są niedostępne",
     "loadErrorBody": "Nie udało się załadować ustawień profilu.",
     "retry": "Spróbuj ponownie",
@@ -721,7 +721,7 @@
     "loadError": "Nie udało się załadować zarządzanych Stron.",
     "createError": "Nie udało się utworzyć Strony.",
     "loadErrorTitle": "Strony organizatorów są niedostępne",
-    "errorEyebrow": "[ niedostępne ]",
+    "errorEyebrow": "Niedostępne",
     "retry": "Spróbuj ponownie",
     "types": {
       "club": "Klub",
@@ -744,7 +744,7 @@
     },
     "title": "Zapisane",
     "subtitle": "Prywatne zapisane elementy",
-    "emptyEyebrow": "[ zapisane ]",
+    "emptyEyebrow": "Zapisane",
     "emptyTitle": "Zapisywanie jest niedostępne",
     "emptyBody": "Ta wersja nie przechowuje zapisanych postów ani wydarzeń.",
     "action": "Wróć do aktualności"
@@ -760,7 +760,7 @@
     "notifications": "Powiadomienia",
     "notificationsUnread": "Powiadomienia, nieprzeczytane: {count}",
     "search": "Szukaj",
-    "post": "+ Post",
+    "post": "Nowy post",
     "saved": "Zapisane",
     "settings": "Ustawienia",
     "profile": "Profil",
@@ -773,7 +773,7 @@
     },
     "title": "Dostęp",
     "subtitle": "Prywatny dostęp do wydarzeń",
-    "emptyEyebrow": "[ dostęp ]",
+    "emptyEyebrow": "Dostęp",
     "emptyTitle": "Brak prywatnego dostępu",
     "emptyBody": "Dostęp z listy gości przyznany przez organizatora i odprawa kodem QR są dostępne na stronach wydarzeń. Ta wersja nie ma globalnej skrzynki dostępu, publicznego formularza zgłoszenia ani szyfrowanego ujawniania dokładnej lokalizacji.",
     "action": "Wróć do aktualności"
@@ -781,7 +781,7 @@
   "feed": {
     "title": "Aktualności",
     "newest": "Najnowsze",
-    "emptyEyebrow": "[ puste aktualności ]",
+    "emptyEyebrow": "Brak aktualności",
     "emptyTitle": "Brak postów",
     "emptyBody": "Obserwuj kluby, DJ-ów i kolektywy, aby zbudować chronologiczne aktualności. Najnowsze publikacje pojawią się tutaj.",
     "emptyAction": "Znajdź swoją scenę",
@@ -810,7 +810,7 @@
       "title": "Utwórz post",
       "description": "Opublikuj post w Perlimen."
     },
-    "title": "+ Post",
+    "title": "Nowy post",
     "subtitle": "Udostępnij tekst, zdjęcia i opcjonalne wydarzenie",
     "textLabel": "Treść posta",
     "placeholder": "Podziel się czymś ze sceną. Oznacz @osoby.",
@@ -1025,6 +1025,8 @@
     "mobileNavigation": "Główna nawigacja mobilna",
     "accountNavigation": "Konto",
     "closeAccountMenu": "Zamknij menu konta",
+    "skipToContent": "Przejdź do treści",
+    "sidebar": "Panel boczny",
     "privateAccess": "Prywatny dostęp",
     "tonight": "Dziś",
     "railQuiet": "Cicho. Dostęp i dzisiejsze wydarzenia pojawią się tutaj.",
@@ -1036,8 +1038,8 @@
     },
     "search": {
       "label": "Szukaj wydarzeń, artystów, kolektywów i lokalizacji",
-      "compactPlaceholder": "szukaj...",
-      "placeholder": "szukaj wydarzeń, artystów, kolektywów i lokalizacji..."
+      "compactPlaceholder": "Szukaj…",
+      "placeholder": "Szukaj wydarzeń, artystów, kolektywów i lokalizacji…"
     }
   },
   "actions": {

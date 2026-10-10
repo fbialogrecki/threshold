@@ -1,11 +1,11 @@
-import { Buildings, CalendarDots, UserCircle, UsersThree } from "@phosphor-icons/react/ssr"
+import { ArrowRight, Buildings, CalendarDots, UserCircle, UsersThree } from "@phosphor-icons/react/ssr"
 import type { Metadata } from "next"
 import { getLocale, getTranslations } from "next-intl/server"
 import Link from "next/link"
 
 import { SearchBar } from "@/components/shell/search-bar"
 import { EmptyState } from "@/components/ui/empty-state"
-import { MonoLabel } from "@/components/ui/mono-label"
+import { PageHeader } from "@/components/ui/page-header"
 import { searchWithStatus } from "@/lib/api/search"
 import { cn } from "@/lib/cn"
 import { groupSearchResults, searchSuggestions } from "@/lib/search/grouping"
@@ -24,6 +24,13 @@ const TYPES: SearchResultType[] = [
   "event",
 ]
 
+const GROUP_ICON = {
+  profiles: UserCircle,
+  pages: Buildings,
+  groups: UsersThree,
+  events: CalendarDots,
+} as const
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("searchPage.metadata")
   return { title: t("title"), description: t("description") }
@@ -35,6 +42,23 @@ function buildHref(q: string, type?: SearchResultType): string {
   if (type) params.set("type", type)
   const qs = params.toString()
   return qs ? `/app/search?${qs}` : "/app/search"
+}
+
+function FilterChip({ href, active, children }: { href: string; active: boolean; children: string }) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "inline-flex min-h-9 items-center rounded-full border px-3.5 text-[13px] font-medium transition-colors",
+        active
+          ? "border-acid bg-acid/10 text-acid"
+          : "border-border-gray text-dim-white hover:border-status-neutral-border hover:text-raw-white",
+      )}
+    >
+      {children}
+    </Link>
+  )
 }
 
 export default async function SearchPage({
@@ -55,39 +79,23 @@ export default async function SearchPage({
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="sr-only">{t("title")}</h1>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
       <SearchBar initialQuery={q} />
 
-      <nav aria-label={t("filterLabel")} className="flex flex-wrap gap-1">
-        <Link
-          href={buildHref(q)}
-          aria-current={!type ? "page" : undefined}
-          className={cn(
-            "border px-3 py-1.5 font-mono text-[11px] uppercase tracking-label",
-            !type ? "border-acid text-acid" : "border-border-gray text-muted hover:text-raw-white",
-          )}
-        >
+      <nav aria-label={t("filterLabel")} className="flex flex-wrap gap-2">
+        <FilterChip href={buildHref(q)} active={!type}>
           {t("filters.all")}
-        </Link>
+        </FilterChip>
         {TYPES.map((filter) => (
-          <Link
-            key={filter}
-            href={buildHref(q, filter)}
-            aria-current={type === filter ? "page" : undefined}
-            className={cn(
-              "border px-3 py-1.5 font-mono text-[11px] uppercase tracking-label",
-              type === filter
-                ? "border-acid text-acid"
-                : "border-border-gray text-muted hover:text-raw-white",
-            )}
-          >
+          <FilterChip key={filter} href={buildHref(q, filter)} active={type === filter}>
             {t(`filters.${filter}`)}
-          </Link>
+          </FilterChip>
         ))}
       </nav>
 
       {result.error ? (
         <EmptyState
+          tone="error"
           title={t("loadErrorTitle")}
           eyebrow={t("errorEyebrow")}
           body={t("loadErrorBody")}
@@ -98,59 +106,74 @@ export default async function SearchPage({
         <EmptyState
           title={q ? t("noResults") : t("emptyTitle")}
           eyebrow={t("emptyEyebrow")}
-          body={
-            q
-              ? t("noResultsBody", { query: q })
-              : t("emptyBody")
-          }
+          body={q ? t("noResultsBody", { query: q }) : t("emptyBody")}
         >
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <ul className="mt-2 flex flex-wrap gap-2">
             {suggestions.map((suggestion) => (
-              <Link
-                key={suggestion.id}
-                href={suggestion.href}
-                className="border border-border-gray px-3 py-1.5 font-mono text-[11px] uppercase tracking-label text-muted hover:border-acid hover:text-acid"
-              >
-                {t(`suggestions.${suggestion.id}`)}
-              </Link>
+              <li key={suggestion.id}>
+                <Link
+                  href={suggestion.href}
+                  className="group inline-flex min-h-10 items-center gap-2 rounded-control border border-border-gray bg-pitch/60 px-3.5 text-sm font-medium text-raw-white transition-colors hover:border-acid"
+                >
+                  {t(`suggestions.${suggestion.id}`)}
+                  <ArrowRight
+                    size={14}
+                    className="text-acid transition-transform duration-200 ease-out-expo group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </EmptyState>
       ) : (
-        <div className="flex flex-col gap-5">
-          {groups.map((group) => (
-            <section key={group.id} className="flex flex-col gap-2">
-              <MonoLabel tone="muted">
-                <span className="inline-flex items-center gap-2">
-                  {group.id === "profiles" ? <UserCircle size={15} weight="bold" aria-hidden /> : null}
-                  {group.id === "pages" ? <Buildings size={15} weight="bold" aria-hidden /> : null}
-                  {group.id === "groups" ? <UsersThree size={15} weight="bold" aria-hidden /> : null}
-                  {group.id === "events" ? <CalendarDots size={15} weight="bold" aria-hidden /> : null}
+        <div className="flex flex-col gap-6">
+          {groups.map((group) => {
+            const Icon = GROUP_ICON[group.id]
+            return (
+              <section key={group.id} aria-labelledby={`search-group-${group.id}`}>
+                <h2
+                  id={`search-group-${group.id}`}
+                  className="flex items-center gap-2 text-sm font-semibold text-dim-white"
+                >
+                  <Icon size={16} weight="bold" className="text-muted" aria-hidden />
                   {t(`groups.${group.id}`)}
-                </span>
-              </MonoLabel>
-              <ul className="divide-y divide-border-gray border border-border-gray">
-                {group.items.map((result) => (
-                  <li key={`${result.type}-${result.href}`}>
-                    <Link
-                      href={result.href}
-                      className="flex items-center justify-between gap-4 px-4 py-3 hover:text-acid"
-                    >
-                      <span>
-                        <span className="font-display text-lg text-raw-white">
-                          {result.title}
+                </h2>
+                <ul className="mt-2 divide-y divide-border-gray overflow-hidden rounded-surface border border-border-gray bg-graphite/60">
+                  {group.items.map((item) => (
+                    <li key={`${item.type}-${item.href}`}>
+                      <Link
+                        href={item.href}
+                        className="group flex items-center justify-between gap-4 px-4 py-3.5 transition-colors hover:bg-raised"
+                      >
+                        <span className="min-w-0">
+                          {/* People keep their own case; entities take display type. */}
+                          <span
+                            className={cn(
+                              "block truncate text-raw-white group-hover:text-acid",
+                              group.id === "profiles"
+                                ? "text-[15px] font-semibold"
+                                : "font-display text-lg leading-tight",
+                            )}
+                          >
+                            {item.title}
+                          </span>
+                          {item.subtitle ? (
+                            <span className="mt-0.5 block truncate text-[13px] text-muted">
+                              {item.subtitle}
+                            </span>
+                          ) : null}
                         </span>
-                        <span className="ml-2 font-mono text-[11px] uppercase tracking-label text-muted">
-                          {result.subtitle}
+                        <span className="shrink-0 rounded-full bg-raised px-2.5 py-0.5 text-xs text-dim-white">
+                          {t(`filters.${item.type}`)}
                         </span>
-                      </span>
-                      <MonoLabel tone="muted">{t(`filters.${result.type}`)}</MonoLabel>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )
+          })}
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { X } from "@phosphor-icons/react"
+import { GearSix, SignOut, UserCircle, X } from "@phosphor-icons/react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { useEffect, useId, useRef } from "react"
@@ -33,6 +33,7 @@ export function AccountSheet({
   const navigation = useTranslations("navigation")
   const actions = useTranslations("actions")
   const shell = useTranslations("shell")
+  const auth = useTranslations("auth")
 
   useEffect(() => {
     const sheet = sheetRef.current
@@ -79,7 +80,7 @@ export function AccountSheet({
   }, [onClose])
 
   const linkClass =
-    "flex items-center justify-between border-b border-border-gray px-4 py-3.5 font-mono text-sm uppercase tracking-label text-dim-white hover:text-acid"
+    "flex min-h-12 items-center gap-3 rounded-control px-3 text-[15px] font-medium text-raw-white transition-colors hover:bg-raised"
 
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
@@ -87,16 +88,17 @@ export function AccountSheet({
         type="button"
         aria-label={shell("closeAccountMenu")}
         onClick={onClose}
-        className="absolute inset-0 bg-pitch/80"
+        className="absolute inset-0 animate-fade bg-pitch/80 backdrop-blur-sm"
       />
       <div
         ref={sheetRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="absolute inset-x-0 bottom-0 overscroll-contain border-t-2 border-acid bg-pitch pb-[env(safe-area-inset-bottom)]"
+        className="absolute inset-x-0 bottom-0 animate-sheet overscroll-contain rounded-t-surface border-t border-border-gray bg-graphite px-2 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-2"
       >
-        <div className="flex items-center justify-between border-b border-border-gray px-4 py-3">
+        <span aria-hidden className="mx-auto mb-1 block h-1 w-10 rounded-full bg-status-neutral-border" />
+        <div className="flex items-center justify-between border-b border-border-gray px-2 pb-3 pt-2">
           <div className="flex min-w-0 items-center gap-3">
             <Avatar
               name={name}
@@ -109,38 +111,37 @@ export function AccountSheet({
               <p id={titleId} className="truncate text-[15px] font-semibold text-raw-white">
                 {name || navigation("you")}
               </p>
-              {city ? (
-                <p className="truncate font-mono text-[10px] uppercase tracking-label text-muted">
-                  {city}
-                </p>
-              ) : null}
+              {city ? <p className="truncate text-[13px] text-muted">{city}</p> : null}
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label={actions("close")}
-            className="p-2 text-muted hover:text-raw-white focus-visible:text-raw-white"
+            className="grid size-11 place-items-center rounded-full text-muted transition-colors hover:bg-raised hover:text-raw-white focus-visible:text-raw-white"
           >
             <X size={18} weight="bold" aria-hidden />
           </button>
         </div>
-        <nav aria-label={shell("accountNavigation")}>
+        <nav aria-label={shell("accountNavigation")} className="flex flex-col gap-0.5 pt-2">
           {username ? (
             <Link
               href={`/u/${encodeURIComponent(username)}`}
               className={linkClass}
               onClick={onClose}
             >
-              {navigation("profile")} <span aria-hidden>→</span>
+              <UserCircle size={20} className="text-muted" aria-hidden />
+              {navigation("profile")}
             </Link>
           ) : null}
           <Link href="/app/settings" className={linkClass} onClick={onClose}>
-            {navigation("settings")} <span aria-hidden>→</span>
+            <GearSix size={20} className="text-muted" aria-hidden />
+            {navigation("settings")}
           </Link>
-          <div className="px-4 py-3.5">
-            <LogoutButton className="text-sm" />
-          </div>
+          <LogoutButton className="flex min-h-12 w-full items-center gap-3 rounded-control px-3 text-left text-[15px] font-medium text-dim-white transition-colors hover:bg-raised hover:text-orange">
+            <SignOut size={20} aria-hidden />
+            {auth("logout")}
+          </LogoutButton>
         </nav>
       </div>
     </div>

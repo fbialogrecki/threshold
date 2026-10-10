@@ -116,7 +116,7 @@ export default async function GroupDetailPage({
               eyebrow={t("emptyEyebrow")}
             />
           ) : (
-            <div className="divide-y divide-border-gray border-y border-border-gray">
+            <div className="flex flex-col gap-3">
               {postResult.items.map((post) => (
                 <PostCard key={post.id} post={post} />
               ))}

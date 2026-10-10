@@ -163,12 +163,12 @@ export function PostComposer({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex w-full items-center gap-3 border border-border-gray px-3 py-3 text-left transition-colors hover:border-acid"
+        className="flex w-full items-center gap-3 rounded-surface border border-border-gray bg-graphite/60 px-4 py-3.5 text-left transition-colors hover:border-acid"
       >
-        <span className={cn("flex-1 truncate text-sm", draft ? "text-dim-white" : "text-muted")}>
+        <span className={cn("flex-1 truncate text-[15px]", draft ? "text-dim-white" : "text-muted")}>
           {draft || t("placeholder")}
         </span>
-        <span className="font-mono text-[11px] uppercase tracking-label text-acid">
+        <span className="rounded-control bg-acid px-3 py-1.5 text-sm font-semibold text-pitch">
           {t("publish")}
         </span>
       </button>
@@ -177,13 +177,13 @@ export function PostComposer({
 
   // The counter is noise until the limit is actually in reach.
   const remaining = MAX_POST_BODY - body.length
-  const iconActionClass = "p-2 text-muted transition-colors hover:text-acid focus-within:text-acid"
+  const iconActionClass = "min-h-10 rounded-control px-2.5 text-muted transition-colors hover:bg-raised hover:text-acid focus-within:text-acid"
 
   return (
     <form
       ref={formRef}
       onSubmit={onSubmit}
-      className="border border-border-gray focus-within:border-acid"
+      className="rounded-surface border border-border-gray bg-graphite/60 transition-[border-color,box-shadow] focus-within:border-acid focus-within:shadow-[0_0_0_3px_rgba(198,255,0,0.12)]"
     >
       <label className="sr-only" htmlFor={compact ? "feed-compose-body" : "compose-body"}>
         {t("textLabel")}
@@ -196,19 +196,19 @@ export function PostComposer({
         maxLength={MAX_POST_BODY}
         autoFocus={compact}
         placeholder={t("placeholder")}
-        className="w-full resize-none bg-transparent p-3 text-[15px] leading-7 text-raw-white placeholder:text-muted focus:outline-none"
+        className="w-full resize-none bg-transparent px-4 py-3.5 text-base leading-7 text-raw-white placeholder:text-muted focus:outline-none"
       />
 
       <div aria-live="polite">
-        {fileNotice ? <p className="px-3 pb-2 text-sm text-orange">{fileNotice}</p> : null}
-        {eventError ? <p className="px-3 pb-2 text-sm text-orange">{eventError}</p> : null}
-        {error ? <p className="px-3 pb-2 text-sm text-error">{error}</p> : null}
+        {fileNotice ? <p className="px-4 pb-2 text-sm text-orange">{fileNotice}</p> : null}
+        {eventError ? <p className="px-4 pb-2 text-sm text-orange">{eventError}</p> : null}
+        {error ? <p className="px-4 pb-2 text-sm text-orange">{error}</p> : null}
       </div>
 
-      <div className="flex items-center gap-1 border-t border-border-gray px-2 py-2">
+      <div className="flex items-center gap-1 border-t border-border-gray px-2 py-2 sm:px-3">
         <label className={`flex cursor-pointer items-center gap-1.5 ${iconActionClass}`}>
           <ImageSquare size={18} aria-hidden />
-          <span className={files.length > 0 ? "font-mono text-[10px] tabular-nums" : "sr-only"}>
+          <span className={files.length > 0 ? "text-[13px] tabular-nums" : "sr-only"}>
             {files.length > 0 ? files.length : t("attachImages")}
           </span>
           <input
@@ -229,7 +229,7 @@ export function PostComposer({
           />
         </label>
 
-        <label className={`flex items-center gap-1.5 ${iconActionClass}`}>
+        <label className={`flex min-w-0 flex-1 items-center gap-1.5 ${iconActionClass}`}>
           <CalendarBlank size={18} className="shrink-0" aria-hidden />
           <span className="sr-only">{t("eventLabel")}</span>
           <select
@@ -242,7 +242,7 @@ export function PostComposer({
                 setFileNotice(null)
               }
             }}
-            className="max-w-28 bg-transparent font-mono text-[10px] uppercase tracking-label text-current focus:outline-none"
+            className="min-w-0 max-w-32 flex-1 bg-transparent text-[13px] text-current focus:outline-none sm:max-w-48"
           >
             <option value="">{t("noEvent")}</option>
             {events.map((event) => (
@@ -261,7 +261,8 @@ export function PostComposer({
         <Button
           type="submit"
           variant="primary"
-          className="px-3 py-1.5 text-[11px]"
+          size="sm"
+          className="shrink-0"
           disabled={pending || !canSubmitPost({ body })}
         >
           <PaperPlaneTilt size={14} aria-hidden />

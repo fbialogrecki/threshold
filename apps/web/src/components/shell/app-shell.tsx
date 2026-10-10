@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { getLocale } from "next-intl/server"
+import { getLocale, getTranslations } from "next-intl/server"
 
 import { RefreshKeeper } from "@/components/auth/refresh-keeper"
 import { MobileNav } from "@/components/shell/mobile-nav"
@@ -8,6 +8,7 @@ import { TopBar } from "@/components/shell/top-bar"
 import { notificationUnreadCount as fetchNotificationUnreadCount } from "@/lib/auth/product-auth"
 import type { Session } from "@/lib/auth/session"
 import { cityLabel } from "@/lib/cities"
+import { cn } from "@/lib/cn"
 import { notificationUnreadCount } from "@/lib/notifications"
 
 /**
@@ -27,9 +28,10 @@ export async function AppShell({
   session: Session
   wide?: boolean
 }) {
-  const [locale, unreadResult] = await Promise.all([
+  const [locale, unreadResult, t] = await Promise.all([
     getLocale(),
     fetchNotificationUnreadCount().catch(() => null),
+    getTranslations("shell"),
   ])
   const unreadCount = unreadResult?.status === 200
     ? notificationUnreadCount(unreadResult.body)
@@ -44,6 +46,12 @@ export async function AppShell({
 
   return (
     <div className="flex min-h-screen bg-pitch">
+      <a
+        href="#app-content"
+        className="skip-link rounded-control border border-acid bg-pitch px-4 py-2 text-sm font-semibold text-acid"
+      >
+        {t("skipToContent")}
+      </a>
       <RefreshKeeper />
       <Sidebar session={session} unreadCount={unreadCount} />
       <div className="flex min-w-0 flex-1 flex-col">
@@ -54,9 +62,17 @@ export async function AppShell({
           city={city}
           unreadCount={unreadCount}
         />
-        <main className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 lg:px-10 lg:pb-8 lg:pt-6">
-          {banner}
-          <div className={wide ? "mx-auto w-full max-w-event-detail" : "mx-auto w-full max-w-feed"}>
+        {banner}
+        <main
+          id="app-content"
+          tabIndex={-1}
+          className="flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-4 outline-none sm:px-6 sm:pt-6 lg:px-10 lg:pb-12 lg:pt-8"
+        >
+          {/*
+            No entry animation here: a filling animation makes this wrapper a
+            stacking context, which would trap page modals under the nav.
+          */}
+          <div className={cn("mx-auto w-full", wide ? "max-w-event-detail" : "max-w-feed")}>
             {children}
           </div>
         </main>

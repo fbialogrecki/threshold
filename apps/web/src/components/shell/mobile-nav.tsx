@@ -30,7 +30,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label={shell("mobileNavigation")}
-      className="fixed inset-x-0 bottom-0 z-40 flex items-stretch border-t border-border-gray bg-pitch pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 flex items-stretch border-t border-border-gray bg-pitch/90 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
     >
       {ITEMS.slice(0, 2).map((item) => (
         <NavItem key={item.href} {...item} pathname={pathname} label={navigation(item.label)} />
@@ -42,13 +42,11 @@ export function MobileNav() {
           aria-current={composeActive ? "page" : undefined}
           aria-label={navigation("post")}
           className={cn(
-            "flex h-10 w-10 touch-manipulation items-center justify-center border transition-colors focus-visible:outline-2 focus-visible:outline-acid",
-            composeActive
-              ? "border-acid bg-acid text-pitch"
-              : "border-acid text-acid hover:bg-acid hover:text-pitch",
+            "grid size-12 touch-manipulation place-items-center rounded-full bg-acid text-pitch shadow-[0_8px_24px_-10px_rgba(198,255,0,0.7)] transition-[scale,background-color] duration-150 ease-press hover:bg-acid-bright active:scale-90",
+            composeActive && "ring-2 ring-raw-white ring-offset-2 ring-offset-pitch",
           )}
         >
-          <Plus size={20} weight="bold" aria-hidden />
+          <Plus size={22} weight="bold" aria-hidden />
         </Link>
       </div>
 
@@ -76,11 +74,18 @@ function NavItem({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex min-w-0 flex-1 touch-manipulation flex-col items-center gap-1 py-2 font-mono text-[10px] uppercase tracking-label focus-visible:outline-2 focus-visible:outline-acid",
-        active ? "text-acid" : "text-muted",
+        "group flex min-h-14 min-w-0 flex-1 touch-manipulation flex-col items-center justify-center gap-1 rounded-control py-1.5 text-[11px] font-medium",
+        active ? "text-raw-white" : "text-muted hover:text-dim-white",
       )}
     >
-      <Icon size={19} weight={active ? "fill" : "regular"} aria-hidden />
+      <span
+        className={cn(
+          "grid h-7 w-12 place-items-center rounded-full transition-[background-color,color,scale] duration-200 ease-press group-active:scale-90",
+          active ? "bg-acid/15 text-acid" : "",
+        )}
+      >
+        <Icon size={20} weight={active ? "fill" : "regular"} aria-hidden />
+      </span>
       <span className="w-full text-center leading-tight [overflow-wrap:anywhere]">{label}</span>
     </Link>
   )

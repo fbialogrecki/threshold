@@ -3,7 +3,7 @@
 import { MagnifyingGlass } from "@phosphor-icons/react"
 import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 
 import {
   activeMentionTrigger,
@@ -24,6 +24,8 @@ export function SearchBar({
   const t = useTranslations("shell.search")
   const typeT = useTranslations("searchPage.filters")
   const inputRef = useRef<HTMLInputElement>(null)
+  // The sidebar and the search page can both render a bar; ids must differ.
+  const id = useId()
   const [value, setValue] = useState(initialQuery)
   const [caret, setCaret] = useState(initialQuery.length)
   const [suggestions, setSuggestions] = useState<MentionSuggestion[]>([])
@@ -98,26 +100,25 @@ export function SearchBar({
 
   return (
     <form onSubmit={onSubmit} className="relative w-full" role="search">
-      <label className="sr-only" htmlFor="perlimen-search">
+      <label className="sr-only" htmlFor={id}>
         {t("label")}
       </label>
       <div
-        className={
-          compact
-            ? "flex items-center gap-1.5 border border-border-gray px-2 py-1.5 focus-within:border-acid"
-            : "flex items-center gap-2 border border-border-gray px-3 py-2 focus-within:border-acid"
-        }
+        className={cn(
+          "flex items-center rounded-control border border-border-gray bg-pitch/70 transition-[border-color,box-shadow] focus-within:border-acid focus-within:shadow-[0_0_0_3px_rgba(198,255,0,0.15)]",
+          compact ? "gap-2 px-3 py-2" : "gap-2.5 px-3.5 py-3",
+        )}
       >
-        <MagnifyingGlass size={16} weight="bold" className="shrink-0 text-muted" aria-hidden />
+        <MagnifyingGlass size={compact ? 16 : 18} weight="bold" className="shrink-0 text-muted" aria-hidden />
         <input
           ref={inputRef}
-          id="perlimen-search"
+          id={id}
           value={value}
           role="combobox"
           aria-autocomplete="list"
           aria-expanded={open}
-          aria-controls="perlimen-search-suggestions"
-          aria-activedescendant={open ? `perlimen-search-option-${activeIndex}` : undefined}
+          aria-controls={`${id}-suggestions`}
+          aria-activedescendant={open ? `${id}-option-${activeIndex}` : undefined}
           onChange={(event) => {
             setValue(event.target.value)
             setCaret(event.target.selectionStart ?? event.target.value.length)
@@ -149,50 +150,45 @@ export function SearchBar({
           }}
           onBlur={() => window.setTimeout(() => setOpen(false), 120)}
           placeholder={t(compact ? "compactPlaceholder" : "placeholder")}
-          className={
-            compact
-              ? "w-full bg-transparent font-mono text-xs text-raw-white placeholder:text-muted focus:outline-none"
-              : "w-full bg-transparent font-mono text-sm text-raw-white placeholder:text-muted focus:outline-none"
-          }
+          className={cn(
+            "w-full min-w-0 bg-transparent text-raw-white placeholder:text-muted focus:outline-none",
+            compact ? "text-sm" : "text-base",
+          )}
         />
-        {compact ? null : (
-          <kbd
-            aria-hidden
-            className="hidden border border-border-gray px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-label text-muted sm:block"
-          >
-            /
-          </kbd>
-        )}
+        <kbd
+          aria-hidden
+          className="hidden rounded-md border border-border-gray px-1.5 py-0.5 font-mono text-[11px] text-muted sm:block"
+        >
+          /
+        </kbd>
       </div>
       {open && trigger ? (
         <div
-          id="perlimen-search-suggestions"
+          id={`${id}-suggestions`}
           role="listbox"
-          className="absolute left-0 right-0 top-full z-30 mt-1 border border-border-gray bg-pitch"
+          className="absolute left-0 right-0 top-full z-30 mt-2 animate-step overflow-hidden rounded-control border border-border-gray bg-graphite p-1 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.9)]"
         >
           {suggestions.map((suggestion, index) => (
             <button
               key={`${suggestion.type}:${suggestion.handle}`}
-              id={`perlimen-search-option-${index}`}
+              id={`${id}-option-${index}`}
               role="option"
               aria-selected={index === activeIndex}
               type="button"
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => goToSuggestion(suggestion)}
               className={cn(
-                "flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm",
-                index === activeIndex ? "bg-acid text-pitch" : "text-raw-white hover:text-acid",
+                "flex w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left text-sm",
+                index === activeIndex ? "bg-acid/15 text-raw-white" : "text-raw-white hover:bg-raised",
               )}
             >
-              <span>
+              <span className="min-w-0 truncate">
                 <span className="font-medium">{suggestion.title}</span>
                 {suggestion.subtitle ? (
-                  <span className={index === activeIndex ? "ml-2 text-pitch/70" : "ml-2 text-muted"}>
-                    {suggestion.subtitle}
-                  </span>
+                  <span className="ml-2 text-muted">{suggestion.subtitle}</span>
                 ) : null}
               </span>
-              <span className="font-mono text-[11px] uppercase tracking-label">
+              <span className={cn("shrink-0 text-xs", index === activeIndex ? "text-acid" : "text-muted")}>
                 {typeT(suggestion.type)}
               </span>
             </button>

@@ -14,22 +14,22 @@ import type { AccessUpdate } from "@/lib/types"
 export async function AccessUpdateCard({ update }: { update: AccessUpdate }) {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("feed")])
   return (
-    <Card as="article" className="border-l-2 border-l-acid">
-      <div className="flex items-center justify-between border-b border-border-gray px-4 py-2">
+    <Card as="article">
+      <div className="flex items-center justify-between gap-3 border-b border-border-gray px-4 py-2.5 sm:px-5">
         <MonoLabel tone="protected">{t("accessUpdate")}</MonoLabel>
-        <MonoLabel tone="muted">{formatRelative(update.createdAtIso, locale)}</MonoLabel>
+        <time dateTime={update.createdAtIso} className="text-[13px] text-muted">
+          {formatRelative(update.createdAtIso, locale)}
+        </time>
       </div>
 
-      <div className="px-4 py-4">
-        <p className="font-mono text-[11px] uppercase tracking-label text-muted">
-          {t("perlimenSystem")}
-        </p>
-        <p className="mt-2 text-[15px] leading-7 text-raw-white">{update.note}</p>
+      <div className="px-4 py-4 sm:px-5">
+        <p className="text-[13px] text-muted">{t("perlimenSystem")}</p>
+        <p className="mt-1.5 text-[15px] leading-7 text-raw-white">{update.note}</p>
 
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <Link
             href={`/events/${update.event.slug}`}
-            className="font-mono text-[11px] uppercase tracking-label text-acid hover:text-raw-white"
+            className="text-sm font-semibold text-acid transition-colors hover:text-raw-white"
           >
             {t("viewDetails")} →
           </Link>
