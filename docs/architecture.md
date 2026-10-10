@@ -94,7 +94,7 @@ flowchart TB
 - NATS Core carries request/reply and non-critical pub/sub. A flow that must not lose messages needs an outbox, retries and idempotent consumers before it relies on NATS.
 - Every service has a `NetworkPolicy`. An HTTP caller must be listed in the callee's policy; a missing entry shows up as a timeout, not a 403.
 - `threshold-security` restricts Puter/Grafana ingress to Traefik, NATS to service clients and nats-box, Dragonfly to Authentik, Harbor Redis to Harbor. Observability query/write/gossip stays inside observability; Perlimen can send OTLP to the collector. Egress remains unchanged. Node-local/hostNetwork traffic and any routed traffic SNATed to the node are not a NetworkPolicy security boundary; host/NetBird filtering must cover those paths.
-- Grafana/Loki sidecars discover ConfigMaps only in observability; kube-state-metrics excludes Secrets. Notifications retain namespace-local secret access, not cluster-wide. General and release CI agents have separate service accounts and namespace-scoped job permissions.
+- Grafana/Loki sidecars discover ConfigMaps only in observability; kube-state-metrics excludes Secrets. Notifications retain namespace-local secret access, not cluster-wide. General and release CI agents have separate service accounts and namespace-scoped job permissions. Only Buildah steps use the node-local `perlimen/buildah.json` seccomp profile: runtime default plus user/mount/UTS `unshare`, `mount` and `umount2`. No added capabilities, privileged container or host-wide seccomp exception; see the release runbook.
 
 ## Service-To-Service Transports
 

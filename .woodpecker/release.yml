@@ -44,6 +44,10 @@ steps:
       - ci/woodpecker/woodpecker-build-push.sh web apps/web/Dockerfile apps/web
     backend_options:
       kubernetes:
+        securityContext:
+          seccompProfile:
+            type: Localhost
+            localhostProfile: perlimen/buildah.json
         resources:
           requests:
             cpu: "1"

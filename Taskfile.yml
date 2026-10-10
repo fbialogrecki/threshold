@@ -367,7 +367,7 @@ tasks:
         [ "$ci" = success ] || { echo "CI on $sha is not green (ci-ok: $ci)" >&2; exit 1; }
         git tag -a "$version" -m "Release $version" "$sha"
         git push origin "refs/tags/$version"
-        woodpecker-cli pipeline create fbialogrecki/threshold --branch main --var "RELEASE_TAG=$version"
+        woodpecker-cli --server https://woodpecker.internal pipeline create fbialogrecki/threshold --branch main --var "RELEASE_TAG=$version"
 
   # ─── Repository safety ───────────────────────────────────────────────
 
