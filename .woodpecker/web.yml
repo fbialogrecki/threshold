@@ -37,6 +37,10 @@ steps:
       - buildah inspect --type image perlimen/web:ci >/dev/null
     backend_options:
       kubernetes:
+        securityContext:
+          seccompProfile:
+            type: Localhost
+            localhostProfile: perlimen/buildah.json
         resources:
           requests:
             cpu: 500m

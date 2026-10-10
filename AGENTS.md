@@ -46,6 +46,7 @@ go-task py:lint | py:typecheck | py:test
 go-task service:test SERVICE=users          # also service:lint, service:dev
 go-task infra:check                         # render every kustomization, reject inline Secret data
 go-task repo:secret-scan
+sudo python3 ops/install-buildah-seccomp.py  # node-local Buildah profile after runtime updates
 graphify update .                           # after modifying code files
 ```
 

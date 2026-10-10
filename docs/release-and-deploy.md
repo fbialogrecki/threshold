@@ -34,6 +34,21 @@ The pipeline (`.woodpecker/release.yml`) runs on the dedicated `release: trusted
 
 `AUTO_MERGE` in `release.yml` controls the last step. While it is `false`, a human merges the digest PR. After the first release has gone through end to end, it becomes `true` and the pipeline enables GitHub auto-merge (squash), so the PR merges once its checks pass. Argo CD syncs after the merge.
 
+## Buildah Runtime Profile
+
+The node keeps `seccompDefault: true`. Buildah needs nested user/mount/UTS namespaces and mounts inside them; runtime default denies these before image building. Only Buildah steps select `Localhost: perlimen/buildah.json`, keeping ordinary steps and product pods on their existing profiles. The exception does not add capabilities or privileged mode; kernel capability checks still reject host-namespace mounts. Network, IPC and PID namespace creation remain denied.
+
+On the single k3s node, install/rebuild the profile after runtime updates, before running CI:
+
+```bash
+sudo python3 ops/install-buildah-seccomp.py
+python3 -m unittest discover -s ops/tests -p 'test_buildah_seccomp.py'
+```
+
+The installer reads the running release agent's actual default-deny runtime profile, appends only the Buildah exceptions and atomically installs `/var/lib/kubelet/seccomp/perlimen/buildah.json`. Re-run on every builder node if the cluster later grows. Verify actual image pull/build/run and a denied network-namespace probe before release. A missing profile must fail loudly, not fall back to `Unconfined`. The additional kernel syscall surface is limited to CI builders, but remains a residual risk.
+
+If the release task pushed a tag but failed before pipeline creation, do not retag: start only the pipeline via the HTTPS server. If the fix changes the tagged source, keep the failed tag and issue a new version after green CI.
+
 ## Rollback
 
 Revert the digest PR on `main`. Argo CD syncs the previous digests. Database migrations are not reverted automatically; write migrations so the previous release still runs against the new schema.
