@@ -12,8 +12,9 @@ function Tag({
   className?: string
 }) {
   const classes = cn(
-    "inline-block border border-border-gray px-2 py-0.5 font-mono text-[11px] uppercase tracking-label text-dim-white",
-    href && "hover:border-violet hover:text-violet",
+    "inline-block rounded-full border border-border-gray px-2.5 py-0.5 text-[13px] text-dim-white",
+    // Acid, not violet: a tag link is navigation, and violet is the downvote.
+    href && "transition-colors hover:border-acid hover:text-acid",
     className,
   )
 

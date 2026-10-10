@@ -4,7 +4,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react"
 import { cn } from "@/lib/cn"
 
 type Variant = "primary" | "secondary" | "danger" | "ghost"
-type Size = "md" | "lg"
+type Size = "md" | "sm" | "lg"
 
 const VARIANT_CLASS: Record<Variant, string> = {
   primary:
@@ -17,11 +17,15 @@ const VARIANT_CLASS: Record<Variant, string> = {
     "border-transparent bg-transparent text-dim-white hover:text-raw-white",
 }
 
-// `md` is the original square mono control. `lg` is the modern shape: a
-// readable sans label, rounded corners and a short press response.
+const MODERN =
+  "rounded-control font-semibold transition-[color,background-color,border-color,scale] duration-150 ease-press active:scale-[0.97]"
+
+// `md` is the original square mono control. `sm` and `lg` are the modern
+// shape: a readable sans label, rounded corners and a short press response.
 const SIZE_CLASS: Record<Size, string> = {
   md: "px-4 py-2 font-mono text-xs uppercase tracking-cta transition-colors",
-  lg: "min-h-12 rounded-control px-6 py-3 text-[15px] font-semibold transition-[color,background-color,border-color,scale] duration-150 ease-press active:scale-[0.97]",
+  sm: `min-h-10 px-4 py-2 text-sm ${MODERN}`,
+  lg: `min-h-12 px-6 py-3 text-[15px] ${MODERN}`,
 }
 
 const baseClass =

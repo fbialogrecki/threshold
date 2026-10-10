@@ -1,5 +1,6 @@
 "use client"
 
+import { ChatCircle } from "@phosphor-icons/react"
 import { useLocale, useTranslations } from "next-intl"
 import Link from "next/link"
 import type { FormEvent, ReactNode } from "react"
@@ -202,7 +203,7 @@ function CommentItem({
             >
               {name}
             </Link>
-            <span className="font-mono text-[10px] uppercase tracking-label text-muted">
+            <span className="text-xs text-muted">
               {formatRelative(comment.createdAtIso, locale)}
               {comment.editedAtIso ? ` · ${t("edited")}` : ""}
             </span>
@@ -496,14 +497,17 @@ export function CommentsSection({
         default and looked accidental. Left is navigation into the thread,
         right is evaluation.
       */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={toggleOpen}
           aria-expanded={open}
-          className="shrink-0 font-mono text-[11px] uppercase tracking-label text-muted hover:text-acid"
+          aria-label={t("commentCount", { count })}
+          className={`inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-medium transition-colors hover:bg-raised hover:text-raw-white ${open ? "bg-raised text-raw-white" : "text-dim-white"}`}
         >
-          {t("commentCount", { count })} {open ? "▴" : "▾"}
+          <ChatCircle size={16} weight={open ? "fill" : "regular"} aria-hidden />
+          <span className="tabular-nums sm:hidden">{count}</span>
+          <span className="hidden sm:inline">{t("commentCount", { count })}</span>
         </button>
         {reactions ? (
           <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-1.5">
@@ -520,12 +524,12 @@ export function CommentsSection({
           <CommentComposer postId={postId} onCreated={onCreated} compact />
 
           {loading && comments === null ? (
-            <p className="font-mono text-[11px] uppercase tracking-label text-muted">
+            <p className="text-sm text-muted">
               {t("commentsLoading")}
             </p>
           ) : null}
           {error ? (
-            <p aria-live="polite" className="text-sm text-error">
+            <p aria-live="polite" className="text-sm text-orange">
               {error}
             </p>
           ) : null}

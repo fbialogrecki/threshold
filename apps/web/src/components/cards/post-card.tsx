@@ -10,7 +10,6 @@ import { EmojiReactionBar } from "@/components/social/emoji-reaction-bar"
 import { PostBody } from "@/components/social/post-body"
 import { VoteButtons } from "@/components/social/vote-buttons"
 import { Avatar } from "@/components/ui/avatar"
-import { MonoLabel } from "@/components/ui/mono-label"
 import { TagRow } from "@/components/ui/tag"
 import { cityLabel } from "@/lib/cities"
 import { formatRelative } from "@/lib/format"
@@ -56,7 +55,7 @@ function FeedEventWidget({
   const venue = [event.venue_name, event.address, city].filter(Boolean).join(" · ")
 
   return (
-    <section className="mt-4 overflow-hidden border border-border-gray">
+    <section className="mt-4 overflow-hidden rounded-control border border-border-gray bg-pitch/60">
       <div className="grid sm:grid-cols-[minmax(0,2fr)_minmax(15rem,1fr)]">
         {posterUrl ? (
           <Link href={`/events/${event.slug}`} className="block min-h-64">
@@ -73,9 +72,9 @@ function FeedEventWidget({
         ) : (
           <Link
             href={`/events/${event.slug}`}
-            className="flex min-h-64 items-end border-b border-border-gray p-5 sm:border-b-0 sm:border-r"
+            className="@container flex min-h-64 items-end border-b border-border-gray p-5 sm:border-b-0 sm:border-r"
           >
-            <span className="font-display text-5xl leading-[0.9] tracking-wide text-raw-white">
+            <span className="min-w-0 break-words font-display text-[min(15cqi,3rem)] leading-[0.9] tracking-wide text-raw-white">
               {event.title}
             </span>
           </Link>
@@ -120,7 +119,7 @@ function FeedEventWidget({
           </div>
           <Link
             href={`/events/${event.slug}`}
-            className="mt-5 border-t border-border-gray pt-3 font-mono text-[11px] uppercase tracking-label text-acid hover:text-raw-white"
+            className="mt-5 border-t border-border-gray pt-3 text-sm font-semibold text-acid transition-colors hover:text-raw-white"
           >
             {labels.viewEvent} →
           </Link>
@@ -148,7 +147,7 @@ export async function PostCard({
   const name = profileName(post.author)
 
   return (
-    <article className="px-4 py-5">
+    <article className="rounded-surface border border-border-gray bg-graphite/60 px-4 py-4 transition-colors hover:border-status-neutral-border sm:px-5 sm:py-5">
       <div className="flex gap-3">
         <Link href={href}>
           <Avatar name={name} imageUrl={post.author.avatarUrl} />
@@ -169,8 +168,11 @@ export async function PostCard({
                 >
                   {name}
                 </Link>
-                <Link href={`/posts/${post.id}`} className="hover:text-acid">
-                  <MonoLabel size="xs">{formatRelative(post.createdAtIso, locale)}</MonoLabel>
+                <Link
+                  href={`/posts/${post.id}`}
+                  className="text-[13px] text-muted transition-colors hover:text-acid"
+                >
+                  <time dateTime={post.createdAtIso}>{formatRelative(post.createdAtIso, locale)}</time>
                 </Link>
               </div>
             )}
@@ -187,7 +189,7 @@ export async function PostCard({
                   height={615}
                   loading="lazy"
                   decoding="async"
-                  className="aspect-[4/3] max-h-[420px] w-full border border-border-gray object-cover"
+                  className="aspect-[4/3] max-h-[420px] w-full rounded-control border border-border-gray object-cover"
                 />
               ))}
             </div>

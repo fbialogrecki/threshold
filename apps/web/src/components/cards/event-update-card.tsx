@@ -10,13 +10,15 @@ export async function EventUpdateCard({ update }: { update: EventUpdate }) {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("feed")])
   return (
     <Card as="article">
-      <div className="flex items-center justify-between border-b border-border-gray px-4 py-2">
+      <div className="flex items-center justify-between gap-3 border-b border-border-gray px-4 py-2.5 sm:px-5">
         <MonoLabel tone="muted">{t("eventUpdate")}</MonoLabel>
-        <MonoLabel tone="muted">{formatRelative(update.createdAtIso, locale)}</MonoLabel>
+        <time dateTime={update.createdAtIso} className="text-[13px] text-muted">
+          {formatRelative(update.createdAtIso, locale)}
+        </time>
       </div>
-      <div className="px-4 py-4">
+      <div className="px-4 py-4 sm:px-5">
         <Link href={`/events/${update.event.slug}`}>
-          <h3 className="font-display text-2xl text-raw-white hover:text-acid">
+          <h3 className="font-display text-2xl break-words text-raw-white transition-colors hover:text-acid">
             {update.event.title}
           </h3>
         </Link>

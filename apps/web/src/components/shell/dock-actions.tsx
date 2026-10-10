@@ -9,7 +9,7 @@ import { LogoutButton } from "@/components/auth/logout-button"
 import { isNavActive } from "@/components/shell/nav-active"
 import { cn } from "@/lib/cn"
 
-const ACTION = "p-1.5 transition-colors"
+const ACTION = "grid size-9 place-items-center rounded-control transition-colors hover:bg-raised"
 
 /**
  * Account chrome beside the profile identity. Unread count reads as a mark
@@ -38,9 +38,12 @@ export function DockActions({ unreadCount }: { unreadCount: number }) {
           notificationsActive ? "text-acid" : "text-muted",
         )}
       >
-        <Bell size={20} weight={notificationsActive ? "fill" : "bold"} aria-hidden />
+        <Bell size={19} weight={notificationsActive ? "fill" : "bold"} aria-hidden />
         {unreadCount > 0 ? (
-          <span aria-hidden className="absolute right-1 top-1 h-1.5 w-1.5 bg-acid" />
+          <span
+            aria-hidden
+            className="absolute right-1.5 top-1.5 size-2 rounded-full bg-acid ring-2 ring-graphite"
+          />
         ) : null}
       </Link>
 
@@ -54,11 +57,11 @@ export function DockActions({ unreadCount }: { unreadCount: number }) {
           settingsActive ? "text-acid" : "text-muted",
         )}
       >
-        <GearSix size={20} weight="bold" aria-hidden />
+        <GearSix size={19} weight={settingsActive ? "fill" : "bold"} aria-hidden />
       </Link>
 
       <LogoutButton className={cn(ACTION, "text-muted hover:text-orange focus-visible:text-orange")}>
-        <SignOut size={20} weight="bold" aria-hidden />
+        <SignOut size={19} weight="bold" aria-hidden />
       </LogoutButton>
     </div>
   )

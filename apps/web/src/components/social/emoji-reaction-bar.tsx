@@ -138,7 +138,7 @@ export function EmojiReactionBar({
             ? t("removeReaction", { emoji: item.emoji })
             : t("addNamedReaction", { emoji: item.emoji })}
           className={cn(
-            "inline-flex items-center gap-1.5 border px-2 py-0.5 font-mono text-xs transition-colors",
+            "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-xs transition-[color,background-color,border-color,scale] duration-150 ease-press active:scale-90",
             item.viewerReacted
               ? "border-acid bg-acid/15 text-acid"
               : "border-border-gray text-dim-white hover:border-acid",
@@ -160,7 +160,7 @@ export function EmojiReactionBar({
             onClick={() => setPickerOpen((open) => !open)}
             aria-expanded={pickerOpen}
             aria-label={t("addReaction")}
-            className="inline-flex items-center border border-dashed border-border-gray px-2 py-0.5 font-mono text-xs text-muted transition-colors hover:border-acid hover:text-acid"
+            className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full border border-dashed border-border-gray px-2.5 py-1 font-mono text-xs text-muted transition-colors hover:border-acid hover:text-acid"
           >
             +
           </button>
@@ -168,7 +168,7 @@ export function EmojiReactionBar({
           {pickerOpen ? (
             <div
               ref={pickerRef}
-              className="absolute right-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] border border-border-gray bg-pitch p-3"
+              className="absolute right-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-2rem)] animate-step rounded-control border border-border-gray bg-graphite p-3 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.9)]"
             >
               <div className="grid grid-cols-8 gap-1">
                 {QUICK_PICKS.map((emoji) => (
@@ -177,7 +177,7 @@ export function EmojiReactionBar({
                     type="button"
                     onClick={() => onPick(emoji)}
                     aria-label={t("reactWith", { emoji })}
-                    className="flex h-7 w-7 items-center justify-center text-base hover:border hover:border-acid"
+                    className="flex size-7 items-center justify-center rounded-md text-base transition-colors hover:bg-acid/15"
                   >
                     {emoji}
                   </button>
@@ -190,12 +190,12 @@ export function EmojiReactionBar({
                   maxLength={32}
                   placeholder={t("customEmojiPlaceholder")}
                   aria-label={t("customEmoji")}
-                  className="min-w-0 flex-1 border border-border-gray px-2 py-1 text-sm text-raw-white placeholder:text-muted focus:border-acid focus:outline-none"
+                  className="min-w-0 flex-1 rounded-md border border-border-gray bg-pitch px-2 py-1 text-sm text-raw-white placeholder:text-muted focus:border-acid focus:outline-none"
                 />
                 <button
                   type="submit"
                   disabled={!custom.trim()}
-                  className="border border-border-gray px-2 py-1 font-mono text-[11px] uppercase tracking-label text-dim-white hover:border-acid hover:text-acid disabled:opacity-40"
+                  className="rounded-md border border-border-gray px-2.5 py-1 text-[13px] font-medium text-dim-white hover:border-acid hover:text-acid disabled:opacity-40"
                 >
                   {t("add")}
                 </button>

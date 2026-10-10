@@ -5,6 +5,8 @@ import { getTranslations } from "next-intl/server"
 import { RouteRedirect } from "@/components/auth/route-redirect"
 import { LocaleSwitcher } from "@/components/i18n/locale-switcher"
 import { AppShell } from "@/components/shell/app-shell"
+import { ButtonLink } from "@/components/ui/button"
+import { cn } from "@/lib/cn"
 import {
   hasRequiredOnboarding,
   onboardingHref,
@@ -38,42 +40,53 @@ export async function PublicShell({
 
   return (
     <div className="min-h-screen bg-pitch text-raw-white">
-      <header className="border-b border-border-gray bg-graphite">
-        <div className="mx-auto flex w-full max-w-feed items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="font-display text-xl tracking-[0.08em] text-raw-white">
-            PERLIMEN<span className="text-acid">▮</span>
+      <header className="sticky top-0 z-30 border-b border-border-gray bg-pitch/90 backdrop-blur-md">
+        <div
+          className={cn(
+            "mx-auto flex w-full items-center justify-between gap-3 px-4 py-3 sm:px-6",
+            wide ? "max-w-event-detail" : "max-w-feed",
+          )}
+        >
+          <Link href="/" translate="no" className="flex shrink-0 items-center gap-1.5">
+            <span className="font-display text-xl tracking-[0.1em] text-raw-white">PERLIMEN</span>
+            <span className="size-1.5 rounded-full bg-acid" aria-hidden />
           </Link>
-          <div className="flex items-center gap-2">
-            <LocaleSwitcher />
-            <Link
+          {/* min-w-0 lets the longer Polish CTA wrap instead of widening a 360px page. */}
+          <div className="flex min-w-0 items-center gap-2">
+            <LocaleSwitcher className="shrink-0" />
+            <ButtonLink
               href={onboardingRequired ? onboardingHref() : "/login"}
-              className="border border-acid px-3 py-1.5 font-mono text-[11px] uppercase tracking-cta text-acid transition-colors hover:bg-acid hover:text-pitch"
+              variant="primary"
+              size="sm"
+              className="min-w-0 text-center leading-tight"
             >
-              {onboardingRequired ? t("completeOnboarding") : t("login")}{" "}
-              <span aria-hidden>→</span>
-            </Link>
+              {onboardingRequired ? t("completeOnboarding") : t("login")}
+            </ButtonLink>
           </div>
         </div>
       </header>
       {onboardingRequired ? (
         <div
           role="status"
-          className="border-b border-acid/50 bg-[#111706] px-4 py-2 text-center font-mono text-[11px] uppercase tracking-label text-acid"
+          className="border-b border-acid/30 bg-acid/5 px-4 py-2.5 text-center text-sm text-raw-white"
         >
           {t("onboardingRequired")}{" "}
-          <Link href={onboardingHref()} className="underline hover:text-raw-white">
+          <Link
+            href={onboardingHref()}
+            className="font-semibold text-acid underline underline-offset-4 hover:text-raw-white"
+          >
             {t("completeOnboarding")}
           </Link>
         </div>
       ) : state.status === "unavailable" ? (
         <div
           role="status"
-          className="border-b border-orange/50 bg-[#1a1206] px-4 py-2 text-center font-mono text-[11px] uppercase tracking-label text-orange"
+          className="border-b border-orange/40 bg-orange/10 px-4 py-2.5 text-center text-sm text-raw-white"
         >
           {authStatus("publicBanner")}
         </div>
       ) : null}
-      <main className="px-4 py-8 sm:px-6">
+      <main className="px-4 py-6 sm:px-6 sm:py-8">
         <div className={wide ? "mx-auto w-full max-w-event-detail" : "mx-auto w-full max-w-feed"}>
           {children}
         </div>
