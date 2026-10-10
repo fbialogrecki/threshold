@@ -6,7 +6,7 @@ resources:
 images:
   - name: threshold/media
     newName: core.harbor.domain/threshold/media
-    digest: sha256:b8093f57ee5c4dd72ec35f17a5a3a1ec7907ad0b66de6a8d5438c75237f50be5
+    digest: sha256:fedc18c426e0f1aab9534a2f4196ef80c0f9b11111372bc98b017635da5b27be
 patches:
   - target:
       kind: ConfigMap
