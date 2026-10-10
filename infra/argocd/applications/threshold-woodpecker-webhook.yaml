@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: threshold-woodpecker-webhook
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: threshold
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/fbialogrecki/perlimen.git
+    targetRevision: main
+    path: infra/kustomize/base/platform/woodpecker-webhook
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: woodpecker
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

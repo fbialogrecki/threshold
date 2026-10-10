@@ -2,13 +2,21 @@
 
 ## Purpose And Boundaries
 
-The application domain alone does not make GitHub webhooks work. Woodpecker is served privately at `https://woodpecker.internal`; the product tunnel serves only web and its connector NetworkPolicy allows only web, cluster DNS and Cloudflare tunnel edges. Do not send forge hooks to the product BFF or resume the suspended synthetic-push poller.
+The application domain alone does not make GitHub webhooks work. Woodpecker is served privately at `https://woodpecker.internal`; the tunnel's connector NetworkPolicy allows only web, the dedicated webhook proxy, cluster DNS and Cloudflare tunnel edges. Do not send forge hooks to the product BFF or resume the suspended synthetic-push poller.
 
 Woodpecker workflows already support path-filtered `pull_request` and `push` on `main`. A merge produces a `push` to `main`; no synthetic merge trigger is needed. The release workflow remains `event: manual`, with event-restricted release credentials. **Receiving forge webhooks does not authorize automatic image promotion, deployment or releases.** GitHub Actions `ci-ok` remains the PR merge gate unless the maintainer changes that process.
 
-## Recommended Exposure
+## GitOps Origin
 
-Publish a dedicated webhook hostname, proposed `hooks.perlimen.com`, with a webhook-only origin boundary:
+`threshold-woodpecker-webhook` owns a pinned non-root NGINX proxy in namespace `woodpecker`. Its Service is `woodpecker-webhook:80` (pod port 8080); port 8081 is kubelet-only health and not in the Service. The config has exact Host/method/raw-path checks, no access/error request logging, no API token mounts and a read-only root filesystem. Hashed ConfigMap names restart the proxy after config edits.
+
+Only connector-labelled pods in `cloudflared` can enter it; its egress reaches cluster DNS and the Woodpecker HTTP server only. Server ingress preserves private Traefik HTTP and CI-agent gRPC, adding only the proxy HTTP caller. No generic public Traefik route or direct connector-to-server allow exists.
+
+Run `RUN_WEBHOOK_PROXY_INTEGRATION=1 python3 -m unittest discover -s ops/tests -p test_webhook_proxy.py` for actual pinned-image body/query/header forwarding, denied methods/path aliases/Host and logging checks. This synthetic test does not prove forge delivery.
+
+## Public Exposure
+
+Publish the approved dedicated hostname `hooks.perlimen.com`, with a webhook-only origin boundary:
 
 - Accept only `POST /api/hook` and forward it to the Woodpecker server HTTP Service.
 - Reject every other path/method; do not publish the UI, general API, OAuth callback, gRPC agent port, metrics or internal admin services.
@@ -16,7 +24,7 @@ Publish a dedicated webhook hostname, proposed `hooks.perlimen.com`, with a webh
 - Do not put an interactive Cloudflare Access/SSO challenge in front of forge deliveries. Woodpecker validates forge authentication; do not disable it to make a ping green.
 - Leave authenticated product traffic uncached and the private OAuth host unchanged.
 
-The existing tunnel is intentionally web-only. Adding a DNS record or published route without changing its origin/network boundary will not reach Woodpecker. A reviewed webhook-only origin (using the existing proxy where a strict dedicated route can be proved, or a small dedicated proxy) and the matching narrow connector/NetworkPolicy change are required. NetworkPolicy is L3/L4, not an HTTP path allowlist. Approve the concrete origin/tunnel arrangement before editing or syncing it; do not relax the current connector to arbitrary private services.
+The approved origin is the dedicated proxy above, through the existing remotely managed tunnel. Add the public route only after origin readiness; use the exact fields in the Cloudflare runbook. NetworkPolicy is L3/L4, not an HTTP path allowlist; the proxy enforces HTTP scope. Do not relax the connector to arbitrary private services.
 
 ## Separate Webhook URL From Private UI
 

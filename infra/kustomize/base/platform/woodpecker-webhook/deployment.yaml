@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: woodpecker-webhook
+  labels:
+    app.kubernetes.io/name: woodpecker-webhook
+    app.kubernetes.io/part-of: threshold
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: woodpecker-webhook
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: woodpecker-webhook
+        app.kubernetes.io/part-of: threshold
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: proxy
+          image: docker.io/nginxinc/nginx-unprivileged:1.30.5-alpine-slim@sha256:bfcf1250dae73fb5dafe18b9fa64d033441510c5a2fc7a11cf8003087890301b
+          command: [nginx]
+          args: [-g, "daemon off;"]
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          ports:
+            - name: hook
+              containerPort: 8080
+            - name: health
+              containerPort: 8081
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 10
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 200m
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+            - name: temporary
+              mountPath: /tmp
+      volumes:
+        - name: config
+          configMap:
+            name: woodpecker-webhook-config
+        - name: temporary
+          emptyDir:
+            sizeLimit: 64Mi

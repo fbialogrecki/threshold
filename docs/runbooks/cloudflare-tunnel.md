@@ -7,10 +7,10 @@
 - Origin: `http://web.threshold.svc.cluster.local:80`, not private Traefik.
 - Token: OpenBao KV v2 mount `secret`, key `threshold/cloudflared`, property `token`; ESO creates `Secret/cloudflared-token` in namespace `cloudflared`.
 - One replica on the single NUC; rolling updates can temporarily run two. This is not host-level high availability.
-- No public admin, backend API, guestlist subdomain, webhook, wildcard or private-network routes. The web BFF already provides the browser API boundary.
+- No public admin, general backend API, guestlist subdomain, wildcard or private-network routes. `hooks.perlimen.com` is a separate webhook-only route through `Service/woodpecker-webhook` (see the webhook runbook); the web BFF remains the product API boundary.
 - TLS terminates at Cloudflare; the connector-to-edge transport is encrypted. The connector-to-web hop is HTTP inside this single-node cluster, bounded by NetworkPolicy. LAN HTTPS remains unchanged.
 
-The image is pinned to `2026.10.0` and a digest. Automatic updates and optional Internet prechecks are disabled; required tunnel connections still run normally. Egress is limited to cluster DNS, web pods on TCP 3000 and Cloudflare's global IPv4 tunnel edge networks (`198.41.192.0/24`, `198.41.200.0/24`) on TCP/UDP 7844. Re-check [Cloudflare's firewall destinations](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/configure-tunnels/tunnel-with-firewall/) on upgrades. There is no ingress Service for connector metrics; kubelet probes use the pod directly.
+The image is pinned to `2026.10.0` and a digest. Automatic updates and optional Internet prechecks are disabled; required tunnel connections still run normally. Egress is limited to cluster DNS, web pods on TCP 3000, webhook-proxy pods on TCP 8080 and Cloudflare's global IPv4 tunnel edge networks (`198.41.192.0/24`, `198.41.200.0/24`) on TCP/UDP 7844. Re-check [Cloudflare's firewall destinations](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/configure-tunnels/tunnel-with-firewall/) on upgrades. There is no ingress Service for connector metrics; kubelet probes use the pod directly.
 
 ## Create the remotely managed tunnel
 
@@ -63,6 +63,18 @@ The dashboard creates the proxied tunnel DNS record. Resolve an existing conflic
 Enable **Always Use HTTPS** for the application hostname (use a hostname-scoped redirect if other zone hosts need HTTP). Keep application routes uncached: do not enable Cache Everything/APO for authenticated pages or `/api/*`. No Cloudflare Access login is required for the public product; product auth remains in `users`.
 
 The web deployment retains `AUTH_COOKIE_SECURE=true`, `WEB_TRUSTED_LAN_HTTP=false` and `WEB_TRUSTED_PROXY_DEPTH=1`. Direct tunnel routing uses the Cloudflare-controlled rightmost forwarded client address without an extra Traefik hop. Leave visitor-IP removal transforms disabled. Verify rate limiting with the actual public path before broad use; do not blindly increase the trusted proxy depth.
+
+## Publish the webhook-only origin
+
+After `threshold-woodpecker-webhook` is Synced/Healthy, add a second **Published application** route to the existing `perlimen-puter` tunnel:
+
+- Hostname: `hooks.perlimen.com` (subdomain `hooks`, domain `perlimen.com`).
+- Path: empty (the origin performs the exact method/raw-path checks).
+- Type: HTTP; URL: `woodpecker-webhook.woodpecker.svc.cluster.local:80`.
+- HTTP Host Header: `hooks.perlimen.com`.
+- No Access login/challenge, wildcard or private-network route; no cache rule.
+
+Preserve the existing `perlimen.com` web route and terminal 404 catch-all. The proxy accepts only `POST /api/hook`, forwards its body/query/signature unchanged and exposes no health/admin/API route. The connector cannot reach Woodpecker directly. See [native hook recreation and delivery verification](woodpecker-webhooks.md).
 
 ## Verification and completion
 

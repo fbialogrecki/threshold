@@ -96,6 +96,8 @@ flowchart TB
 - `threshold-security` restricts Puter/Grafana ingress to Traefik, NATS to service clients and nats-box, Dragonfly to Authentik, Harbor Redis to Harbor. Observability query/write/gossip stays inside observability; Perlimen can send OTLP to the collector. Egress remains unchanged. Node-local/hostNetwork traffic and any routed traffic SNATed to the node are not a NetworkPolicy security boundary; host/NetBird filtering must cover those paths.
 - Grafana/Loki sidecars discover ConfigMaps only in observability; kube-state-metrics excludes Secrets. Notifications retain namespace-local secret access, not cluster-wide. General and release CI agents have separate service accounts and namespace-scoped job permissions. Only Buildah steps use the node-local `perlimen/buildah.json` seccomp profile: runtime default plus user/mount/UTS `unshare`, `mount` and `umount2`. No added capabilities, privileged container or host-wide seccomp exception; see the release runbook.
 
+The public forge-hook path is Cloudflare → connector → webhook-only NGINX → Woodpecker HTTP. It exposes only exact `POST /api/hook`, with body/query/signature preserved and request logging disabled; private UI/OAuth and manual-only release credentials are unchanged. The proxy has its own Argo application and narrow two-sided NetworkPolicies. Public tunnel route registration is an operator action.
+
 ## Service-To-Service Transports
 
 Two transports are in use. Do not add a third.
