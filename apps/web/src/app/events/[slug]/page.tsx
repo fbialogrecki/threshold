@@ -2,16 +2,18 @@ import type { Metadata } from "next"
 import {
   Buildings,
   CalendarDots,
+  ImageSquare,
   MapPin,
   Megaphone,
   MusicNotes,
+  PencilSimple,
   TextAlignLeft,
 } from "@phosphor-icons/react/ssr"
 import { getLocale, getTranslations } from "next-intl/server"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { cache } from "react"
+import { cache, type ReactNode } from "react"
 
 import { EventUpdateCard } from "@/components/cards/event-update-card"
 import {
@@ -26,6 +28,7 @@ import { EventFollowButton } from "@/components/event/follow-button"
 import { GuestAccessCard } from "@/components/event/guest-access-card"
 import { LocationStates } from "@/components/event/location-states"
 import { BoostButton } from "@/components/ui/boost-button"
+import { ButtonLink } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { TagRow } from "@/components/ui/tag"
 import {
@@ -78,6 +81,27 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
 }
 
+function Fact({ icon, label, children }: { icon: ReactNode; label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-start gap-3 py-3">
+      <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-raised">{icon}</span>
+      <div className="min-w-0">
+        <dt className="text-xs text-muted">{label}</dt>
+        <dd className="mt-0.5 text-[15px] leading-6 break-words text-raw-white">{children}</dd>
+      </div>
+    </div>
+  )
+}
+
+function SectionTitle({ icon, children }: { icon: ReactNode; children: ReactNode }) {
+  return (
+    <h2 className="flex items-center gap-2 text-lg font-semibold text-raw-white">
+      <span className="text-muted">{icon}</span>
+      {children}
+    </h2>
+  )
+}
+
 export default async function EventPage({ params }: { params: Params }) {
   const { slug } = await params
   const [event, updates, sessionState, locale, t] = await Promise.all([
@@ -118,78 +142,80 @@ export default async function EventPage({ params }: { params: Params }) {
     : event.location_mode === "tba"
       ? "tba"
       : "public"
+  const hasAccessTools = (accessSurfaces.guest && !!viewerContext?.active_guest_access)
+    || accessSurfaces.managerGuestlist
+    || accessSurfaces.doorStaffManagement
+    || (accessSurfaces.quotas && !!viewerContext)
+    || (accessSurfaces.djGuests && !!viewerContext && djArtists.length > 0)
+    || accessSurfaces.checkIn
 
   return (
     <article className="mx-auto w-full max-w-event-detail">
-      {viewerContext?.can_post_update ? <Link href={`/app/events/${encodeURIComponent(event.slug)}/edit`} className="mb-4 inline-block border border-border-gray px-3 py-2 font-mono text-xs text-acid">{editor("edit")}</Link> : null}
-      <header className="grid gap-6 border-b border-border-gray pb-8 md:grid-cols-[minmax(17rem,0.88fr)_minmax(0,1.12fr)] md:items-start">
-        <div className="border border-border-gray">
-          {posterUrl ? (
-            <Image
-              src={posterUrl}
-              alt={t("posterAlt", { title: event.title })}
-              width={640}
-              height={800}
-              priority
-              sizes="(min-width: 768px) 42vw, 100vw"
-              className="aspect-[4/5] h-auto max-h-[46rem] w-full object-cover"
-            />
-          ) : (
-            <div className="flex aspect-[4/5] items-center justify-center p-6 text-center font-mono text-xs uppercase tracking-label text-muted">
-              {t("noPoster")}
-            </div>
-          )}
-        </div>
+      <header className="grid gap-6 md:grid-cols-[minmax(17rem,0.88fr)_minmax(0,1.12fr)] md:items-start md:gap-10">
+        {posterUrl ? (
+          <Image
+            src={posterUrl}
+            alt={t("posterAlt", { title: event.title })}
+            width={640}
+            height={800}
+            priority
+            sizes="(min-width: 768px) 42vw, 100vw"
+            className="aspect-[4/5] h-auto max-h-[46rem] w-full rounded-surface border border-border-gray object-cover shadow-[0_40px_90px_-50px_rgba(0,0,0,1)]"
+          />
+        ) : (
+          // An honest gap, not a stand-in poster: short on phones so the facts stay near the top.
+          <div className="flex h-32 flex-col items-center justify-center gap-2 rounded-surface border border-dashed border-border-gray text-center text-sm text-muted md:aspect-[4/5] md:h-auto">
+            <ImageSquare size={24} aria-hidden />
+            {t("noPoster")}
+          </div>
+        )}
 
-        <div className="flex min-h-full flex-col">
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge status="event" label={t("event")} />
-            <StatusBadge
-              status={locationStatus}
-              label={t(`location.badge.${event.location_mode}`)}
-            />
-            {viewerContext?.active_guest_access ? (
-              <StatusBadge status="guestlist" label={t("access.guestlistBadge")} />
+        <div className="@container flex min-w-0 flex-col md:min-h-full">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusBadge
+                status={locationStatus}
+                label={t(`location.badge.${event.location_mode}`)}
+              />
+              {viewerContext?.active_guest_access ? (
+                <StatusBadge status="guestlist" label={t("access.guestlistBadge")} />
+              ) : null}
+            </div>
+            {viewerContext?.can_post_update ? (
+              <ButtonLink
+                href={`/app/events/${encodeURIComponent(event.slug)}/edit`}
+                variant="secondary"
+                size="sm"
+              >
+                <PencilSimple size={16} aria-hidden />
+                {editor("edit")}
+              </ButtonLink>
             ) : null}
           </div>
-          <h1 className="mt-4 font-display text-5xl leading-[0.92] tracking-wide text-raw-white sm:text-6xl lg:text-7xl">
+          <h1 className="mt-4 font-display text-[min(12cqi,4.5rem)] leading-[0.92] tracking-[0.005em] break-words text-raw-white">
             {event.title}
           </h1>
 
-          <dl className="mt-6 divide-y divide-border-gray border-y border-border-gray">
-            <div className="flex items-start gap-3 py-3">
-              <CalendarDots size={19} weight="bold" className="mt-0.5 shrink-0 text-acid" aria-hidden />
-              <div>
-                <dt className="font-mono text-[10px] uppercase tracking-label text-muted">{t("date")}</dt>
-                <dd className="mt-0.5 text-sm text-raw-white">{formatEventDate(event.starts_at, locale)}</dd>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 py-3">
-              <MapPin size={19} weight="bold" className="mt-0.5 shrink-0 text-muted" aria-hidden />
-              <div>
-                <dt className="font-mono text-[10px] uppercase tracking-label text-muted">{t("city")}</dt>
-                <dd className="mt-0.5 text-sm text-raw-white">{city}</dd>
-              </div>
-            </div>
+          <dl className="mt-5 divide-y divide-border-gray">
+            <Fact label={t("date")} icon={<CalendarDots size={16} weight="bold" className="text-acid" aria-hidden />}>
+              {formatEventDate(event.starts_at, locale)}
+            </Fact>
+            <Fact label={t("city")} icon={<MapPin size={16} weight="bold" className="text-dim-white" aria-hidden />}>
+              {city}
+            </Fact>
             {organizer ? (
-              <div className="flex items-start gap-3 py-3">
-                <Buildings size={19} weight="bold" className="mt-0.5 shrink-0 text-dim-white" aria-hidden />
-                <div>
-                  <dt className="font-mono text-[10px] uppercase tracking-label text-muted">{t("organizer")}</dt>
-                  <dd className="mt-0.5 text-sm text-raw-white">
-                    {organizerHref ? (
-                      <Link href={organizerHref} className="hover:text-acid hover:underline">
-                        {organizer.display_name}
-                      </Link>
-                    ) : organizer.display_name}
-                  </dd>
-                </div>
-              </div>
+              <Fact label={t("organizer")} icon={<Buildings size={16} weight="bold" className="text-dim-white" aria-hidden />}>
+                {organizerHref ? (
+                  <Link href={organizerHref} className="font-semibold underline decoration-border-gray underline-offset-4 transition-colors hover:text-acid hover:decoration-acid">
+                    {organizer.display_name}
+                  </Link>
+                ) : organizer.display_name}
+              </Fact>
             ) : null}
           </dl>
 
           {authUnavailable ? null : (
-            <div className="mt-auto flex flex-wrap items-center gap-3 pt-6">
+            <div className="mt-auto flex flex-wrap items-start gap-3 pt-6">
               <EventFollowButton
                 slug={event.slug}
                 initialFollowing={event.is_following}
@@ -206,101 +232,100 @@ export default async function EventPage({ params }: { params: Params }) {
         </div>
       </header>
 
-      {event.description ? (
-        <section className="mt-8 border-b border-border-gray pb-8">
-          <h2 className="flex items-center gap-2 font-mono text-xs uppercase tracking-cta text-raw-white">
-            <TextAlignLeft size={18} weight="bold" aria-hidden />
-            {t("description")}
-          </h2>
-          <p className="mt-4 whitespace-pre-wrap text-base leading-8 text-dim-white">{event.description}</p>
-        </section>
-      ) : null}
+      <div className="mt-10 grid gap-8 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:gap-10">
+        <div className="flex min-w-0 flex-col gap-8">
+          {event.description ? (
+            <section>
+              <SectionTitle icon={<TextAlignLeft size={18} weight="bold" aria-hidden />}>
+                {t("description")}
+              </SectionTitle>
+              <p className="mt-3 max-w-[65ch] whitespace-pre-wrap break-words text-base leading-8 text-dim-white">
+                {event.description}
+              </p>
+            </section>
+          ) : null}
 
-      <div className="grid gap-8 border-b border-border-gray py-8 md:grid-cols-2">
-        {event.lineup.length > 0 ? (
-          <section>
-            <h2 className="flex items-center gap-2 font-mono text-xs uppercase tracking-cta text-raw-white">
-              <MusicNotes size={18} weight="bold" aria-hidden />
-              {t("lineup")}
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-dim-white">
-              {event.lineup.map((item, index) => {
-                const name = typeof item === "string" ? item : item.display_name ?? item.name
-                const targetUrl = typeof item === "string" ? null : safeInternalHref(item.target_url)
-                return (
-                  <span key={`${name}-${index}`}>
-                    {index > 0 ? " / " : null}
-                    {targetUrl ? (
-                      <Link href={targetUrl} className="text-raw-white hover:text-acid">{name}</Link>
-                    ) : name}
-                  </span>
-                )
-              })}
-            </p>
-          </section>
-        ) : null}
-        {event.genres.length > 0 ? (
-          <section>
-            <h2 className="font-mono text-xs uppercase tracking-cta text-raw-white">{t("genres")}</h2>
-            <TagRow className="mt-4" tags={event.genres} />
-          </section>
-        ) : null}
+          {event.lineup.length > 0 ? (
+            <section>
+              <SectionTitle icon={<MusicNotes size={18} weight="bold" aria-hidden />}>
+                {t("lineup")}
+              </SectionTitle>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {event.lineup.map((item, index) => {
+                  const name = typeof item === "string" ? item : item.display_name ?? item.name
+                  const targetUrl = typeof item === "string" ? null : safeInternalHref(item.target_url)
+                  return (
+                    <li key={`${name}-${index}`} className="min-w-0">
+                      {targetUrl ? (
+                        <Link
+                          href={targetUrl}
+                          className="inline-flex min-h-10 max-w-full items-center rounded-control border border-border-gray bg-graphite/60 px-3.5 text-[15px] font-semibold break-words text-raw-white transition-colors hover:border-acid hover:text-acid"
+                        >
+                          {name}
+                        </Link>
+                      ) : (
+                        <span className="inline-flex min-h-10 max-w-full items-center rounded-control border border-border-gray px-3.5 text-[15px] break-words text-dim-white">
+                          {name}
+                        </span>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+          ) : null}
+
+          {event.genres.length > 0 ? (
+            <section>
+              <h2 className="text-lg font-semibold text-raw-white">{t("genres")}</h2>
+              <TagRow className="mt-3" tags={event.genres} />
+            </section>
+          ) : null}
+        </div>
+
+        <section className="min-w-0">
+          <LocationStates event={event} />
+        </section>
       </div>
 
-      <section className="mt-8">
-        <LocationStates event={event} />
-      </section>
-
-      {accessSurfaces.guest && viewerContext?.active_guest_access ? (
-        <div className="mt-6">
-          <GuestAccessCard
-            access={viewerContext.active_guest_access}
-            canMintQr={viewerContext.can_mint_qr}
-            slug={event.slug}
-          />
+      {hasAccessTools ? (
+        <div className="mt-10 flex flex-col gap-5">
+          {accessSurfaces.guest && viewerContext?.active_guest_access ? (
+            <GuestAccessCard
+              access={viewerContext.active_guest_access}
+              canMintQr={viewerContext.can_mint_qr}
+              slug={event.slug}
+            />
+          ) : null}
+          {accessSurfaces.managerGuestlist ? (
+            <ManagerGuestlist entries={guestlist} slug={event.slug} />
+          ) : null}
+          {accessSurfaces.doorStaffManagement ? (
+            <DoorStaffManager assignments={doorStaff} slug={event.slug} />
+          ) : null}
+          {accessSurfaces.quotas && viewerContext ? (
+            <QuotaControls
+              artists={lineupArtists}
+              quotas={viewerContext.quota_summaries}
+              slug={event.slug}
+            />
+          ) : null}
+          {accessSurfaces.djGuests && viewerContext && djArtists.length > 0 ? (
+            <DjGuestTools
+              artists={djArtists}
+              context={viewerContext}
+              slug={event.slug}
+            />
+          ) : null}
+          {accessSurfaces.checkIn ? <DoorCheckIn slug={event.slug} /> : null}
         </div>
       ) : null}
 
-      {accessSurfaces.managerGuestlist ? (
-        <div className="mt-6">
-          <ManagerGuestlist entries={guestlist} slug={event.slug} />
-        </div>
-      ) : null}
-      {accessSurfaces.doorStaffManagement ? (
-        <div className="mt-6">
-          <DoorStaffManager assignments={doorStaff} slug={event.slug} />
-        </div>
-      ) : null}
-      {accessSurfaces.quotas && viewerContext ? (
-        <div className="mt-6">
-          <QuotaControls
-            artists={lineupArtists}
-            quotas={viewerContext.quota_summaries}
-            slug={event.slug}
-          />
-        </div>
-      ) : null}
-      {accessSurfaces.djGuests && viewerContext && djArtists.length > 0 ? (
-        <div className="mt-6">
-          <DjGuestTools
-            artists={djArtists}
-            context={viewerContext}
-            slug={event.slug}
-          />
-        </div>
-      ) : null}
-      {accessSurfaces.checkIn ? (
-        <div className="mt-6">
-          <DoorCheckIn slug={event.slug} />
-        </div>
-      ) : null}
-
-      <section className="mt-10">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 font-mono text-xs uppercase tracking-cta text-raw-white">
-            <Megaphone size={18} weight="bold" aria-hidden />
+      <section className="mt-10 border-t border-border-gray pt-8">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SectionTitle icon={<Megaphone size={18} weight="bold" aria-hidden />}>
             {t("updates.title")}
-          </h2>
+          </SectionTitle>
           <StatusBadge status="public" label={t("updates.public")} />
         </div>
         {accessSurfaces.postUpdate ? <EventUpdateForm slug={event.slug} /> : null}
@@ -308,7 +333,7 @@ export default async function EventPage({ params }: { params: Params }) {
           {updates.length > 0 ? (
             updates.map((update) => <EventUpdateCard key={update.id} update={update} />)
           ) : (
-            <p className="border border-border-gray p-4 text-sm text-muted">
+            <p className="rounded-control border border-dashed border-border-gray p-4 text-sm text-muted">
               {t("updates.empty")}
             </p>
           )}

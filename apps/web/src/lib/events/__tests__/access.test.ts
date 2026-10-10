@@ -8,6 +8,7 @@ import {
   minimalCheckInResponse,
   minimalDoorStaffAssignment,
   mutationFailure,
+  personName,
   viewerArtistChoices,
 } from "@/lib/events/access"
 import type { EventViewerContext } from "@/lib/types"
@@ -130,5 +131,13 @@ describe("event access boundaries", () => {
       "alreadyCheckedIn",
       "checkInError",
     ])
+  })
+})
+
+describe("personName", () => {
+  it("prefers the username, without an @, and falls back to the stored name", () => {
+    expect(personName({ username: "Żaba", display_name: "Real Name" })).toBe("Żaba")
+    expect(personName({ username: null, display_name: "Legacy" })).toBe("Legacy")
+    expect(personName({ username: "  ", display_name: null })).toBe("")
   })
 })

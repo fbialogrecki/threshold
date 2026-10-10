@@ -69,15 +69,16 @@ export function EventFollowButton({
         aria-pressed={following}
         aria-describedby={error ? `event-follow-error-${slug}` : undefined}
         disabled={pending}
+        // Acid, not violet: following affirms, and violet is the downvote.
         className={cn(
-          "inline-flex items-center gap-2 border px-4 py-2 font-mono text-xs uppercase tracking-label transition-colors disabled:opacity-50",
+          "inline-flex min-h-9 items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition-[color,background-color,border-color,scale] duration-150 ease-press active:scale-95 disabled:opacity-60",
           following
-            ? "border-violet bg-violet text-pitch"
-            : "border-violet text-violet hover:bg-violet hover:text-pitch",
+            ? "border-acid bg-acid/15 text-acid"
+            : "border-border-gray text-raw-white hover:border-acid hover:text-acid",
         )}
       >
         {following
-          ? <BellRinging size={16} weight="bold" aria-hidden />
+          ? <BellRinging size={16} weight="fill" aria-hidden />
           : <Bell size={16} weight="bold" aria-hidden />}
         {following ? t("following") : t("follow")}
       </button>
@@ -85,7 +86,7 @@ export function EventFollowButton({
         <p
           id={`event-follow-error-${slug}`}
           role="alert"
-          className="max-w-56 text-xs leading-5 text-error"
+          className="max-w-56 text-xs leading-5 text-orange"
         >
           {error}
         </p>

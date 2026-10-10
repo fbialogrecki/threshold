@@ -60,7 +60,8 @@ export function GuestSearch({
   }, [state.query, state.requestId, state.status])
 
   function select(result: SearchResult) {
-    dispatch({ type: "select", label: `@${result.handle} · ${result.title}` })
+    // People are named by their username alone, without an @.
+    dispatch({ type: "select", label: result.handle })
     onSelect(result)
   }
 
@@ -72,12 +73,12 @@ export function GuestSearch({
     <div className="relative">
       <label
         htmlFor={inputId}
-        className="mb-1 block font-mono text-[11px] uppercase tracking-label text-muted"
+        className="mb-2 block text-sm font-medium text-raw-white"
       >
         {label ?? t("guestSearchLabel")}
       </label>
-      <div className="flex items-center gap-2 border border-border-gray px-3 focus-within:border-acid">
-        <MagnifyingGlass size={16} weight="bold" className="text-muted" aria-hidden />
+      <div className="flex items-center gap-2 rounded-control border border-border-gray bg-pitch px-3.5 transition-[border-color,box-shadow] focus-within:border-acid focus-within:shadow-[0_0_0_3px_rgba(198,255,0,0.18)]">
+        <MagnifyingGlass size={16} weight="bold" className="shrink-0 text-muted" aria-hidden />
         <input
           id={inputId}
           type="search"
@@ -89,7 +90,7 @@ export function GuestSearch({
           aria-controls={listId}
           aria-activedescendant={activeOptionId}
           placeholder={placeholder ?? t("guestSearchPlaceholder")}
-          className="min-w-0 flex-1 bg-transparent py-2.5 text-sm text-raw-white placeholder:text-muted"
+          className="min-w-0 flex-1 bg-transparent py-3 text-base text-raw-white placeholder:text-muted focus:outline-none"
           onChange={(event) => {
             const value = event.target.value
             requestRef.current += 1
@@ -116,7 +117,11 @@ export function GuestSearch({
         />
       </div>
       {state.open ? (
-        <div id={listId} role="listbox" className="absolute z-30 mt-1 w-full border border-border-gray">
+        <div
+          id={listId}
+          role="listbox"
+          className="absolute z-30 mt-2 w-full overflow-hidden rounded-control border border-border-gray bg-graphite p-1 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.9)]"
+        >
           {state.results.map((result, index) => (
             <button
               id={`${listId}-option-${index}`}
@@ -127,30 +132,25 @@ export function GuestSearch({
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => select(result)}
               className={cn(
-                "flex w-full items-center gap-3 px-3 py-2 text-left",
-                index === state.activeIndex ? "bg-acid text-pitch" : "text-raw-white hover:text-acid",
+                "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left",
+                index === state.activeIndex ? "bg-acid/15 text-raw-white" : "text-raw-white hover:bg-raised",
               )}
             >
-              <User size={16} weight="bold" aria-hidden />
-              <span className="min-w-0">
-                <span className="block truncate text-sm">{result.title}</span>
-                <span className="block truncate font-mono text-[11px] uppercase tracking-label opacity-70">
-                  @{result.handle}
-                </span>
-              </span>
+              <User size={16} weight="bold" className={index === state.activeIndex ? "text-acid" : "text-muted"} aria-hidden />
+              <span className="min-w-0 truncate text-[15px] font-medium">{result.handle}</span>
             </button>
           ))}
         </div>
       ) : state.status === "loading" ? (
-        <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-muted" role="status">
+        <p className="mt-2 text-[13px] text-muted" role="status">
           {t("guestSearchLoading")}
         </p>
       ) : state.status === "error" ? (
-        <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-error" role="alert">
+        <p className="mt-2 text-[13px] text-orange" role="alert">
           {t("guestSearchError")}
         </p>
       ) : state.status === "success" && state.results.length === 0 ? (
-        <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-muted">
+        <p className="mt-2 text-[13px] text-muted">
           {t("guestSearchEmpty")}
         </p>
       ) : null}

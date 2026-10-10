@@ -1,4 +1,4 @@
-import { ArrowRight } from "@phosphor-icons/react/ssr"
+import { ArrowRight, SealCheck } from "@phosphor-icons/react/ssr"
 import type { Metadata } from "next"
 import { getLocale, getTranslations } from "next-intl/server"
 import Link from "next/link"
@@ -7,7 +7,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/auth"
 import { AppShell } from "@/components/shell/app-shell"
 import { EmptyState } from "@/components/ui/empty-state"
-import { MonoLabel } from "@/components/ui/mono-label"
+import { PageHeader } from "@/components/ui/page-header"
 import { getGroupsResult } from "@/lib/api/social-read"
 import { cityLabel } from "@/lib/cities"
 
@@ -29,50 +29,58 @@ export default async function GroupsPage() {
 
   return (
     <AppShell session={session}>
-      <div className="text-raw-white">
-        {/* Named by the nav, so the visible title would only repeat it. */}
-        <h1 className="sr-only">{t("title")}</h1>
+      <div className="flex flex-col gap-6 text-raw-white">
+        <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
         {result.error ? (
-          <div>
-            <EmptyState
-              title={t("loadErrorTitle")}
-              body={t("loadErrorBody")}
-              eyebrow={t("errorEyebrow")}
-              actionLabel={t("retry")}
-              actionHref="/groups"
-            />
-          </div>
+          <EmptyState
+            tone="error"
+            title={t("loadErrorTitle")}
+            body={t("loadErrorBody")}
+            eyebrow={t("errorEyebrow")}
+            actionLabel={t("retry")}
+            actionHref="/groups"
+          />
         ) : result.items.length === 0 ? (
-          <div>
-            <EmptyState
-              title={t("emptyTitle")}
-              body={t("emptyBody")}
-              eyebrow={t("emptyEyebrow")}
-              actionLabel={t("backToFeed")}
-              actionHref="/app"
-            />
-          </div>
+          <EmptyState
+            title={t("emptyTitle")}
+            body={t("emptyBody")}
+            eyebrow={t("emptyEyebrow")}
+            actionLabel={t("backToFeed")}
+            actionHref="/app"
+          />
         ) : (
-          <ul className="divide-y divide-border-gray border border-border-gray">
+          <ul className="grid gap-3 sm:grid-cols-2">
             {result.items.map((group) => (
               <li key={group.id}>
                 <Link
                   href={`/groups/${group.slug}`}
-                  className="flex items-center justify-between gap-4 px-4 py-4 hover:text-acid"
+                  className="group flex h-full flex-col justify-between gap-6 rounded-surface border border-border-gray bg-graphite/60 p-5 transition-colors hover:border-acid/60"
                 >
-                  <span>
-                    <span className="flex items-center gap-2">
-                      <span className="font-display text-xl text-raw-white">{group.name}</span>
-                      {group.official ? (
-                        <MonoLabel tone="acid">{t("official")}</MonoLabel>
-                      ) : null}
-                    </span>
-                    <span className="mt-1 block font-mono text-[11px] uppercase tracking-label text-muted">
-                      {[cityLabel(group.city, locale), group.sceneTag].filter(Boolean).join(" / ")}
+                  <span className="min-w-0">
+                    {group.official ? (
+                      <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-acid/10 px-2.5 py-0.5 text-xs font-semibold text-acid">
+                        <SealCheck size={14} weight="fill" aria-hidden />
+                        {t("official")}
+                      </span>
+                    ) : null}
+                    <span className="block font-display text-2xl leading-tight break-words text-raw-white">
+                      {group.name}
                     </span>
                   </span>
-                  <ArrowRight size={18} weight="bold" aria-hidden className="text-muted" />
+                  <span className="flex items-center justify-between gap-3 text-sm text-dim-white">
+                    <span className="min-w-0 truncate">
+                      {[cityLabel(group.city, locale), group.sceneTag]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                    <ArrowRight
+                      size={18}
+                      weight="bold"
+                      aria-hidden
+                      className="shrink-0 text-muted transition-[color,translate] duration-200 ease-out-expo group-hover:translate-x-0.5 group-hover:text-acid"
+                    />
+                  </span>
                 </Link>
               </li>
             ))}

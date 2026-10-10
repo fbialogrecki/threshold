@@ -1,4 +1,4 @@
-import Link from "next/link"
+import { CalendarPlus } from "@phosphor-icons/react/ssr"
 import { getSessionState } from "@/lib/auth/session"
 import { listManagedPages } from "@/lib/auth/product-auth"
 import { managedEventPages } from "@/lib/events/editor-access"
@@ -6,7 +6,9 @@ import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
 import { EventCard } from "@/components/cards/event-card"
+import { ButtonLink } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
+import { PageHeader } from "@/components/ui/page-header"
 import { listEventsResult } from "@/lib/api/events"
 
 export const dynamic = "force-dynamic"
@@ -27,15 +29,22 @@ export default async function AppEventsPage() {
   const canCreate = pages?.status === 200 && managedEventPages(pages.body).length > 0
   const editor = await getTranslations("eventEditor")
 
-  // The nav already names this route, so the visible title is redundant; the
-  // heading stays for screen readers navigating by landmark.
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="sr-only">{t("title")}</h1>
-      {canCreate ? <Link href="/app/events/new" className="self-start border border-border-gray px-3 py-2 font-mono text-xs uppercase text-acid">{editor("create")}</Link> : null}
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={canCreate ? (
+          <ButtonLink href="/app/events/new" variant="primary" size="sm">
+            <CalendarPlus size={18} weight="bold" aria-hidden />
+            {editor("create")}
+          </ButtonLink>
+        ) : null}
+      />
 
       {result.error ? (
         <EmptyState
+          tone="error"
           title={t("loadErrorTitle")}
           body={t("loadErrorBody")}
           eyebrow={t("errorEyebrow")}
@@ -51,11 +60,14 @@ export default async function AppEventsPage() {
           actionHref="/app/search"
         />
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
+        // Upcoming events in the order the service returns them: chronological.
+        <ul className="grid gap-4 sm:grid-cols-2">
           {result.items.map((event) => (
-            <EventCard key={event.slug} event={event} />
+            <li key={event.slug} className="min-w-0">
+              <EventCard event={event} />
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   )

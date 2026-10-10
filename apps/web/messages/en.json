@@ -566,6 +566,7 @@
     },
     "back": "Groups",
     "official": "Official",
+    "discussion": "Discussion",
     "emptyEyebrow": "Group empty",
     "emptyTitle": "No posts yet",
     "emptyJoined": "Be the first to post in this group.",
@@ -575,7 +576,7 @@
     "loadErrorBody": "This group could not be loaded.",
     "retry": "Try again",
     "membership": {
-      "join": "Join +",
+      "join": "Join",
       "joined": "Joined",
       "pending": "Working…",
       "error": "Group membership could not be updated."
@@ -846,7 +847,7 @@
     "lineup": "Lineup",
     "view": "View event",
     "tba": "TBA",
-    "follow": "Follow +",
+    "follow": "Follow",
     "following": "Following",
     "boost": "Boost event",
     "boosted": "Event boosted",
@@ -1104,7 +1105,13 @@
     "forbidden": "A Page owner, admin or editor role is required to manage this event.",
     "unavailable": "Could not verify organizer permissions. Retry shortly.",
     "retry": "Retry",
-    "managePages": "Manage Pages"
+    "managePages": "Manage Pages",
+    "sectionBasics": "Basics",
+    "sectionWhenWhere": "When and where",
+    "sectionPoster": "Poster",
+    "currentPoster": "Current poster",
+    "backToEvent": "Back to event",
+    "backToEvents": "Events"
   },
   "safety": {
     "actions": "Safety actions",
