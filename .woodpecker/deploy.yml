@@ -1,0 +1,105 @@
+# Only application/build inputs trigger publication. Digest PRs and docs do not.
+when:
+  - event: push
+    branch: main
+    path:
+      include:
+        - 'services/**'
+        - 'libs/py/**'
+        - 'apps/web/**'
+        - 'pyproject.toml'
+        - 'uv.lock'
+        - '.python-version'
+        - '.dockerignore'
+        - '.woodpecker/auth-gateway.yml'
+        - '.woodpecker/events.yml'
+        - '.woodpecker/media.yml'
+        - '.woodpecker/social.yml'
+        - '.woodpecker/users.yml'
+        - '.woodpecker/web.yml'
+        - '.woodpecker/python-quality.yml'
+        - '.woodpecker/deploy.yml'
+        - 'ci/woodpecker/woodpecker-build-push.sh'
+        - 'ci/woodpecker/woodpecker-promote-gitops.sh'
+        - 'ci/woodpecker/bump-service-gitops.py'
+        - 'ci/woodpecker/verify_main_ci.py'
+
+labels:
+  release: trusted
+
+steps:
+  verify-main-ci:
+    image: python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0
+    environment:
+      GIT_TOKEN:
+        from_secret: release_git_token
+    commands:
+      - python ci/woodpecker/verify_main_ci.py
+
+  build-images:
+    depends_on:
+      - verify-main-ci
+    image: quay.io/buildah/stable@sha256:ca4edbaabf71ca330ec9b2714bf8e06c726a6e85ae215cfb1474d2e2c832aacb
+    environment:
+      STORAGE_DRIVER: vfs
+      BUILDAH_ISOLATION: chroot
+      HARBOR_USERNAME:
+        from_secret: release_harbor_username
+      HARBOR_PASSWORD:
+        from_secret: release_harbor_password
+      REGISTRY:
+        from_secret: release_registry
+      IMAGE_NAMESPACE:
+        from_secret: release_image_namespace
+      HARBOR_IP:
+        from_secret: release_harbor_ip
+      HARBOR_CA_SHA256:
+        from_secret: release_harbor_ca_sha256
+    commands:
+      - ci/woodpecker/woodpecker-build-push.sh auth-gateway services/auth-gateway/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh events services/events/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh media services/media/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh social services/social/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh users services/users/Dockerfile .
+      - ci/woodpecker/woodpecker-build-push.sh web apps/web/Dockerfile apps/web
+    backend_options:
+      kubernetes:
+        securityContext:
+          seccompProfile:
+            type: Localhost
+            localhostProfile: perlimen/buildah.json
+        resources:
+          requests:
+            cpu: "1"
+            memory: 2Gi
+          limits:
+            cpu: "4"
+            memory: 6Gi
+
+  promote-gitops:
+    image: python:3.13-alpine@sha256:399babc8b49529dabfd9c922f2b5eea81d611e4512e3ed250d75bd2e7683f4b0
+    depends_on:
+      - build-images
+    environment:
+      GIT_USERNAME:
+        from_secret: release_git_username
+      GIT_TOKEN:
+        from_secret: release_git_token
+      GITOPS_REPO_SLUG: fbialogrecki/perlimen
+      GITOPS_REPO_URL: https://github.com/fbialogrecki/perlimen.git
+      IMAGE_REGISTRY:
+        from_secret: release_image_registry
+      # GitHub ci-ok remains the gate for the digest-only promotion PR.
+      AUTO_MERGE: "true"
+    commands:
+      - apk add --no-cache bash git curl
+      - ci/woodpecker/woodpecker-promote-gitops.sh
+    backend_options:
+      kubernetes:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi

@@ -114,7 +114,7 @@ Focused issues and pull requests are welcome. Keep changes inside the stated MVP
 
 Untrusted pull-request jobs run without release, registry-push, signing, Kubernetes, or GitOps credentials.
 
-Releases are cut with `go-task release VERSION=vX.Y.Z`: the trusted pipeline verifies the tag, builds from that exact commit, pushes immutable image digests, and opens a digest-only pull request against `infra/`. Product source is never synchronized through a private mirror. Release credentials and environment-specific values are configured only in the trusted Woodpecker installation.
+Application/build-input pushes to `main` deploy automatically: the trusted Woodpecker pipeline waits for GitHub Actions `ci-ok` on that exact commit, pushes commit-addressed images to Harbor, and opens an auto-merging digest-only pull request against `infra/`. Argo CD deploys the merged digests. Docs and infrastructure-only pushes do not republish images. Product source is never synchronized through a private mirror; credentials remain in the trusted CI installation.
 
 == Security
 

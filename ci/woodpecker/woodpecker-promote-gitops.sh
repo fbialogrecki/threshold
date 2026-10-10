@@ -51,7 +51,7 @@ map_path() {
     libs/py/*|pyproject.toml|uv.lock|.python-version|.woodpecker/python-quality.yml)
       select_backends
       ;;
-    ci/woodpecker/woodpecker-build-push.sh|ci/woodpecker/woodpecker-promote-gitops.sh|ci/woodpecker/bump-service-gitops.py|.woodpecker/release.yml)
+    ci/woodpecker/woodpecker-build-push.sh|ci/woodpecker/woodpecker-promote-gitops.sh|ci/woodpecker/bump-service-gitops.py|ci/woodpecker/verify_main_ci.py|.woodpecker/deploy.yml|.woodpecker/release.yml|.dockerignore)
       select_all
       ;;
     .woodpecker/auth-gateway.yml|.woodpecker/events.yml|.woodpecker/media.yml|.woodpecker/social.yml|.woodpecker/users.yml|.woodpecker/web.yml)
@@ -110,13 +110,18 @@ self_test() {
   printf '.woodpecker/python-quality.yml\n' > "$tmp/python-quality"
   assert_output python-quality "$tmp/python-quality" $'auth-gateway\nevents\nmedia\nsocial\nusers'
 
-  for fixture in ci/woodpecker/woodpecker-promote-gitops.sh ci/woodpecker/bump-service-gitops.py .woodpecker/release.yml; do
+  for fixture in ci/woodpecker/woodpecker-promote-gitops.sh ci/woodpecker/bump-service-gitops.py ci/woodpecker/verify_main_ci.py .woodpecker/deploy.yml .woodpecker/release.yml .dockerignore; do
     printf '%s\n' "$fixture" > "$tmp/all-control"
     assert_output "$fixture" "$tmp/all-control" $'auth-gateway\nevents\nmedia\nsocial\nusers\nweb'
   done
 
   printf '.woodpecker/services.yml\n' > "$tmp/legacy-workflow"
   assert_output legacy-workflow-removed "$tmp/legacy-workflow" ""
+
+  printf 'infra/kustomize/overlays/local/users/kustomization.yaml\n' > "$tmp/digest-promotion"
+  assert_output no-promotion-loop "$tmp/digest-promotion" ""
+  printf 'docs/release-and-deploy.md\n' > "$tmp/docs"
+  assert_output docs-no-publication "$tmp/docs" ""
 
   output=$(CI_PIPELINE_EVENT=manual "$SCRIPT_PATH" --dry-run)
   [[ "$output" == $'auth-gateway\nevents\nmedia\nsocial\nusers\nweb' ]] ||

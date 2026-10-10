@@ -64,7 +64,7 @@ The product and source are Perlimen. Deployed legacy identifiers are intentional
 - Object storage: SeaweedFS S3-compatible API. Backend owns buckets and object keys.
 - Secrets: OpenBao + External Secrets Operator. No plaintext secrets in git.
 - Observability: OpenTelemetry, Loki, Grafana, Tempo, Mimir, Grafana Alloy, OTel Collector.
-- CI/CD: GitHub Actions validates PRs (`ci-ok` is the gate). A release is `go-task release VERSION=vX.Y.Z`: it tags `main` and starts the Woodpecker `release` pipeline, which pushes images to Harbor and opens a digest PR against `infra/`; ArgoCD syncs once it merges. See `docs/release-and-deploy.md`.
+- CI/CD: GitHub Actions `ci-ok` gates PR merges and automatic publication. Application/build-input pushes to `main` start Woodpecker `deploy`, which waits for that exact SHA to pass `ci-ok`, pushes images to Harbor and opens an auto-merging digest PR against `infra/`. ArgoCD syncs once it merges. Docs/infra-only pushes never republish images. See `docs/release-and-deploy.md`.
 
 ## Product Rules
 
@@ -187,7 +187,7 @@ Do not pull post-MVP work into the MVP unless the user explicitly changes scope.
 
 ## Testing And Definition Of Done
 
-Match verification to risk. For small docs-only edits, a diff review may be enough. For code, run the narrowest useful gate plus any affected service or web tests.
+Verify proportionally: diff review for docs-only edits; the narrowest useful gate and affected service/web tests for code.
 
 Expected gates:
 
@@ -214,7 +214,7 @@ Before calling work done:
 - Keep comments rare and explain why, not what.
 - If a recurring agent mistake happens, fix this file rather than relying on chat memory.
 - Work in short PRs, one concern each, merged with `gh pr merge --auto --squash` once CI is green. Do not start multi-package programs or master plans without explicit approval.
-- Never run `go-task release` or `woodpecker-cli pipeline create` unless the maintainer explicitly asks for that release.
+- Main-push publication/deployment is explicitly approved and automatic. Do not start manual release pipelines or bypass the CI/digest-PR path without maintainer approval.
 - Do not commit evidence files, logs, review transcripts, "closeout" reports or copies of source into any repository. Put a short verification summary in the commit message.
 - Keep tests proportional to the change and test behavior, not the text of config or CI files.
 - Size safeguards to this project: one maintainer, one NUC, pre-launch MVP. Do not design for hostile insiders, multi-tenant CI or enterprise compliance unless asked.
