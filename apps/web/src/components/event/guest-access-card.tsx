@@ -6,7 +6,7 @@ import { useEffect, useReducer, useRef } from "react"
 import { QRCodeSVG } from "qrcode.react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardBody, CardHeader } from "@/components/ui/card"
+import { CardBody, CardHeader } from "@/components/ui/card"
 import { StatusBadge } from "@/components/ui/status-badge"
 import {
   initialQrState,
@@ -92,44 +92,44 @@ export function GuestAccessCard({
 
   return (
     <>
-      <Card as="section" className="border-l-2 border-l-acid">
+      <section className="rounded-surface border border-acid/40 bg-acid/5">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <CheckCircle size={18} weight="fill" className="text-acid" aria-hidden />
-            <h2 className="font-display text-2xl tracking-wide text-raw-white">
+            <CheckCircle size={20} weight="fill" className="text-acid" aria-hidden />
+            <h2 className="text-lg font-semibold text-raw-white">
               {t("approvedTitle")}
             </h2>
           </div>
           <StatusBadge status="guestlist" label={t("guestlistBadge")} />
         </CardHeader>
         <CardBody>
-          <p className="text-sm leading-6 text-dim-white">
+          <p className="text-[15px] leading-7 text-dim-white">
             {access.checked_in_at ? t("checkedInBody") : t("approvedBody")}
           </p>
           {canMintQr ? (
-            <Button type="button" variant="primary" className="mt-4" onClick={openQr}>
+            <Button type="button" variant="primary" size="lg" className="mt-4 w-full sm:w-auto" onClick={openQr}>
               <QrCode size={17} weight="bold" aria-hidden />
               {t("showQr")}
             </Button>
           ) : null}
         </CardBody>
-      </Card>
+      </section>
 
       <dialog
         ref={dialogRef}
         aria-labelledby="guest-qr-title"
         onClose={clearQr}
-        className="m-auto w-[min(92vw,28rem)] border border-border-gray p-0 text-raw-white backdrop:bg-black/85"
+        className="m-auto w-[min(92vw,28rem)] rounded-surface border border-border-gray bg-graphite p-0 text-raw-white backdrop:bg-black/85 backdrop:backdrop-blur-sm"
       >
-        <div className="flex items-center justify-between border-b border-border-gray px-4 py-3">
-          <h2 id="guest-qr-title" className="font-display text-3xl tracking-wide">
+        <div className="flex items-center justify-between border-b border-border-gray px-5 py-3">
+          <h2 id="guest-qr-title" className="text-lg font-semibold">
             {t("qrTitle")}
           </h2>
           <button
             type="button"
             autoFocus
             aria-label={t("closeQr")}
-            className="p-2 text-muted hover:text-raw-white"
+            className="grid size-11 place-items-center rounded-full text-muted transition-colors hover:bg-raised hover:text-raw-white"
             onClick={() => dialogRef.current?.close()}
           >
             <X size={20} weight="bold" aria-hidden />
@@ -138,7 +138,7 @@ export function GuestAccessCard({
         <div className="flex min-h-80 flex-col items-center justify-center gap-4 p-6 text-center">
           {qr.status === "ready" ? (
             <>
-              <div className="bg-white p-3">
+              <div className="rounded-control bg-white p-3">
                 <QRCodeSVG
                   value={qr.token}
                   size={240}
@@ -148,7 +148,7 @@ export function GuestAccessCard({
                   aria-label={t("qrTitle")}
                 />
               </div>
-              <p className="font-mono text-xs uppercase tracking-label text-muted">
+              <p className="text-sm text-dim-white">
                 {t("qrExpires", {
                   time: new Intl.DateTimeFormat(locale, { timeStyle: "medium" }).format(
                     new Date(qr.expiresAt),
@@ -157,7 +157,7 @@ export function GuestAccessCard({
               </p>
             </>
           ) : (
-            <p className="font-mono text-xs uppercase tracking-label text-muted" role="status">
+            <p className={qr.status === "error" || qr.status === "expired" ? "text-sm text-orange" : "text-sm text-muted"} role="status">
               {qr.status === "loading"
                 ? t("qrLoading")
                 : qr.status === "expired"
@@ -167,7 +167,7 @@ export function GuestAccessCard({
                     : ""}
             </p>
           )}
-          <Button type="button" disabled={qr.status === "loading"} onClick={mintQr}>
+          <Button type="button" size="sm" disabled={qr.status === "loading"} onClick={mintQr}>
             <ArrowClockwise size={17} weight="bold" aria-hidden />
             {t("refreshQr")}
           </Button>

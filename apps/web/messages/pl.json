@@ -566,6 +566,7 @@
     },
     "back": "Grupy",
     "official": "Oficjalna",
+    "discussion": "Dyskusja",
     "emptyEyebrow": "Grupa pusta",
     "emptyTitle": "Brak postów",
     "emptyJoined": "Napisz pierwszy post w tej grupie.",
@@ -575,7 +576,7 @@
     "loadErrorBody": "Nie udało się załadować tej grupy.",
     "retry": "Spróbuj ponownie",
     "membership": {
-      "join": "Dołącz +",
+      "join": "Dołącz",
       "joined": "Dołączono",
       "pending": "Przetwarzanie…",
       "error": "Nie udało się zmienić członkostwa w grupie."
@@ -846,7 +847,7 @@
     "lineup": "Line-up",
     "view": "Zobacz wydarzenie",
     "tba": "Wkrótce",
-    "follow": "Obserwuj +",
+    "follow": "Obserwuj",
     "following": "Obserwujesz",
     "boost": "Wzmocnij wydarzenie",
     "boosted": "Wydarzenie wzmocnione",
@@ -1104,7 +1105,13 @@
     "forbidden": "Zarządzanie wydarzeniem wymaga roli właściciela, administratora lub redaktora strony.",
     "unavailable": "Nie udało się sprawdzić uprawnień organizatora. Spróbuj ponownie za chwilę.",
     "retry": "Spróbuj ponownie",
-    "managePages": "Zarządzaj stronami"
+    "managePages": "Zarządzaj stronami",
+    "sectionBasics": "Podstawy",
+    "sectionWhenWhere": "Kiedy i gdzie",
+    "sectionPoster": "Plakat",
+    "currentPoster": "Obecny plakat",
+    "backToEvent": "Wróć do wydarzenia",
+    "backToEvents": "Wydarzenia"
   },
   "safety": {
     "actions": "Bezpieczeństwo",

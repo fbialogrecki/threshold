@@ -1,9 +1,11 @@
 "use client"
 
+import { Check, Plus } from "@phosphor-icons/react"
 import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 
+import { Spinner } from "@/components/ui/field"
 import { cn } from "@/lib/cn"
 
 export function JoinButton({
@@ -46,22 +48,29 @@ export function JoinButton({
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="flex flex-col items-start gap-2 sm:items-end">
       <button
         type="button"
         onClick={onClick}
         aria-pressed={joined}
         disabled={pending}
         className={cn(
-          "border px-4 py-2 font-mono text-xs uppercase tracking-label transition-colors disabled:opacity-50",
+          "inline-flex min-h-11 items-center gap-2 rounded-control border px-5 text-[15px] font-semibold transition-[color,background-color,border-color,scale] duration-150 ease-press active:scale-[0.97] disabled:opacity-60",
           joined
-            ? "border-acid bg-acid text-pitch"
-            : "border-acid text-acid hover:bg-acid hover:text-pitch",
+            ? "border-acid/50 bg-acid/10 text-acid hover:border-acid"
+            : "border-acid bg-acid text-pitch hover:bg-acid-bright",
         )}
       >
+        {pending ? (
+          <Spinner />
+        ) : joined ? (
+          <Check size={16} weight="bold" aria-hidden />
+        ) : (
+          <Plus size={16} weight="bold" aria-hidden />
+        )}
         {pending ? t("pending") : t(joined ? "joined" : "join")}
       </button>
-      {error ? <p role="alert" className="text-xs text-error">{error}</p> : null}
+      {error ? <p role="alert" className="max-w-64 text-sm text-orange">{error}</p> : null}
     </div>
   )
 }

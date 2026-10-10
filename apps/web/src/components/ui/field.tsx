@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { ReactNode, Ref } from "react"
 
 import { cn } from "@/lib/cn"
 
@@ -46,10 +46,23 @@ export function Field({
   )
 }
 
-export function FormAlert({ id, children }: { id?: string; children: ReactNode }) {
+export function FormAlert({
+  id,
+  ref,
+  focusable = false,
+  children,
+}: {
+  id?: string
+  ref?: Ref<HTMLParagraphElement>
+  /** Let a form move focus to the alert after a failed submit. */
+  focusable?: boolean
+  children: ReactNode
+}) {
   return (
     <p
       id={id}
+      ref={ref}
+      tabIndex={focusable ? -1 : undefined}
       role="alert"
       className="flex animate-step gap-3 rounded-control border border-orange/50 bg-orange/10 px-3.5 py-3 text-sm leading-6 text-raw-white"
     >

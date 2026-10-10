@@ -88,7 +88,7 @@ export function BoostButton({
         <p
           id={`event-boost-error-${targetId}`}
           role="alert"
-          className="max-w-56 text-xs leading-5 text-error"
+          className="max-w-56 text-xs leading-5 text-orange"
         >
           {error}
         </p>

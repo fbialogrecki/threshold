@@ -1,4 +1,4 @@
-import { ArrowLeft } from "@phosphor-icons/react/ssr"
+import { ArrowLeft, SealCheck } from "@phosphor-icons/react/ssr"
 import type { Metadata } from "next"
 import { getLocale, getTranslations } from "next-intl/server"
 import Link from "next/link"
@@ -10,7 +10,6 @@ import { ComposeForm } from "@/components/compose/compose-form"
 import { JoinButton } from "@/components/groups/join-button"
 import { AppShell } from "@/components/shell/app-shell"
 import { EmptyState } from "@/components/ui/empty-state"
-import { MonoLabel } from "@/components/ui/mono-label"
 import {
   getGroupPostsResult,
   getGroupResult,
@@ -46,6 +45,7 @@ export default async function GroupDetailPage({
     return (
       <AppShell session={session}>
         <EmptyState
+          tone="error"
           title={t("loadErrorTitle")}
           body={t("loadErrorBody")}
           eyebrow={t("errorEyebrow")}
@@ -64,6 +64,7 @@ export default async function GroupDetailPage({
     return (
       <AppShell session={session}>
         <EmptyState
+          tone="error"
           title={t("loadErrorTitle")}
           body={t("loadErrorBody")}
           eyebrow={t("errorEyebrow")}
@@ -80,35 +81,37 @@ export default async function GroupDetailPage({
       <div className="text-raw-white">
         <Link
           href="/groups"
-          className="font-mono text-[11px] uppercase tracking-label text-muted hover:text-acid"
+          className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-raw-white"
         >
-          <span className="inline-flex items-center gap-2">
-            <ArrowLeft size={14} weight="bold" aria-hidden />
-            {t("back")}
-          </span>
+          <ArrowLeft size={14} weight="bold" aria-hidden />
+          {t("back")}
         </Link>
 
-        <header className="mt-6 flex flex-col gap-4 border-b border-border-gray pb-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <span className="flex items-center gap-2">
-              <h1 className="font-display text-4xl">{group.name}</h1>
-              {group.official ? <MonoLabel tone="acid">{t("official")}</MonoLabel> : null}
-            </span>
+        <header className="mt-4 flex flex-col gap-5 rounded-surface border border-border-gray bg-[radial-gradient(28rem_14rem_at_100%_0%,rgba(198,255,0,0.07),transparent_70%)] p-5 sm:flex-row sm:items-end sm:justify-between sm:p-7">
+          <div className="min-w-0">
+            {group.official ? (
+              <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-acid/10 px-2.5 py-0.5 text-xs font-semibold text-acid">
+                <SealCheck size={14} weight="fill" aria-hidden />
+                {t("official")}
+              </span>
+            ) : null}
+            <h1 className="font-display text-4xl leading-[0.95] break-words sm:text-5xl">{group.name}</h1>
             {/* City and scene are metadata, not a status: no hue. */}
-            <MonoLabel size="sm" className="mt-1 block">
-              {[cityLabel(group.city, locale), group.sceneTag].filter(Boolean).join(" / ")}
-            </MonoLabel>
+            <p className="mt-2 text-[15px] text-dim-white">
+              {[cityLabel(group.city, locale), group.sceneTag].filter(Boolean).join(" · ")}
+            </p>
           </div>
           <JoinButton slug={group.slug} isAuthenticated initialJoined={joined} />
         </header>
 
         {joined ? (
-          <div className="mt-6">
+          <div className="mt-5">
             <ComposeForm groupSlug={group.slug} />
           </div>
         ) : null}
 
-        <div className="mt-6">
+        <h2 className="sr-only">{t("discussion")}</h2>
+        <div className="mt-5">
           {postResult.items.length === 0 ? (
             <EmptyState
               title={t("emptyTitle")}

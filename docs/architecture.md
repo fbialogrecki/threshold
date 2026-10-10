@@ -182,6 +182,7 @@ The approved public path is Cloudflare HTTPS → `cloudflared` → `http://web.t
 - `Button`/`ButtonLink` keep the square mono `md` size for existing routes; `size="lg"` is the modern rounded control. Surfaces move to the modern shape route by route.
 - Form primitives live in `components/ui/field.tsx` (`inputClass`, `Field`, `FormAlert`, `Spinner`). Login, register, reset, verify and onboarding share the server `AuthShell` frame; the auth password input (hold-to-reveal plus strength meter) is `components/auth/password-field.tsx`. Onboarding step gating lives in `lib/onboarding/steps.ts`.
 - The app shell uses `PageHeader`, `EmptyState` (`tone="error"` for load failures, orange) and `Card` (rounded, filled) from `components/ui`. Load and request failures are orange; red stays for destructive actions. Do not put entry animations on wrappers that contain overlays: a filling animation creates a stacking context that traps modals and dropdowns beneath the nav.
+- Organizer, guestlist and door views name people with `personName` (`lib/events/access.ts`): username first, without `@`. Follow and guestlist states use acid; protection uses full contrast plus a padlock, never violet or cyan.
 - Only the landing hero uses three.js. `components/landing/hero-visual.tsx` renders a CSS ring fallback on the server; `hero-lifecycle.ts` skips the scene chunk under reduced motion, runs the loop only while visible and on screen, and falls back on missing WebGL, chunk failure or context loss. Other motion is CSS (`animation-timeline: view()` where supported).
 
 ## Deployment

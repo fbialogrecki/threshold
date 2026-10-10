@@ -37,6 +37,14 @@ export function eventAccessSurfaces(context: EventViewerContext | null) {
   }
 }
 
+/**
+ * One public name per person: organizer and door views show the username
+ * (no `@`), falling back to the stored name only for accounts without one.
+ */
+export function personName(person: { username?: string | null; display_name?: string | null }): string {
+  return person.username?.trim() || person.display_name?.trim() || ""
+}
+
 export function eventLoginHref(slug: string): string {
   const callback = `/events/${encodeURIComponent(slug)}`
   return `/login?callbackUrl=${encodeURIComponent(callback)}`

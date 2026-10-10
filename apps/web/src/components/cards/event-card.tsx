@@ -39,7 +39,7 @@ export async function EventCard({
   // No accent border and no coloured label: violet belongs to the vote axis,
   // and the poster plus title scale already mark this as an event.
   return (
-    <Card as="article">
+    <Card as="article" className="flex h-full flex-col transition-colors hover:border-status-neutral-border">
       <div className="flex items-center justify-between gap-3 border-b border-border-gray px-4 py-2.5 sm:px-5">
         <MonoLabel tone="muted">{t("event")}</MonoLabel>
         <span className="truncate text-[13px] text-muted">{city ?? "—"}</span>
@@ -59,7 +59,7 @@ export async function EventCard({
         </Link>
       ) : null}
 
-      <div className="px-4 py-4 sm:px-5">
+      <div className="flex flex-1 flex-col px-4 py-4 sm:px-5">
         <Link href={`/events/${event.slug}`}>
           <h3 className="font-display text-3xl leading-[0.95] tracking-[0.01em] break-words text-raw-white transition-colors hover:text-acid sm:text-4xl">
             {event.title}
@@ -108,7 +108,9 @@ export async function EventCard({
 
         <TagRow className="mt-3" tags={event.genres} />
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border-gray pt-3">
+        {/* Grows so actions line up across cards of different heights. */}
+        <div aria-hidden className="min-h-4 flex-1" />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border-gray pt-3">
           <div className="flex flex-wrap items-center gap-2">
             <ButtonLink href={`/events/${event.slug}`} variant="secondary" size="sm">
               {t("view")} →

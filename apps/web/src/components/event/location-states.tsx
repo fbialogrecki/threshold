@@ -19,7 +19,7 @@ export async function LocationStates({ event }: { event: PerlimenEvent }) {
         <CardHeader>
           <div className="flex items-center gap-2">
             <MapPin size={18} weight="bold" className="text-muted" aria-hidden />
-            <h2 className="font-display text-2xl tracking-wide">{t("title")}</h2>
+            <h2 className="text-lg font-semibold">{t("title")}</h2>
           </div>
           <StatusBadge status="public" label={t("public")} />
         </CardHeader>
@@ -41,9 +41,9 @@ export async function LocationStates({ event }: { event: PerlimenEvent }) {
         <CardHeader>
           <div className="flex items-center gap-2">
             <MapPin size={18} weight="bold" className="text-status-neutral" aria-hidden />
-            <h2 className="font-display text-2xl tracking-wide">{t("title")}</h2>
+            <h2 className="text-lg font-semibold">{t("title")}</h2>
           </div>
-          <StatusBadge status="neutral" label={t("tba")} />
+          <StatusBadge status="tba" label={t("tba")} />
         </CardHeader>
         <CardBody className="flex flex-col gap-3">
           <p className="text-lg text-raw-white">{city}</p>
@@ -59,8 +59,9 @@ export async function LocationStates({ event }: { event: PerlimenEvent }) {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <LockKey size={18} weight="bold" className="text-violet" aria-hidden />
-          <h2 className="font-display text-2xl tracking-wide">{t("title")}</h2>
+          {/* Protection reads as full contrast plus a padlock; violet is the downvote. */}
+          <LockKey size={18} weight="bold" className="text-raw-white" aria-hidden />
+          <h2 className="text-lg font-semibold">{t("title")}</h2>
         </div>
         <StatusBadge status="secret" label={t("secret")} />
       </CardHeader>
@@ -68,7 +69,7 @@ export async function LocationStates({ event }: { event: PerlimenEvent }) {
         <p className="text-sm leading-7 text-dim-white">
           {t("secretBody")}
         </p>
-        <p className="font-mono text-[11px] uppercase tracking-label text-muted">
+        <p className="text-sm text-muted">
           {t("city", { city })}
         </p>
       </CardBody>
