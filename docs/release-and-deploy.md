@@ -26,7 +26,7 @@ Push a commit to `main`, directly or by merging a PR. No version argument, tag o
 
 1. `verify-main-ci` waits up to 30 minutes for GitHub Actions `ci-ok` on the **exact source SHA**. Pending checks wait; failure, cancellation, wrong SHA, API failure and timeout prevent publication. No old success or another app's check is accepted.
 2. `build-images` builds all six images and pushes `core.harbor.domain/threshold/<service>:<full sha>`, recording the registry-provided immutable digests. It does not create SemVer tags.
-3. `promote-gitops` selects the services affected by the source diff (shared Python inputs select backends; publication controls select all), opens a digest-only PR from `ci/promote-<short sha>`, and enables squash auto-merge after its `ci-ok` passes. Argo CD deploys once it merges.
+3. `promote-gitops` promotes all six services from the same source SHA and opens a digest-only PR from `ci/promote-<short sha>`, and enables squash auto-merge after its `ci-ok` passes. Argo CD deploys once it merges.
 
 Docs and `infra/`-only pushes are excluded from publication. In particular, merging the digest PR cannot start another build/promotion loop. Infrastructure changes still sync through Argo CD as before. Existing SemVer tags/history are retained; routine deployments are identified by source SHA and image digest.
 
