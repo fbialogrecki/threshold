@@ -33,15 +33,16 @@ export function VerifyEmailBanner() {
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-orange/50 bg-[#1a1206] px-4 py-2">
-      <p className="font-mono text-[11px] uppercase tracking-label text-orange">
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-orange/40 bg-orange/10 px-4 py-2.5">
+      <p className="flex items-center gap-2 text-sm text-raw-white">
+        <span className="size-2 shrink-0 rounded-full bg-orange" aria-hidden />
         {failed ? t("error") : t("body")}
       </p>
       <button
         type="button"
         onClick={resend}
         disabled={pending || sent}
-        className="font-mono text-[11px] uppercase tracking-label text-acid hover:underline disabled:opacity-50"
+        className="rounded-control border border-border-gray px-3 py-1 text-sm font-semibold text-acid transition-[border-color,scale] duration-150 ease-press hover:border-acid active:scale-[0.97] disabled:opacity-60"
       >
         {sent ? t("sent") : pending ? "…" : t("resend")}
       </button>

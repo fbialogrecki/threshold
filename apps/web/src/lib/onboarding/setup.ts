@@ -1,6 +1,6 @@
 import { onboardingSubmissionSucceeded } from "@/lib/onboarding/plan"
 
-type PageDraft = {
+export type PageDraft = {
   display_name: string
   slug: string
   page_type: "club" | "collective" | "project" | "festival"

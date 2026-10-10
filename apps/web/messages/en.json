@@ -136,6 +136,25 @@
     "createOne": "Create account",
     "back": "← Back to entrance",
     "redirecting": "Redirecting…",
+    "loginHeading": "Back on the floor",
+    "loginLede": "Your Feed, events and groups are where you left them.",
+    "registerHeading": "Join the scene",
+    "journey": {
+      "title": "How joining works",
+      "account": {
+        "title": "Account",
+        "body": "Nickname, email and password. Your nickname is your only public name."
+      },
+      "setup": {
+        "title": "Setup",
+        "body": "Pick your city and join its official group. Scenes, a DJ profile and Pages are optional."
+      },
+      "feed": {
+        "title": "Feed",
+        "body": "Posts from the people and groups you choose, newest first."
+      },
+      "verify": "Verifying your email protects account recovery. You can request the link from the app at any time; it does not hold up setup."
+    },
     "strength": {
       "label": "Strength",
       "tooShort": "Too short",
@@ -195,14 +214,6 @@
       "unavailable": "Password reset is temporarily unavailable. Try again.",
       "updated": "Password updated",
       "updatedBody": "Your password was changed and all sessions were signed out. Log in with your new password.",
-      "strength": "Strength",
-      "strengthValues": {
-        "0": "",
-        "1": "Too short",
-        "2": "Fair",
-        "3": "Good",
-        "4": "Strong"
-      },
       "change": "Change password →"
     },
     "verify": {
@@ -215,7 +226,7 @@
       "service": "Email verification is temporarily unavailable. Try again.",
       "rateLimited": "Too many attempts. Wait and try again.",
       "retry": "Try again",
-      "continue": "→ Continue to Perlimen"
+      "continue": "Continue to Perlimen →"
     },
     "banner": {
       "body": "Verify your email for account security and recovery.",
@@ -282,7 +293,7 @@
       "slug": "Page address (lowercase letters, digits, hyphens)",
       "type": "Type",
       "about": "Description (optional)",
-      "add": "+ Add Page",
+      "add": "Add Page",
       "remove": "Remove from form",
       "hint": "Pages will be created when you confirm setup. They will use the city selected above.",
       "types": { "club": "Club", "collective": "Collective", "project": "Project", "festival": "Festival" }
@@ -294,11 +305,13 @@
     "done": {
       "body": "Review your choices and save your account setup, optional DJ profile and Pages.",
       "hint": "After saving and joining the official city group, you will continue to the Feed.",
-      "summary": "Account: {username} · City: {city} · Artist: {artist} · Pages: {pages}",
       "none": "none"
     },
+    "progressLabel": "Setup progress",
+    "stepOf": "Step {current} of {total}",
     "back": "← Back",
     "next": "Next →",
+    "skip": "Skip for now",
     "finish": "Save and enter →",
     "saving": "Saving…",
     "errors": {

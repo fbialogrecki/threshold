@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 
+import { AuthShell } from "@/components/auth/auth-shell"
 import { ResetPasswordForm } from "@/components/auth/reset-password-form"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,8 +18,8 @@ export default async function ResetPasswordPage({
 }) {
   const { token } = await searchParams
   return (
-    <main className="flex min-h-screen items-center justify-center bg-pitch px-6 text-raw-white">
+    <AuthShell>
       <ResetPasswordForm token={token ?? null} />
-    </main>
+    </AuthShell>
   )
 }

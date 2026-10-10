@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 
 import { auth } from "@/auth"
 import { AuthCard } from "@/components/auth/auth-card"
+import { AuthShell } from "@/components/auth/auth-shell"
 import { authenticatedHref } from "@/lib/auth/routing"
 import { safeInternalHref } from "@/lib/safe-href"
 
@@ -25,8 +26,8 @@ export default async function RegisterPage({
   if (session?.user) redirect(authenticatedHref(session, safeCallback))
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-pitch px-6 text-raw-white">
+    <AuthShell>
       <AuthCard initialMode="register" callbackUrl={safeCallback} />
-    </main>
+    </AuthShell>
   )
 }

@@ -60,6 +60,7 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-press: cubic-bezier(0.3, 1.4, 0.5, 1);
   --animate-rise: rise 0.8s var(--ease-out-expo) both;
+  --animate-step: rise 0.35s var(--ease-out-expo) both;
 
   @keyframes rise {
     from {
@@ -221,7 +222,11 @@ textarea:focus-visible {
   transition: opacity 1.2s var(--ease-out-expo);
 }
 
-/* The static state: tilted concentric rings drawn by CSS alone. */
+/*
+  The static state: tilted concentric rings drawn by CSS alone. The auth
+  stage reuses it as a quiet backdrop, so the landing and the entrance share
+  one motif without shipping three.js beyond the landing.
+*/
 .hero-fallback {
   background:
     radial-gradient(closest-side, rgba(198, 255, 0, 0.14), transparent 70%),

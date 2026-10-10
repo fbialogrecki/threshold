@@ -1,22 +1,19 @@
 "use client"
 
-import { Eye, EyeSlash } from "@phosphor-icons/react"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
-import { useState } from "react"
 
-import { LocaleSwitcher } from "@/components/i18n/locale-switcher"
+import { authSurfaceClass } from "@/components/auth/auth-panel"
+import { PasswordField } from "@/components/auth/password-field"
 import { useAuthCard } from "@/components/auth/use-auth-card"
+import { Button } from "@/components/ui/button"
+import { Field, FormAlert, inputClass, Spinner } from "@/components/ui/field"
 import { cn } from "@/lib/cn"
-import {
-  MAX_PASSWORD,
-  MIN_PASSWORD,
-  passwordStrength,
-  type PasswordStrength,
-  USERNAME_PATTERN,
-} from "@/lib/validation"
+import { MAX_PASSWORD, MIN_PASSWORD, USERNAME_PATTERN } from "@/lib/validation"
 
 type Mode = "login" | "register"
+
+const JOURNEY = ["account", "setup", "feed"] as const
 
 export function AuthCard({
   initialMode = "login",
@@ -41,77 +38,104 @@ export function AuthCard({
     switchMode,
     onSubmit,
   } = useAuthCard({ initialMode, callbackUrl })
+  const credentialsError = errorField === "username" || errorField === "credentials"
 
   return (
-    <div className="w-full max-w-md border border-border-gray bg-graphite">
-      <div className="flex border-b border-border-gray">
-        <ModeTab
-          active={!isRegister}
-          label={t("login")}
-          onClick={() => switchMode("login")}
-        />
-        <ModeTab
-          active={isRegister}
-          label={t("createAccount")}
-          onClick={() => switchMode("register")}
-        />
-      </div>
-
-      <div className="p-7">
-        <div className="flex items-start justify-between gap-4">
-          <span className="font-display text-3xl tracking-[0.1em]">PERLIMEN</span>
-          <LocaleSwitcher />
-        </div>
-        <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-muted">
+    <div className="grid w-full max-w-5xl items-center gap-8 lg:grid-cols-[1fr_minmax(0,28rem)] lg:gap-x-16 lg:gap-y-10">
+      <div className="@container animate-rise lg:self-end">
+        <p className="inline-flex items-center gap-2 rounded-full border border-border-gray bg-pitch/70 px-3 py-1.5 text-[13px] font-medium text-dim-white">
+          <span className="size-1.5 rounded-full bg-acid" aria-hidden />
           {isRegister ? t("registrationOpen") : t("loginCaption")}
         </p>
-        {isRegister ? <p className="mt-3 text-sm leading-6 text-dim-white">{t("registrationSteps")}</p> : null}
+        <h1 className="mt-5 font-display text-[min(13cqi,4.5rem)] leading-[0.9] tracking-[0.005em]">
+          {isRegister ? t("registerHeading") : t("loginHeading")}
+        </h1>
+        <p className="mt-4 max-w-[42ch] text-pretty text-[17px] leading-7 text-dim-white">
+          {isRegister ? t("registrationSteps") : t("loginLede")}
+        </p>
+      </div>
 
-        <form onSubmit={onSubmit} className="mt-7 flex flex-col gap-4">
+      <div
+        className={cn(
+          "animate-rise p-5 [animation-delay:80ms] sm:p-7 lg:col-start-2 lg:row-span-2 lg:row-start-1",
+          authSurfaceClass,
+        )}
+      >
+        <div className="relative grid grid-cols-2 rounded-control border border-border-gray bg-pitch p-1">
+          <span
+            aria-hidden
+            className={cn(
+              "absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-[0.5rem] bg-raised transition-transform duration-300 ease-out-expo",
+              isRegister && "translate-x-full",
+            )}
+          />
+          <ModeTab active={!isRegister} label={t("login")} onClick={() => switchMode("login")} />
+          <ModeTab
+            active={isRegister}
+            label={t("createAccount")}
+            onClick={() => switchMode("register")}
+          />
+        </div>
+
+        <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-5">
           <Field
-            id="auth-username"
+            htmlFor="auth-username"
             label={isRegister ? t("nickname") : t("identifier")}
             hint={isRegister ? t("nicknameHint") : undefined}
             help={isRegister ? t("usernameHelp") : undefined}
-            value={username}
-            onChange={(value) => {
-              setUsername(value)
-              clearFieldError("username")
-            }}
-            placeholder="nightcrawler"
-            autoComplete="username"
-            required
-            maxLength={isRegister ? 30 : 320}
-            pattern={isRegister ? USERNAME_PATTERN : undefined}
-            ariaInvalid={errorField === "username" || errorField === "credentials"}
-            errorId={
-              error && (errorField === "username" || errorField === "credentials")
-                ? "auth-error"
-                : undefined
-            }
-          />
+            helpId="auth-username-help"
+          >
+            <input
+              id="auth-username"
+              value={username}
+              onChange={(event) => {
+                setUsername(event.target.value)
+                clearFieldError("username")
+              }}
+              placeholder="nightcrawler"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              required
+              maxLength={isRegister ? 30 : 320}
+              pattern={isRegister ? USERNAME_PATTERN : undefined}
+              aria-invalid={credentialsError || undefined}
+              aria-describedby={
+                [
+                  isRegister ? "auth-username-help" : null,
+                  error && credentialsError ? "auth-error" : null,
+                ]
+                  .filter(Boolean)
+                  .join(" ") || undefined
+              }
+              className={inputClass}
+            />
+          </Field>
 
           {isRegister ? (
-            <Field
-              id="auth-email"
-              label={t("email")}
-              value={email}
-              onChange={(value) => {
-                setEmail(value)
-                clearFieldError("email")
-              }}
-              type="email"
-              placeholder="you@domain.xyz"
-              autoComplete="email"
-              required
-              maxLength={320}
-              ariaInvalid={errorField === "email"}
-              errorId={error && errorField === "email" ? "auth-error" : undefined}
-            />
+            <Field htmlFor="auth-email" label={t("email")}>
+              <input
+                id="auth-email"
+                type="email"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value)
+                  clearFieldError("email")
+                }}
+                placeholder="you@domain.xyz"
+                autoComplete="email"
+                required
+                maxLength={320}
+                aria-invalid={errorField === "email" || undefined}
+                aria-describedby={error && errorField === "email" ? "auth-error" : undefined}
+                className={inputClass}
+              />
+            </Field>
           ) : null}
 
           <PasswordField
             id="auth-password"
+            label={t("password")}
             value={password}
             onChange={(value) => {
               setPassword(value)
@@ -119,9 +143,6 @@ export function AuthCard({
             }}
             autoComplete={isRegister ? "new-password" : "current-password"}
             showStrength={isRegister}
-            label={t("password")}
-            revealHint={t("revealHint")}
-            revealLabel={t("revealLabel")}
             help={isRegister ? t("passwordHelp") : undefined}
             required
             minLength={isRegister ? MIN_PASSWORD : undefined}
@@ -134,69 +155,76 @@ export function AuthCard({
             }
           />
 
-          {error ? (
-            <p
-              id="auth-error"
-              role="alert"
-              className="border border-error/60 bg-[#1a0606] px-3 py-2 font-mono text-[11px] uppercase tracking-label text-error"
-            >
-              {error}
-            </p>
-          ) : null}
+          {error ? <FormAlert id="auth-error">{error}</FormAlert> : null}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-1 border border-acid bg-acid px-4 py-3 font-mono text-xs uppercase tracking-cta text-pitch transition-colors hover:bg-[#d4ff3a] disabled:opacity-50"
-          >
-            {loading
-              ? t("working")
-              : isRegister
-                ? t("createAccountAction")
-                : t("loginAction")}
-          </button>
+          <Button type="submit" variant="primary" size="lg" disabled={loading} className="w-full">
+            {loading ? (
+              <>
+                <Spinner />
+                {t("working")}
+              </>
+            ) : isRegister ? (
+              t("createAccountAction")
+            ) : (
+              t("loginAction")
+            )}
+          </Button>
         </form>
 
-        {!isRegister ? (
-          <div className="mt-4 text-center">
-            <Link
-              href="/reset-password"
-              className="font-mono text-[11px] uppercase tracking-label text-muted hover:text-acid"
-            >
+        <div className="mt-6 flex flex-col items-center gap-3 border-t border-border-gray pt-5 text-sm">
+          {isRegister ? null : (
+            <Link href="/reset-password" className="text-dim-white transition-colors hover:text-acid">
               {t("forgotPassword")}
             </Link>
-          </div>
-        ) : null}
-
-        <div className="mt-5 border-t border-border-gray pt-4 text-center">
-          {isRegister ? (
-            <button
-              type="button"
-              onClick={() => switchMode("login")}
-              className="font-mono text-[11px] uppercase tracking-label text-muted hover:text-acid"
-            >
-              {t("hasAccount")}{" "}
-              <span className="text-acid">{t("login")}</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => switchMode("register")}
-              className="font-mono text-[11px] uppercase tracking-label text-muted hover:text-acid"
-            >
-              {t("noAccount")}{" "}
-              <span className="text-acid">{t("createOne")}</span>
-            </button>
           )}
+          <button
+            type="button"
+            onClick={() => switchMode(isRegister ? "login" : "register")}
+            className="text-muted transition-colors hover:text-raw-white"
+          >
+            {isRegister ? t("hasAccount") : t("noAccount")}{" "}
+            <span className="font-semibold text-acid">
+              {isRegister ? t("login") : t("createOne")}
+            </span>
+          </button>
+          <Link href="/" className="text-muted transition-colors hover:text-raw-white">
+            {t("back")}
+          </Link>
         </div>
-
-        <Link
-          href="/"
-          className="mt-4 block text-center font-mono text-[11px] uppercase tracking-label text-muted hover:text-raw-white"
-        >
-          {t("back")}
-        </Link>
       </div>
+
+      {isRegister ? (
+        <section aria-labelledby="auth-journey" className="animate-rise [animation-delay:160ms] lg:self-start">
+          <h2 id="auth-journey" className="text-sm font-semibold text-raw-white">
+            {t("journey.title")}
+          </h2>
+          <ol className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+            {JOURNEY.map((step, index) => (
+              <li
+                key={step}
+                aria-current={index === 0 ? "step" : undefined}
+                className={cn(
+                  "rounded-control border p-4",
+                  index === 0 ? "border-acid/40 bg-acid/5" : "border-border-gray",
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid size-7 place-items-center rounded-full font-mono text-xs font-semibold",
+                    index === 0 ? "bg-acid text-pitch" : "bg-raised text-dim-white",
+                  )}
+                  aria-hidden
+                >
+                  {index + 1}
+                </span>
+                <p className="mt-3 font-semibold">{t(`journey.${step}.title`)}</p>
+                <p className="mt-1 text-sm leading-6 text-dim-white">{t(`journey.${step}.body`)}</p>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-4 max-w-[60ch] text-[13px] leading-5 text-muted">{t("journey.verify")}</p>
+        </section>
+      ) : null}
     </div>
   )
 }
@@ -216,210 +244,11 @@ function ModeTab({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "flex-1 border-r border-border-gray px-4 py-3 font-mono text-[11px] uppercase tracking-label last:border-r-0 transition-colors",
-        active ? "bg-raised text-acid" : "text-muted hover:text-raw-white",
+        "relative rounded-[0.5rem] px-3 py-2.5 text-sm font-semibold transition-colors",
+        active ? "text-raw-white" : "text-muted hover:text-raw-white",
       )}
     >
       {label}
     </button>
-  )
-}
-
-function PasswordField({
-  id,
-  value,
-  onChange,
-  autoComplete,
-  showStrength,
-  label,
-  revealHint,
-  revealLabel,
-  help,
-  required,
-  minLength,
-  maxLength,
-  ariaInvalid,
-  errorId,
-}: {
-  id: string
-  value: string
-  onChange: (value: string) => void
-  autoComplete?: string
-  showStrength?: boolean
-  label: string
-  revealHint: string
-  revealLabel: string
-  help?: string
-  required?: boolean
-  minLength?: number
-  maxLength?: number
-  ariaInvalid?: boolean
-  errorId?: string
-}) {
-  const t = useTranslations("authFlow.strength")
-  const [reveal, setReveal] = useState(false)
-  const strength = showStrength ? passwordStrength(value) : null
-  const helpId = help ? `${id}-help` : undefined
-
-  return (
-    <label htmlFor={id} className="flex flex-col gap-1.5">
-      <span className="flex items-center justify-between font-mono text-[11px] uppercase tracking-label text-muted">
-        {label}
-        <span className="text-muted">{revealHint}</span>
-      </span>
-      <div className="relative">
-        <input
-          id={id}
-          type={reveal ? "text" : "password"}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder="••••••••"
-          autoComplete={autoComplete}
-          required={required}
-          minLength={minLength}
-          maxLength={maxLength}
-          aria-invalid={ariaInvalid || undefined}
-          aria-describedby={[helpId, errorId].filter(Boolean).join(" ") || undefined}
-          className="w-full border border-border-gray bg-pitch px-3 py-2.5 pr-11 font-mono text-sm text-raw-white placeholder:text-muted focus:border-acid focus:outline-none"
-        />
-        <button
-          type="button"
-          aria-label={revealLabel}
-          aria-pressed={reveal}
-          onPointerDown={(event) => {
-            event.preventDefault()
-            setReveal(true)
-          }}
-          onPointerUp={() => setReveal(false)}
-          onPointerLeave={() => setReveal(false)}
-          onPointerCancel={() => setReveal(false)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault()
-              setReveal(true)
-            }
-          }}
-          onKeyUp={(event) => {
-            if (event.key === "Enter" || event.key === " ") setReveal(false)
-          }}
-          onBlur={() => setReveal(false)}
-          className="absolute inset-y-0 right-0 flex items-center px-3 text-muted transition-colors hover:text-acid focus:text-acid focus:outline-none"
-        >
-          {reveal
-            ? <Eye size={16} weight="bold" aria-hidden />
-            : <EyeSlash size={16} weight="bold" aria-hidden />}
-        </button>
-      </div>
-      {help ? (
-        <span id={helpId} className="text-xs leading-5 text-muted">
-          {help}
-        </span>
-      ) : null}
-      {strength && value ? (
-        <StrengthMeter
-          strength={strength}
-          label={t("label")}
-          value={t(
-            strength.score === 1
-              ? "tooShort"
-              : strength.score === 2
-                ? "fair"
-                : strength.score === 3
-                  ? "good"
-                  : "strong",
-          )}
-        />
-      ) : null}
-    </label>
-  )
-}
-
-function StrengthMeter({
-  strength,
-  label,
-  value,
-}: {
-  strength: PasswordStrength
-  label: string
-  value: string
-}) {
-  const fill =
-    strength.score <= 1 ? "#ff5c5c" : strength.score === 2 ? "#e6b800" : "#c6ff00"
-  return (
-    <div className="mt-1 flex flex-col gap-1">
-      <div className="flex gap-1" aria-hidden="true">
-        {[0, 1, 2, 3].map((i) => (
-          <span
-            key={i}
-            className="h-1 flex-1 transition-colors"
-            style={{ backgroundColor: i < strength.score ? fill : "#2a2a2a" }}
-          />
-        ))}
-      </div>
-      <span className="font-mono text-[11px] uppercase tracking-label text-muted">
-        {label}: <span style={{ color: fill }}>{value}</span>
-      </span>
-    </div>
-  )
-}
-
-function Field({
-  id,
-  label,
-  hint,
-  help,
-  value,
-  onChange,
-  type = "text",
-  placeholder,
-  autoComplete,
-  required,
-  maxLength,
-  pattern,
-  ariaInvalid,
-  errorId,
-}: {
-  id: string
-  label: string
-  hint?: string
-  help?: string
-  value: string
-  onChange: (value: string) => void
-  type?: string
-  placeholder?: string
-  autoComplete?: string
-  required?: boolean
-  maxLength?: number
-  pattern?: string
-  ariaInvalid?: boolean
-  errorId?: string
-}) {
-  const helpId = help ? `${id}-help` : undefined
-  return (
-    <label htmlFor={id} className="flex flex-col gap-1.5">
-      <span className="flex items-center justify-between font-mono text-[11px] uppercase tracking-label text-muted">
-        {label}
-        {hint ? <span className="text-border-gray">{hint}</span> : null}
-      </span>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        required={required}
-        maxLength={maxLength}
-        pattern={pattern}
-        aria-invalid={ariaInvalid || undefined}
-        aria-describedby={[helpId, errorId].filter(Boolean).join(" ") || undefined}
-        className="border border-border-gray bg-pitch px-3 py-2.5 font-mono text-sm text-raw-white placeholder:text-muted focus:border-acid focus:outline-none"
-      />
-      {help ? (
-        <span id={helpId} className="text-xs leading-5 text-muted">
-          {help}
-        </span>
-      ) : null}
-    </label>
   )
 }

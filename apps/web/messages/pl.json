@@ -136,6 +136,25 @@
     "createOne": "Utwórz konto",
     "back": "← Wróć do wejścia",
     "redirecting": "Przekierowywanie…",
+    "loginHeading": "Z powrotem na parkiecie",
+    "loginLede": "Twoje Aktualności, wydarzenia i grupy czekają tam, gdzie były.",
+    "registerHeading": "Dołącz do sceny",
+    "journey": {
+      "title": "Jak wygląda dołączenie",
+      "account": {
+        "title": "Konto",
+        "body": "Pseudonim, e-mail i hasło. Pseudonim to Twoja jedyna publiczna nazwa."
+      },
+      "setup": {
+        "title": "Konfiguracja",
+        "body": "Wybierasz miasto i dołączasz do jego oficjalnej grupy. Brzmienia, profil DJ i Strony są opcjonalne."
+      },
+      "feed": {
+        "title": "Aktualności",
+        "body": "Posty od osób i grup, które wybierzesz, od najnowszych."
+      },
+      "verify": "Weryfikacja e-maila chroni odzyskiwanie konta. Link możesz zamówić w aplikacji w dowolnym momencie; nie wstrzymuje konfiguracji."
+    },
     "strength": {
       "label": "Siła",
       "tooShort": "Za krótkie",
@@ -195,14 +214,6 @@
       "unavailable": "Resetowanie hasła jest chwilowo niedostępne. Spróbuj ponownie.",
       "updated": "Hasło zaktualizowane",
       "updatedBody": "Hasło zostało zmienione, a wszystkie sesje wylogowane. Zaloguj się nowym hasłem.",
-      "strength": "Siła",
-      "strengthValues": {
-        "0": "",
-        "1": "Za krótkie",
-        "2": "Dostateczne",
-        "3": "Dobre",
-        "4": "Silne"
-      },
       "change": "Zmień hasło →"
     },
     "verify": {
@@ -215,7 +226,7 @@
       "service": "Weryfikacja e-mail jest chwilowo niedostępna. Spróbuj ponownie.",
       "rateLimited": "Zbyt wiele prób. Poczekaj i spróbuj ponownie.",
       "retry": "Spróbuj ponownie",
-      "continue": "→ Przejdź do Perlimen"
+      "continue": "Przejdź do Perlimen →"
     },
     "banner": {
       "body": "Zweryfikuj e-mail dla bezpieczeństwa i odzyskiwania konta.",
@@ -282,7 +293,7 @@
       "slug": "Adres Strony (małe litery, cyfry, myślniki)",
       "type": "Typ",
       "about": "Opis (opcjonalnie)",
-      "add": "+ Dodaj Stronę",
+      "add": "Dodaj Stronę",
       "remove": "Usuń z formularza",
       "hint": "Strony zostaną utworzone po zatwierdzeniu konfiguracji. Miasto Strony będzie takie jak wybrane wyżej.",
       "types": { "club": "Klub", "collective": "Kolektyw", "project": "Projekt", "festival": "Festiwal" }
@@ -294,11 +305,13 @@
     "done": {
       "body": "Sprawdź wybory i zapisz konfigurację konta, opcjonalny profil DJ oraz Strony.",
       "hint": "Po zapisaniu i dołączeniu do oficjalnej grupy miasta przejdziesz do Aktualności.",
-      "summary": "Konto: {username} · Miasto: {city} · Artysta: {artist} · Strony: {pages}",
       "none": "brak"
     },
+    "progressLabel": "Postęp konfiguracji",
+    "stepOf": "Krok {current} z {total}",
     "back": "← Wstecz",
     "next": "Dalej →",
+    "skip": "Pomiń na razie",
     "finish": "Zapisz i wejdź →",
     "saving": "Zapisywanie…",
     "errors": {

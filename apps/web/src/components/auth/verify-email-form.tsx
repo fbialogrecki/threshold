@@ -1,10 +1,13 @@
 "use client"
 
+import { CheckCircle, WarningCircle } from "@phosphor-icons/react"
 import { useTranslations } from "next-intl"
-import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 
-import { LocaleSwitcher } from "@/components/i18n/locale-switcher"
+import { AuthPanel } from "@/components/auth/auth-panel"
+import { Button, ButtonLink } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/field"
+import { cn } from "@/lib/cn"
 
 type Status = "verifying" | "ok" | "invalid" | "service" | "rate" | "missing"
 
@@ -43,54 +46,73 @@ export function VerifyEmailForm({ token }: { token: string | null }) {
     })()
   }, [attempt, token])
 
-  const caption =
+  const title =
     status === "ok"
       ? t("verified")
       : status === "verifying"
         ? t("verifying")
         : t("link")
+  const retryable = status === "service" || status === "rate"
 
   return (
-    <div className="w-full max-w-md border border-border-gray bg-graphite p-7">
-      <div className="flex items-start justify-between gap-4">
-        <span className="font-display text-3xl tracking-[0.1em]">PERLIMEN</span>
-        <LocaleSwitcher />
-      </div>
-      <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-muted">
-        {caption}
-      </p>
-
-      <p role="status" aria-live="polite" className="mt-6 text-sm leading-7 text-dim-white">
-        {status === "verifying"
-          ? t("confirming")
-          : status === "ok"
-            ? t("success")
-            : status === "service"
-              ? t("service")
-              : status === "rate"
-                ? t("rateLimited")
-                : t("invalid")}
-      </p>
-
-      {status === "service" || status === "rate" ? (
-        <button
-          type="button"
-          onClick={() => {
-            setStatus("verifying")
-            setAttempt((value) => value + 1)
-          }}
-          className="mt-5 w-full border border-acid px-4 py-2.5 font-mono text-[11px] uppercase tracking-label text-acid hover:bg-acid hover:text-pitch"
-        >
-          {t("retry")}
-        </button>
-      ) : null}
-
-      <Link
-        href="/app"
-        className="mt-5 block text-center font-mono text-[11px] uppercase tracking-label text-muted hover:text-acid"
+    <AuthPanel title={title}>
+      <div
+        role="status"
+        aria-live="polite"
+        className={cn(
+          "mt-6 flex gap-3 rounded-control p-4",
+          status === "ok" ? "bg-acid/5" : status === "verifying" ? "bg-raised" : "bg-orange/10",
+        )}
       >
-        {t("continue")}
-      </Link>
-    </div>
+        <span
+          className={cn(
+            "mt-1",
+            status === "ok" ? "text-acid" : status === "verifying" ? "text-dim-white" : "text-orange",
+          )}
+        >
+          {status === "verifying" ? (
+            <Spinner />
+          ) : status === "ok" ? (
+            <CheckCircle size={22} weight="fill" aria-hidden />
+          ) : (
+            <WarningCircle size={22} aria-hidden />
+          )}
+        </span>
+        <p className="text-[15px] leading-7 text-dim-white">
+          {status === "verifying"
+            ? t("confirming")
+            : status === "ok"
+              ? t("success")
+              : status === "service"
+                ? t("service")
+                : status === "rate"
+                  ? t("rateLimited")
+                  : t("invalid")}
+        </p>
+      </div>
+
+      <div className="mt-6 flex flex-col gap-3">
+        {retryable ? (
+          <Button
+            size="lg"
+            className="w-full"
+            onClick={() => {
+              setStatus("verifying")
+              setAttempt((value) => value + 1)
+            }}
+          >
+            {t("retry")}
+          </Button>
+        ) : null}
+        <ButtonLink
+          href="/app"
+          size="lg"
+          variant={status === "ok" ? "primary" : "ghost"}
+          className="w-full"
+        >
+          {t("continue")}
+        </ButtonLink>
+      </div>
+    </AuthPanel>
   )
 }
