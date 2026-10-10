@@ -18,7 +18,7 @@ A brand rename is not a storage or infrastructure migration. The following exist
 - Cookies `threshold_session`, `threshold_refresh`, `threshold_locale`; changing these requires deliberate session/locale handling rather than an incidental logout.
 - Harbor `core.harbor.domain/threshold/<service>`, Kustomize image keys, registry credentials, S3 `threshold-media`, CNPG backup paths and restore tooling.
 - `threshold.http.*` metric/instrumentation names and dashboard selectors. Historical archived repositories and old system-actor rows are not rewritten.
-- Woodpecker's registered repo slug `fbialogrecki/threshold` and the corresponding release-agent selector and manual release invocation remain paired until native repository repair is approved. The forge repository has the same stable ID; do not replace this working pair with an unregistered slug.
+- Woodpecker's active public-source record, release-agent selector and manual release invocation use `fbialogrecki/perlimen`. The former record belongs to the separate archived `threshold-legacy-private` GitHub repository; its CI history remains there. Do not treat that clean-room repository replacement as a rename or transplant its forge ID/history.
 - Reserved username `threshold` remains reserved alongside `perlimen` to prevent impersonation of historical system identity.
 
 These are explicit compatibility exceptions, not a second product brand. New public text and source-level names use Perlimen. Do not add generic dual-name shims, rename upstream third-party `threshold` parameters, or rewrite Git history.

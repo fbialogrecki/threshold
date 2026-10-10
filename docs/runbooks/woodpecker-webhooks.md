@@ -21,6 +21,7 @@ Publish the approved dedicated hostname `hooks.perlimen.com`, with a webhook-onl
 - Accept only `POST /api/hook` and forward it to the Woodpecker server HTTP Service.
 - Reject every other path/method; do not publish the UI, general API, OAuth callback, gRPC agent port, metrics or internal admin services.
 - Preserve the request body, signature/event/delivery headers and query parameters exactly. Do not log the hook URL query: Woodpecker can embed its hook token there.
+- In v3.15.0 the native GitHub adapter authenticates with a repository-scoped signed hook token in the URL; it does not configure GitHub body-HMAC signatures. `PostHook` validates that token before parsing the body and checks the forge repository ID. Do not claim an `X-Hub-Signature-256` verification that the native integration does not perform. TLS and URL-token secrecy remain required.
 - Do not put an interactive Cloudflare Access/SSO challenge in front of forge deliveries. Woodpecker validates forge authentication; do not disable it to make a ping green.
 - Leave authenticated product traffic uncached and the private OAuth host unchanged.
 
@@ -39,13 +40,15 @@ server:
 
 Woodpecker appends `/api/hook` when creating the forge hook. This keeps the GitHub OAuth callback and private browser UI on their existing host; changing `WOODPECKER_HOST` to the hook-only hostname would break those flows. Add the non-secret setting through `infra/helm/woodpecker/values.yaml` in the same reviewed change as exposure. Verify against the running version again before applying it.
 
-## Repository Rename And Hook Registration
+## Repository Identity And Hook Registration
 
-The source repository is now `fbialogrecki/perlimen`. Woodpecker can retain its old stored slug after a GitHub rename even when the forge repository ID is unchanged. `woodpecker-cli repo sync` refreshes the repository list, not the active record's canonical name.
+Before repair, compare the Woodpecker `forge_remote_id` with GitHub's current repository ID. A name match or GitHub URL redirect does not prove identity. `repo sync` only refreshes the forge list.
+
+The archived `fbialogrecki/threshold-legacy-private` and public `fbialogrecki/perlimen` are different GitHub repositories after the earlier clean-room replacement. The public source was therefore activated natively as a separate Woodpecker record with maintainer approval. The old record and its pipeline history remain intact; no SQLite edits, history transplant, unregister/re-add or credential rotation were used. Both retain private CI visibility, existing trust settings and fork approval policy.
 
 Native `woodpecker-cli repo repair <repo-id>` reads forge metadata, updates the record, preserves its ID/history and creates an old-name redirection. **It also removes/recreates the forge webhook.** This is not a metadata-only operation; obtain approval even when the generated URL would still point to the private LAN host. Do not edit the Woodpecker SQLite database, unregister/re-add the repository or rotate credentials to work around that coupling. The [v3.15.0 repair implementation](https://github.com/woodpecker-ci/woodpecker/blob/v3.15.0/server/api/repo.go) is the version-specific behavior reference.
 
-After approved origin/config rollout, repair the existing record and read it back under `fbialogrecki/perlimen`. Check the GitHub hook URL with query/token values suppressed, enabled events, delivery responses and unchanged Woodpecker repo ID. Then switch the manual release invocation in `Taskfile.yml` and the release-agent repo selector together to the canonical slug. Refresh the event-restricted release repo secrets through the existing operator path and verify their names/event restrictions without revealing values. The current legacy invocation/agent selector remain deliberately paired until this handoff; see [naming boundaries](../rebranding.md).
+For a real rename (same forge ID), use native repair after origin readiness. For the distinct public source, use `woodpecker-cli repo add <verified-forge-id>` with approval; it registers the hook. Read back the exact record and hook with URL queries suppressed. The manual release invocation and trusted release-agent selector now both use `fbialogrecki/perlimen`. Seed manual-event-only credentials using `ops/configure-woodpecker-release-secrets.sh` with the authenticated HTTPS CLI context and correct kubeconfig; verify secret names/event restrictions, never values. See [naming boundaries](../rebranding.md).
 
 ## Verification Before Calling It Connected
 
