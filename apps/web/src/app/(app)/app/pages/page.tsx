@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server"
 
 import { PageManagementPanel, type ManagedPage } from "@/components/pages/page-management-panel"
 import { EmptyState } from "@/components/ui/empty-state"
-import { MonoLabel } from "@/components/ui/mono-label"
+import { PageHeader } from "@/components/ui/page-header"
 import { listManagedPages } from "@/lib/auth/product-auth"
 
 export const dynamic = "force-dynamic"
@@ -22,14 +22,10 @@ export default async function OrganizerPagesPage() {
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <header className="border-b border-border-gray pb-4">
-        <h1 className="font-display text-4xl tracking-wide text-raw-white">{t("title")}</h1>
-        <MonoLabel tone="muted" className="mt-1 block">
-          {t("subtitle")}
-        </MonoLabel>
-      </header>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
       {!response || response.status !== 200 ? (
         <EmptyState
+          tone="error"
           title={t("loadErrorTitle")}
           body={t("loadError")}
           eyebrow={t("errorEyebrow")}

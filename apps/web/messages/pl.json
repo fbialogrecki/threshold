@@ -360,7 +360,7 @@
   "publicProfile": {
     "notFound": "Nie znaleziono profilu",
     "deletedAccount": "Konto usunięte",
-    "metadataFallback": "@{username} w Perlimen",
+    "metadataFallback": "{username} w Perlimen",
     "followers": "{count, plural, one {# obserwujący} few {# obserwujących} other {# obserwujących}}",
     "bio": "Bio",
     "noBio": "Brak bio.",
@@ -392,7 +392,7 @@
     "noLinks": "Brak linków."
   },
   "profileActions": {
-    "follow": "Obserwuj +",
+    "follow": "Obserwuj",
     "following": "Obserwujesz",
     "errors": {
       "forbidden": "Nie możesz obserwować tego profilu.",
@@ -594,6 +594,13 @@
     "loadErrorBody": "Nie udało się załadować ustawień profilu.",
     "retry": "Spróbuj ponownie",
     "sectionNavigation": "Sekcje ustawień",
+    "crop": {
+      "title": "Przytnij awatar",
+      "help": "Przeciągnij, aby przesunąć. Przeciągnij róg, aby zmienić rozmiar.",
+      "loading": "Wczytywanie obrazu…",
+      "cancel": "Anuluj",
+      "save": "Użyj tego kadru"
+    },
     "sections": {
       "profile": "Profil",
       "artist": "Artysta",
@@ -1019,7 +1026,9 @@
     "locationLabel": "Miejsce",
     "locationTba": "Miejsce wkrótce",
     "secretLocation": "Lokalizacja zastrzeżona",
-    "viewEvent": "Zobacz wydarzenie"
+    "viewEvent": "Zobacz wydarzenie",
+    "permalinkTitle": "Post",
+    "permalinkHeading": "Post użytkownika {name}"
   },
   "shell": {
     "primaryNavigation": "Główna nawigacja",
@@ -1068,6 +1077,16 @@
     "generic": "Coś poszło nie tak.",
     "notFound": "Nie znaleziono.",
     "unauthorized": "Zaloguj się, aby kontynuować."
+  },
+  "errorPages": {
+    "notFoundTitle": "Nic tu nie ma",
+    "notFoundBody": "Ta strona nie istnieje, została usunięta albo nie jest dla Ciebie dostępna.",
+    "home": "Wróć do Perlimen",
+    "errorEyebrow": "Coś się zepsuło",
+    "errorTitle": "Nie udało się wczytać tej strony",
+    "errorBody": "Nieoczekiwany błąd przerwał wczytywanie tej strony. Spróbuj ponownie albo wróć na start.",
+    "reference": "Identyfikator:",
+    "retry": "Spróbuj ponownie"
   },
   "eventEditor": {
     "title": "Tytuł",

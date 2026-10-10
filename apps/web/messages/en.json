@@ -360,7 +360,7 @@
   "publicProfile": {
     "notFound": "Profile not found",
     "deletedAccount": "Deleted account",
-    "metadataFallback": "@{username} on Perlimen",
+    "metadataFallback": "{username} on Perlimen",
     "followers": "{count, plural, one {# follower} other {# followers}}",
     "bio": "Bio",
     "noBio": "No bio yet.",
@@ -392,7 +392,7 @@
     "noLinks": "No links yet."
   },
   "profileActions": {
-    "follow": "Follow +",
+    "follow": "Follow",
     "following": "Following",
     "errors": {
       "forbidden": "You cannot follow this profile.",
@@ -594,6 +594,13 @@
     "loadErrorBody": "Your profile settings could not be loaded.",
     "retry": "Try again",
     "sectionNavigation": "Settings sections",
+    "crop": {
+      "title": "Crop your avatar",
+      "help": "Drag to reposition. Drag the corner to resize.",
+      "loading": "Loading image…",
+      "cancel": "Cancel",
+      "save": "Use this crop"
+    },
     "sections": {
       "profile": "Profile",
       "artist": "Artist",
@@ -1019,7 +1026,9 @@
     "locationLabel": "Location",
     "locationTba": "Location TBA",
     "secretLocation": "Location withheld",
-    "viewEvent": "View event"
+    "viewEvent": "View event",
+    "permalinkTitle": "Post",
+    "permalinkHeading": "Post by {name}"
   },
   "shell": {
     "primaryNavigation": "Primary navigation",
@@ -1068,6 +1077,16 @@
     "generic": "Something went wrong.",
     "notFound": "Not found.",
     "unauthorized": "Log in to continue."
+  },
+  "errorPages": {
+    "notFoundTitle": "Nothing here",
+    "notFoundBody": "This page does not exist, was removed, or is not available to you.",
+    "home": "Back to Perlimen",
+    "errorEyebrow": "Something broke",
+    "errorTitle": "This page could not load",
+    "errorBody": "An unexpected error stopped this page from loading. Try again, or go back to the start.",
+    "reference": "Reference:",
+    "retry": "Try again"
   },
   "eventEditor": {
     "title": "Title",

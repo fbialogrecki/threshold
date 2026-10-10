@@ -1,8 +1,9 @@
+import { ArrowLeft, Lock } from "@phosphor-icons/react/ssr"
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 import Link from "next/link"
 
-import { LocaleSwitcher } from "@/components/i18n/locale-switcher"
+import { AuthShell } from "@/components/auth/auth-shell"
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("privacy.metadata")
@@ -15,71 +16,66 @@ export default async function PrivacyPage() {
   const disclosurePoints = ["one", "two", "three"] as const
 
   return (
-    <main className="min-h-screen bg-pitch px-5 py-10 text-raw-white sm:px-10">
-      <div className="mx-auto w-full max-w-6xl">
-        <header className="border-b border-border-gray pb-8">
-          <div className="flex items-start justify-between gap-4">
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted">
-              {t("eyebrow")}
-            </p>
-            <LocaleSwitcher />
-          </div>
-          <h1 className="mt-6 max-w-3xl font-display text-3xl leading-tight tracking-wide sm:text-4xl">
-            {t("title")}
-          </h1>
-          <p className="mt-6 inline-block border border-orange px-3 py-2 font-mono text-[11px] uppercase tracking-label text-orange">
-            {t("limit")}
-          </p>
-        </header>
+    <AuthShell>
+      <article className="w-full max-w-3xl animate-rise">
+        <p className="inline-flex items-center gap-2 rounded-full border border-border-gray bg-pitch/70 px-3 py-1.5 text-[13px] font-medium text-dim-white">
+          <Lock size={14} weight="bold" className="text-raw-white" aria-hidden />
+          {t("eyebrow")}
+        </p>
+        <h1 className="mt-5 font-display text-[clamp(2rem,7vw,3.25rem)] leading-[0.95] text-balance">
+          {t("title")}
+        </h1>
+        {/* An explicit limit of the current release: orange marks what is not done yet. */}
+        <p className="mt-6 flex items-start gap-3 rounded-control border border-orange/40 bg-orange/10 px-4 py-3 text-[15px] leading-6 text-raw-white">
+          <span aria-hidden className="mt-2 size-2 shrink-0 rounded-full bg-orange" />
+          {t("limit")}
+        </p>
 
-        <section className="grid gap-4 border-b border-border-gray py-10 sm:grid-cols-[10rem_1fr] sm:gap-10 sm:py-14">
-          <h2 className="font-mono text-[11px] uppercase tracking-label text-muted">
+        <section aria-labelledby="privacy-boundary" className="mt-10">
+          <h2 id="privacy-boundary" className="text-lg font-semibold text-raw-white">
             {t("boundary")}
           </h2>
-          <dl className="max-w-[68ch]">
+          <dl className="mt-4 grid gap-3 sm:grid-cols-3">
             {accessFacts.map((fact) => (
               <div
-                className="border-b border-border-gray py-4 first:pt-0 last:border-b-0 last:pb-0"
                 key={fact}
+                className="rounded-surface border border-border-gray bg-graphite/60 p-5"
               >
-                <dt className="font-mono text-[11px] uppercase tracking-cta text-acid">
-                  {t(`facts.${fact}.label`)}
-                </dt>
-                <dd className="mt-1.5 text-[15px] leading-7 text-raw-white">
-                  {t(`facts.${fact}.value`)}
-                </dd>
+                <dt className="text-sm font-semibold text-raw-white">{t(`facts.${fact}.label`)}</dt>
+                <dd className="mt-2 text-[15px] leading-7 text-dim-white">{t(`facts.${fact}.value`)}</dd>
               </div>
             ))}
           </dl>
         </section>
 
-        {/* Same label axis as the section above, with nothing to name in it. */}
-        <section className="grid py-10 sm:grid-cols-[10rem_1fr] sm:gap-10 sm:py-14">
-          <div className="max-w-[68ch] sm:col-start-2">
-            <p className="text-[15px] leading-8 text-dim-white sm:text-lg">{t("intro")}</p>
-            <ol className="mt-8">
-              {disclosurePoints.map((point, index) => (
-                <li
-                  className="grid gap-3 border-t border-border-gray py-5 sm:grid-cols-[3rem_1fr]"
-                  key={point}
-                >
-                  <span className="font-mono text-[11px] tracking-label text-muted">
-                    0{index + 1}
-                  </span>
-                  <p className="text-[15px] leading-7 text-raw-white">{t(`points.${point}`)}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
+        <section className="mt-10">
+          <p className="max-w-[65ch] text-[17px] leading-8 text-dim-white">{t("intro")}</p>
+          <ol className="mt-6 flex flex-col gap-2">
+            {disclosurePoints.map((point, index) => (
+              <li
+                key={point}
+                className="flex gap-4 rounded-control border border-border-gray px-4 py-4"
+              >
+                <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-raised font-mono text-xs text-dim-white">
+                  {index + 1}
+                </span>
+                <p className="text-[15px] leading-7 text-raw-white">{t(`points.${point}`)}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
-        <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border-gray py-6 font-mono text-[10px] uppercase tracking-label text-muted">
-          <span>{t("footer")}</span>
-          <Link className="hover:text-acid" href="/">
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-border-gray pt-6">
+          <p className="max-w-[48ch] text-sm text-muted">{t("footer")}</p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-dim-white transition-colors hover:text-acid"
+          >
+            <ArrowLeft size={14} weight="bold" aria-hidden />
             {t("back")}
           </Link>
-        </footer>
-      </div>
-    </main>
+        </div>
+      </article>
+    </AuthShell>
   )
 }
