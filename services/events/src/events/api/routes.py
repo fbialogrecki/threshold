@@ -67,7 +67,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import ColumnElement
 
 from events import media_client, social_client, users_client
-from threshold_common.pagination import clamp_limit
+from perlimen_common.pagination import clamp_limit
 
 router = APIRouter(dependencies=[Depends(require_internal_token)])
 DbSession = Annotated[Session, Depends(get_db_session)]

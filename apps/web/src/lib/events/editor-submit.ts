@@ -1,11 +1,11 @@
 import { eventPayload, type EventDraft } from "./editor"
-import type { ThresholdEvent } from "@/lib/types"
+import type { PerlimenEvent } from "@/lib/types"
 
 export class EventSaveError extends Error {
   constructor(public status: number) { super(`event save failed: ${status}`) }
 }
 
-export async function saveEvent(draft: EventDraft, original: ThresholdEvent | undefined, poster: File | null, request: (input: string, init?: RequestInit) => Promise<Response> = fetch): Promise<string> {
+export async function saveEvent(draft: EventDraft, original: PerlimenEvent | undefined, poster: File | null, request: (input: string, init?: RequestInit) => Promise<Response> = fetch): Promise<string> {
   const payload = eventPayload(draft, original)
   if (poster) {
     if (poster.size > 10_000_000) throw new EventSaveError(413)

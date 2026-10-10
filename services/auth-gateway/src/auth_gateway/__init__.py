@@ -1,1 +1,1 @@
-"""Threshold auth gateway."""
+"""Perlimen auth gateway."""

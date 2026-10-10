@@ -44,7 +44,7 @@ ESO_K8S_SECRET="${ESO_K8S_SECRET:-woodpecker-github-writer}"
 ESO_CLUSTER_SECRET_STORE_NAME="${ESO_CLUSTER_SECRET_STORE_NAME:-openbao}"
 
 # The monorepo the release pipeline promotes into; the PAT needs push access here.
-GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-fbialogrecki/threshold}"
+GITHUB_REPOSITORY="${GITHUB_REPOSITORY:-fbialogrecki/perlimen}"
 GITHUB_API_URL="${GITHUB_API_URL:-https://api.github.com}"
 
 BW_SESSION="${BW_SESSION:-}"

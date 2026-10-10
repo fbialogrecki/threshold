@@ -13,9 +13,9 @@ COPY services/events/pyproject.toml services/events/pyproject.toml
 COPY services/media/pyproject.toml services/media/pyproject.toml
 COPY services/social/pyproject.toml services/social/pyproject.toml
 COPY services/users/pyproject.toml services/users/pyproject.toml
-COPY libs/py/threshold_common libs/py/threshold_common
+COPY libs/py/perlimen_common libs/py/perlimen_common
 COPY services/auth-gateway/src services/auth-gateway/src
-RUN uv sync --locked --no-dev --no-editable --package threshold-auth-gateway
+RUN uv sync --locked --no-dev --no-editable --package perlimen-auth-gateway
 
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim@sha256:531f855bda2c73cd6ef67d56b733b357cea384185b3022bd09f05e002cd144ca AS runtime
 WORKDIR /app/services/auth-gateway

@@ -33,8 +33,8 @@ steps:
       STORAGE_DRIVER: vfs
       BUILDAH_ISOLATION: chroot
     commands:
-      - buildah bud --format=oci --storage-driver=vfs --isolation=chroot --tag threshold/web:ci --file apps/web/Dockerfile apps/web
-      - buildah inspect --type image threshold/web:ci >/dev/null
+      - buildah bud --format=oci --storage-driver=vfs --isolation=chroot --tag perlimen/web:ci --file apps/web/Dockerfile apps/web
+      - buildah inspect --type image perlimen/web:ci >/dev/null
     backend_options:
       kubernetes:
         resources:

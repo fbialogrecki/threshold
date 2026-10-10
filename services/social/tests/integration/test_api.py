@@ -459,7 +459,7 @@ def test_feed_batches_legacy_event_slug_fallback(session: Session) -> None:
         post = Post(
             author_user_id="event-system",
             author_username="threshold-events",
-            author_display_name="Threshold Events",
+            author_display_name="Perlimen Events",
             author_type="system",
             group_id=group.id,
             event_id=None,

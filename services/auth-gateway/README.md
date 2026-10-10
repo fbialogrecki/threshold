@@ -1,8 +1,8 @@
 # auth-gateway
 
-Thin internal/admin edge service for Threshold Authentik-backed SSO flows.
+Thin internal/admin edge service for Perlimen Authentik-backed SSO flows.
 
-This service is not product-auth for public Threshold users. Public register/login/session flows belong to product-auth in `users` and use custom UI + HttpOnly cookies.
+This service is not product-auth for public Perlimen users. Public register/login/session flows belong to product-auth in `users` and use custom UI + HttpOnly cookies.
 
 Current scope:
 

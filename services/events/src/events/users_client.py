@@ -14,7 +14,7 @@ def check_page_role(settings: Settings, page_id: str, user_id: str) -> str | Non
         user = quote(user_id, safe="")
         resp = httpx.get(
             f"{settings.users_base_url.rstrip('/')}/internal/v1/pages/{page}/members/{user}",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token or ""},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token or ""},
             timeout=3.0,
         )
         if resp.status_code == 200:
@@ -31,7 +31,7 @@ def get_artist_ref(settings: Settings, artist_user_id: str) -> dict[str, str] | 
         artist = quote(artist_user_id, safe="")
         resp = httpx.get(
             f"{settings.users_base_url.rstrip('/')}/internal/v1/artist-profiles/{artist}",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token or ""},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token or ""},
             timeout=3.0,
         )
         if resp.status_code == 200:
@@ -58,7 +58,7 @@ def get_artist_refs(settings: Settings, artist_profile_ids: list[str]) -> dict[s
     try:
         resp = httpx.post(
             f"{settings.users_base_url.rstrip('/')}/internal/v1/artist-profiles/batch",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token or ""},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token or ""},
             json={"artist_profile_ids": ids},
             timeout=3.0,
         )
@@ -90,7 +90,7 @@ def get_active_user_refs(settings: Settings, user_ids: list[str]) -> dict[str, d
         for offset in range(0, len(ids), 100):
             resp = httpx.post(
                 f"{settings.users_base_url.rstrip('/')}/internal/v1/users/active-refs",
-                headers={"X-Threshold-Internal-Token": settings.threshold_internal_token or ""},
+                headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token or ""},
                 json={"user_ids": ids[offset : offset + 100]},
                 timeout=3.0,
             )
@@ -121,7 +121,7 @@ def get_user_by_username(settings: Settings, username: str) -> dict[str, str] | 
         handle = quote(username, safe="")
         resp = httpx.get(
             f"{settings.users_base_url.rstrip('/')}/internal/v1/mention-targets/profiles/{handle}",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token or ""},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token or ""},
             timeout=3.0,
         )
         if resp.status_code == 200:
@@ -152,7 +152,7 @@ def notify_user(
     try:
         resp = httpx.post(
             f"{settings.users_base_url.rstrip('/')}/internal/v1/notifications",
-            headers={"X-Threshold-Internal-Token": settings.threshold_internal_token or ""},
+            headers={"X-Threshold-Internal-Token": settings.perlimen_internal_token or ""},
             json={
                 "recipient_user_id": recipient_user_id,
                 "actor_user_id": actor_user_id,

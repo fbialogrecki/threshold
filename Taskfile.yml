@@ -7,7 +7,7 @@ version: '3'
 vars:
   WEB_DIR: apps/web
   SERVICES_DIR: services
-  IMAGE_REGISTRY: '{{default "threshold" .IMAGE_REGISTRY}}'
+  IMAGE_REGISTRY: '{{default "perlimen" .IMAGE_REGISTRY}}'
   IMAGE_TAG: '{{default "latest" .IMAGE_TAG}}'
   SERVICE: '{{default "web" .SERVICE}}'
   TASK_BIN: '{{default "go-task" .TASK_BIN}}'
@@ -363,7 +363,7 @@ tasks:
           echo "tag $version already exists" >&2
           exit 1
         fi
-        ci=$(gh api "repos/fbialogrecki/threshold/commits/$sha/check-runs?check_name=ci-ok" --jq '.check_runs[0].conclusion // "missing"')
+        ci=$(gh api "repos/fbialogrecki/perlimen/commits/$sha/check-runs?check_name=ci-ok" --jq '.check_runs[0].conclusion // "missing"')
         [ "$ci" = success ] || { echo "CI on $sha is not green (ci-ok: $ci)" >&2; exit 1; }
         git tag -a "$version" -m "Release $version" "$sha"
         git push origin "refs/tags/$version"

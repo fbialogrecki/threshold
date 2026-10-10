@@ -20,8 +20,8 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Threshold",
-    template: "%s — Threshold",
+    default: "Perlimen",
+    template: "%s — Perlimen",
   },
   description:
     "Chronological social platform for underground events, artists, clubs and collectives.",

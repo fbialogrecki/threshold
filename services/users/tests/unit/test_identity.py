@@ -54,7 +54,10 @@ def test_invalid_usernames(username: str) -> None:
     assert not is_valid_username(username)
 
 
-@pytest.mark.parametrize("username", ["admin", "Admin", ".admin-", "ądmin", "ROOT"])
+@pytest.mark.parametrize(
+    "username",
+    ["admin", "Admin", ".admin-", "ądmin", "ROOT", "threshold", "Perlimen", ".pęrlimęn-"],
+)
 def test_reserved_names_are_checked_after_folding(username: str) -> None:
     assert is_reserved_username(username)
 

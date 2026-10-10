@@ -1,10 +1,12 @@
-# Threshold Architecture
+# Perlimen Architecture
 
 This is the current architecture summary. `AGENTS.md` is the source of truth for product scope and service ownership; this file describes how the pieces run and talk to each other.
 
+The product and source are Perlimen. Deployed legacy identifiers are intentionally retained until a separate live migration; see `docs/rebranding.md`.
+
 ## Runtime
 
-Threshold runs on a single-node k3s cluster on the maintainer's home server. Manifests stay plain Kubernetes so a managed cluster can replace k3s later; no production cloud is provisioned yet.
+Perlimen runs on a single-node k3s cluster on the maintainer's home server. Manifests stay plain Kubernetes so a managed cluster can replace k3s later; no production cloud is provisioned yet.
 
 Application workloads, all in namespace `threshold`:
 
@@ -91,7 +93,7 @@ flowchart TB
 - Browsers never receive S3 credentials, bucket names or raw object keys.
 - NATS Core carries request/reply and non-critical pub/sub. A flow that must not lose messages needs an outbox, retries and idempotent consumers before it relies on NATS.
 - Every service has a `NetworkPolicy`. An HTTP caller must be listed in the callee's policy; a missing entry shows up as a timeout, not a 403.
-- `threshold-security` restricts Puter/Grafana ingress to Traefik, NATS to service clients and nats-box, Dragonfly to Authentik, Harbor Redis to Harbor. Observability query/write/gossip stays inside observability; Threshold can send OTLP to the collector. Egress remains unchanged. Node-local/hostNetwork traffic and any routed traffic SNATed to the node are not a NetworkPolicy security boundary; host/NetBird filtering must cover those paths.
+- `threshold-security` restricts Puter/Grafana ingress to Traefik, NATS to service clients and nats-box, Dragonfly to Authentik, Harbor Redis to Harbor. Observability query/write/gossip stays inside observability; Perlimen can send OTLP to the collector. Egress remains unchanged. Node-local/hostNetwork traffic and any routed traffic SNATed to the node are not a NetworkPolicy security boundary; host/NetBird filtering must cover those paths.
 - Grafana/Loki sidecars discover ConfigMaps only in observability; kube-state-metrics excludes Secrets. Notifications retain namespace-local secret access, not cluster-wide. General and release CI agents have separate service accounts and namespace-scoped job permissions.
 
 ## Service-To-Service Transports
@@ -108,7 +110,7 @@ Service ConfigMaps are loaded with `envFrom`, so a ConfigMap-only change needs a
 
 ## Authentication
 
-- Product users register and sign in through Threshold's own UI. `users` owns credentials, password hashing, sessions, email verification, password reset, rate limiting and audit logs. The web BFF is the only browser-facing entry.
+- Product users register and sign in through Perlimen's own UI. `users` owns credentials, password hashing, sessions, email verification, password reset, rate limiting and audit logs. The web BFF is the only browser-facing entry.
 - Authentik is only for operator and admin SSO: Argo CD (OIDC), the OpenBao UI (Traefik forward auth) and `auth-gateway`. It is never the product login.
 - Authentik runs from its Helm chart in namespace `authentik`, with its own CNPG cluster `authentik-postgres` and the shared Dragonfly cache (`dragonfly.infra.svc.cluster.local:6379`) instead of chart-bundled Postgres and Redis.
 
@@ -164,7 +166,7 @@ The approved public path is Cloudflare HTTPS → `cloudflared` → `http://web.t
 
 - The host's NetBird packet-mark range must not overlap kube-router or kube-proxy bits. The native `NB_FWMARK_BASE` override and live egress verification are described in [the host runbook](runbooks/netbird-kubernetes-fwmark.md); default NetBird routed-pod marks can bypass NetworkPolicy egress rules.
 - AdGuard Home on the host serves `.internal` rewrites (`threshold.internal`, `argocd.internal`, `grafana.internal`, `authentik.internal`, `openbao.internal`, `woodpecker.internal`). `.local` is avoided because of mDNS. Clients must use AdGuard as their resolver.
-- HTTP for Grafana, AdGuard, Woodpecker, auth-gateway and Threshold redirects to HTTPS. The legacy Threshold IP entry redirects to its canonical HTTPS hostname. Woodpecker OAuth clients must allow `https://woodpecker.internal/authorize`; this does not expose the LAN service publicly.
+- HTTP for Grafana, AdGuard, Woodpecker, auth-gateway and Perlimen redirects to HTTPS. The legacy Perlimen IP entry redirects to its canonical HTTPS hostname. Woodpecker OAuth clients must allow `https://woodpecker.internal/authorize`; this does not expose the LAN service publicly.
 - cert-manager holds a private ECDSA root CA (`threshold-internal-ca`) and issues leaf certificates for the `.internal` hosts. Only the public root certificate is installed on clients. If the CA secret is lost, the root rotates and every client needs the new root.
 
 ## Product Rules That Shape The Architecture

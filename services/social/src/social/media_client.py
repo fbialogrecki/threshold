@@ -1,10 +1,10 @@
-from social.settings import Settings
-from threshold_common.media_client import (
+from perlimen_common.media_client import (
     MediaAssetRef,
     MediaAssetValidationError,
     get_media_asset,
     validate_media_asset,
 )
+from social.settings import Settings
 
 __all__ = [
     "MediaAssetRef",

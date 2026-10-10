@@ -1,4 +1,4 @@
-from threshold_common.otel_nats import (
+from perlimen_common.otel_nats import (
     decode_traced_json_payload,
     encode_traced_json_payload,
     extract_trace_context,

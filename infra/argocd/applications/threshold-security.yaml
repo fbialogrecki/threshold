@@ -8,7 +8,7 @@ metadata:
 spec:
   project: security
   source:
-    repoURL: https://github.com/fbialogrecki/threshold.git
+    repoURL: https://github.com/fbialogrecki/perlimen.git
     targetRevision: main
     path: infra/kustomize/base/security
   destination:

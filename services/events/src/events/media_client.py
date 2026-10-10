@@ -1,5 +1,5 @@
 from events.settings import Settings
-from threshold_common.media_client import (
+from perlimen_common.media_client import (
     MediaAssetRef,
     MediaAssetValidationError,
     get_media_asset,

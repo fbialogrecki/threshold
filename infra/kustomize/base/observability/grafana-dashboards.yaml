@@ -46,7 +46,7 @@ data:
           },
           "options": {
             "mode": "markdown",
-            "content": "Per-service MVP dashboard. Uses Threshold's bounded custom HTTP metrics and Loki pod logs. Update the PromQL in this JSON, not in Grafana UI."
+            "content": "Per-service MVP dashboard. Uses Perlimen's bounded custom HTTP metrics and Loki pod logs. Update the PromQL in this JSON, not in Grafana UI."
           }
         },
         {
@@ -387,7 +387,7 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Threshold / Services overview",
+      "title": "Perlimen / Services overview",
       "uid": "threshold-service-overview",
       "version": 1,
       "weekStart": ""
@@ -441,7 +441,7 @@ data:
           },
           "options": {
             "mode": "markdown",
-            "content": "Per-NATS MVP dashboard. Targets common NATS Prometheus exporter metric families (`gnatsd_*` / `nats_*`). Threshold MVP uses NATS Core without JetStream, so JetStream lag panels stay useful only after JetStream/exporter metrics are enabled."
+            "content": "Per-NATS MVP dashboard. Targets common NATS Prometheus exporter metric families (`gnatsd_*` / `nats_*`). Perlimen MVP uses NATS Core without JetStream, so JetStream lag panels stay useful only after JetStream/exporter metrics are enabled."
           }
         },
         {
@@ -751,7 +751,7 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Threshold / NATS overview",
+      "title": "Perlimen / NATS overview",
       "uid": "threshold-nats-overview",
       "version": 1,
       "weekStart": ""
@@ -1156,7 +1156,7 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Threshold / DB overview",
+      "title": "Perlimen / DB overview",
       "uid": "threshold-db-overview",
       "version": 1,
       "weekStart": ""
@@ -1560,7 +1560,7 @@ data:
       },
       "timepicker": {},
       "timezone": "browser",
-      "title": "Threshold / Authentik overview",
+      "title": "Perlimen / Authentik overview",
       "uid": "threshold-authentik-overview",
       "version": 1,
       "weekStart": ""

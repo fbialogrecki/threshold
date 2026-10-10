@@ -29,7 +29,7 @@ export function safeInternalHref(
   }
   if (!stable) return fallback
 
-  const base = "https://threshold.invalid"
+  const base = "https://perlimen.invalid"
   try {
     if (new URL(href, base).origin !== base) return fallback
   } catch {

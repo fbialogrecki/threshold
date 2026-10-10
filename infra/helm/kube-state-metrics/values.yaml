@@ -1,4 +1,4 @@
-# NUC-sized kube-state-metrics for Threshold infra metrics.
+# NUC-sized kube-state-metrics for Perlimen infra metrics.
 # Render target: prometheus-community/kube-state-metrics.
 #
 # Scraped by Alloy via Kubernetes pod discovery (label

@@ -21,10 +21,10 @@ describe("media upload proxy", () => {
         controller.close()
       },
     })
-    const request = new Request("http://threshold.test/api/media/assets", {
+    const request = new Request("http://perlimen.test/api/media/assets", {
       method: "POST",
       headers: {
-        origin: "http://threshold.test",
+        origin: "http://perlimen.test",
         "content-type": "multipart/form-data; boundary=test",
       },
       body,
@@ -53,17 +53,17 @@ describe("media upload proxy", () => {
         return Response.json({})
       },
     })
-    const oversized = new Request("http://threshold.test/api/media/assets", {
+    const oversized = new Request("http://perlimen.test/api/media/assets", {
       method: "POST",
       headers: {
-        origin: "http://threshold.test",
+        origin: "http://perlimen.test",
         "content-length": String(MAX_MEDIA_UPLOAD_BYTES + 1),
       },
       body: "x",
     })
-    const malformed = new Request("http://threshold.test/api/media/assets", {
+    const malformed = new Request("http://perlimen.test/api/media/assets", {
       method: "POST",
-      headers: { origin: "http://threshold.test", "content-length": "wat" },
+      headers: { origin: "http://perlimen.test", "content-length": "wat" },
       body: "x",
     })
 
@@ -78,9 +78,9 @@ describe("media upload proxy", () => {
   })
 
   it("maps a fetch-wrapped streamed size violation to 413", async () => {
-    const request = new Request("http://threshold.test/api/media/assets", {
+    const request = new Request("http://perlimen.test/api/media/assets", {
       method: "POST",
-      headers: { origin: "http://threshold.test" },
+      headers: { origin: "http://perlimen.test" },
       body: new ReadableStream<Uint8Array>({
         start(controller) {
           controller.enqueue(new Uint8Array(MAX_MEDIA_UPLOAD_BYTES))

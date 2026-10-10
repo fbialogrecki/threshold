@@ -18,7 +18,7 @@ spec:
         valueFiles:
           - $values/infra/helm/grafana/values.yaml
           - $values/infra/helm/grafana/application-alerts.yaml
-    - repoURL: https://github.com/fbialogrecki/threshold.git
+    - repoURL: https://github.com/fbialogrecki/perlimen.git
       targetRevision: main
       ref: values
   destination:

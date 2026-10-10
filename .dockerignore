@@ -8,8 +8,8 @@
 !libs/
 !libs/py/
 !libs/py/pyproject.toml
-!libs/py/threshold_common/
-!libs/py/threshold_common/**
+!libs/py/perlimen_common/
+!libs/py/perlimen_common/**
 
 !services/
 !services/auth-gateway/

@@ -98,7 +98,7 @@ export function SearchBar({
 
   return (
     <form onSubmit={onSubmit} className="relative w-full" role="search">
-      <label className="sr-only" htmlFor="threshold-search">
+      <label className="sr-only" htmlFor="perlimen-search">
         {t("label")}
       </label>
       <div
@@ -111,13 +111,13 @@ export function SearchBar({
         <MagnifyingGlass size={16} weight="bold" className="shrink-0 text-muted" aria-hidden />
         <input
           ref={inputRef}
-          id="threshold-search"
+          id="perlimen-search"
           value={value}
           role="combobox"
           aria-autocomplete="list"
           aria-expanded={open}
-          aria-controls="threshold-search-suggestions"
-          aria-activedescendant={open ? `threshold-search-option-${activeIndex}` : undefined}
+          aria-controls="perlimen-search-suggestions"
+          aria-activedescendant={open ? `perlimen-search-option-${activeIndex}` : undefined}
           onChange={(event) => {
             setValue(event.target.value)
             setCaret(event.target.selectionStart ?? event.target.value.length)
@@ -166,14 +166,14 @@ export function SearchBar({
       </div>
       {open && trigger ? (
         <div
-          id="threshold-search-suggestions"
+          id="perlimen-search-suggestions"
           role="listbox"
           className="absolute left-0 right-0 top-full z-30 mt-1 border border-border-gray bg-pitch"
         >
           {suggestions.map((suggestion, index) => (
             <button
               key={`${suggestion.type}:${suggestion.handle}`}
-              id={`threshold-search-option-${index}`}
+              id={`perlimen-search-option-${index}`}
               role="option"
               aria-selected={index === activeIndex}
               type="button"

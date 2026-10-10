@@ -1,6 +1,6 @@
 # Release And Deploy
 
-Threshold is one public repository. Product code, desired cluster state and operator tooling all live here. The former separate GitOps and ops repositories are archived and read-only.
+Perlimen is one public repository. Product code, desired cluster state and operator tooling all live here. The former separate GitOps and ops repositories are archived and read-only.
 
 ## Repository Layout
 
@@ -14,7 +14,7 @@ Threshold is one public repository. Product code, desired cluster state and oper
 
 Private values such as the Bitwarden account and item names live in `ops/local.env`, which is git-ignored. No secret value is ever committed; secrets live in OpenBao and reach the cluster through ESO.
 
-Argo CD tracks `https://github.com/fbialogrecki/threshold.git`, branch `main`, path `infra/argocd` (root Application `threshold-root`). Anything merged to `main` under `infra/` is deployed.
+Argo CD tracks `https://github.com/fbialogrecki/perlimen.git`, branch `main`, path `infra/argocd` (root Application `threshold-root`). Anything merged to `main` under `infra/` is deployed.
 
 ## Releasing
 

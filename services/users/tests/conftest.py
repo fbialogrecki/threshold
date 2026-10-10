@@ -12,7 +12,7 @@ from users.main_dependencies import override_database, settings
 @pytest.fixture(autouse=True)
 def configure_test_settings() -> None:
     settings.auth_dev_expose_tokens = True
-    settings.threshold_internal_token = "test-internal-token"
+    settings.perlimen_internal_token = "test-internal-token"
     settings.auth_rate_limit_count = 120
     settings.auth_rate_limit_window_seconds = 60
     settings.account_erasure_worker_enabled = False

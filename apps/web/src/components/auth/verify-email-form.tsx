@@ -53,7 +53,7 @@ export function VerifyEmailForm({ token }: { token: string | null }) {
   return (
     <div className="w-full max-w-md border border-border-gray bg-graphite p-7">
       <div className="flex items-start justify-between gap-4">
-        <span className="font-display text-3xl tracking-[0.1em]">THRESHOLD</span>
+        <span className="font-display text-3xl tracking-[0.1em]">PERLIMEN</span>
         <LocaleSwitcher />
       </div>
       <p className="mt-1 font-mono text-[11px] uppercase tracking-label text-muted">

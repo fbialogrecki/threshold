@@ -4,16 +4,16 @@ from events import main_dependencies
 from events.api.routes import router
 from events.db.readiness import check_database_ready
 from events.main_dependencies import create_schema_for_local_sqlite, settings
-from threshold_common.health import ok
-from threshold_common.http_observability import instrument_http_observability
-from threshold_common.logging import configure_logging
-from threshold_common.telemetry import configure_telemetry, instrument_fastapi
+from perlimen_common.health import ok
+from perlimen_common.http_observability import instrument_http_observability
+from perlimen_common.logging import configure_logging
+from perlimen_common.telemetry import configure_telemetry, instrument_fastapi
 
 configure_logging()
 configure_telemetry(settings.service_name)
 create_schema_for_local_sqlite()
 
-app = FastAPI(title="Threshold events", version="0.1.0")
+app = FastAPI(title="Perlimen events", version="0.1.0")
 instrument_fastapi(app)
 instrument_http_observability(app, service_name=settings.service_name)
 app.include_router(router)

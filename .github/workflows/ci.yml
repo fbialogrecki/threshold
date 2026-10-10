@@ -158,7 +158,7 @@ jobs:
         if: env.RUN == 'true'
       - name: Build ${{ matrix.service }} image
         if: env.RUN == 'true'
-        run: docker build --file "${{ matrix.dockerfile }}" --tag "threshold/${{ matrix.service }}:ci" "${{ matrix.context }}"
+        run: docker build --file "${{ matrix.dockerfile }}" --tag "perlimen/${{ matrix.service }}:ci" "${{ matrix.context }}"
 
   python:
     needs: changes
@@ -187,11 +187,11 @@ jobs:
         if: env.RUN == 'true'
         run: >-
           uv export --frozen --no-dev --no-emit-workspace --no-hashes
-          --format requirements.txt --output-file /tmp/threshold-requirements.txt
+          --format requirements.txt --output-file /tmp/perlimen-requirements.txt
       - name: Audit frozen runtime dependencies
         if: env.RUN == 'true'
         run: |
-          uvx --from pip-audit==2.10.1 pip-audit --strict --format json --output /tmp/pip-audit.json -r /tmp/threshold-requirements.txt
+          uvx --from pip-audit==2.10.1 pip-audit --strict --format json --output /tmp/pip-audit.json -r /tmp/perlimen-requirements.txt
           python3 ci/verify-pip-audit.py /tmp/pip-audit.json cryptography
 
   web:

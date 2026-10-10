@@ -34,7 +34,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "Per-service MVP dashboard. Uses Threshold's bounded custom HTTP metrics and Loki pod logs. Update the PromQL in this JSON, not in Grafana UI."
+        "content": "Per-service MVP dashboard. Uses Perlimen's bounded custom HTTP metrics and Loki pod logs. Update the PromQL in this JSON, not in Grafana UI."
       }
     },
     {
@@ -375,7 +375,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Threshold / Services overview",
+  "title": "Perlimen / Services overview",
   "uid": "threshold-service-overview",
   "version": 1,
   "weekStart": ""

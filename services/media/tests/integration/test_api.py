@@ -115,7 +115,7 @@ def test_create_media_asset_rejects_missing_user_and_unknown_context(session: Se
 
 def test_internal_token_missing_config_fails_closed(session: Session) -> None:
     client = TestClient(app)
-    settings.threshold_internal_token = None
+    settings.perlimen_internal_token = None
 
     response = client.get("/v1/config/storage", headers=TOKEN_HEADERS)
 

@@ -4,17 +4,17 @@ alerting:
     groups:
     - orgId: 1
       name: threshold-applications
-      folder: Threshold Alerts
+      folder: Perlimen Alerts
       interval: 1m
       rules:
       - uid: threshold-app-unavailable
-        title: Threshold application unavailable
+        title: Perlimen application unavailable
         condition: C
         for: 5m
         labels:
           severity: critical
         annotations:
-          summary: A Threshold application deployment has no available replica.
+          summary: A Perlimen application deployment has no available replica.
         noDataState: Alerting
         execErrState: Error
         data:
@@ -55,13 +55,13 @@ alerting:
             refId: C
             type: threshold
       - uid: threshold-app-http-5xx
-        title: Threshold application 5xx rate elevated
+        title: Perlimen application 5xx rate elevated
         condition: C
         for: 10m
         labels:
           severity: warning
         annotations:
-          summary: More than 5% of Threshold service requests return 5xx.
+          summary: More than 5% of Perlimen service requests return 5xx.
         noDataState: OK
         execErrState: Error
         data:
@@ -105,13 +105,13 @@ alerting:
             refId: C
             type: threshold
       - uid: threshold-app-http-latency
-        title: Threshold application p95 latency elevated
+        title: Perlimen application p95 latency elevated
         condition: C
         for: 10m
         labels:
           severity: warning
         annotations:
-          summary: Threshold service p95 HTTP latency exceeds one second.
+          summary: Perlimen service p95 HTTP latency exceeds one second.
         noDataState: OK
         execErrState: Error
         data:

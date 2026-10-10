@@ -18,7 +18,7 @@ import { mediaDerivativeUrl } from "@/lib/media/urls"
 import { profileHref } from "@/lib/profile-href"
 import { profileName } from "@/lib/profile-name"
 import { safeInternalHref } from "@/lib/safe-href"
-import type { Comment, ThresholdEvent, Post } from "@/lib/types"
+import type { Comment, PerlimenEvent, Post } from "@/lib/types"
 
 function eventDate(iso: string, locale: string): string {
   const date = new Date(iso)
@@ -38,7 +38,7 @@ function FeedEventWidget({
   locale,
   labels,
 }: {
-  event: ThresholdEvent
+  event: PerlimenEvent
   locale: string
   labels: {
     date: string

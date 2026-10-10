@@ -60,10 +60,10 @@ def test_python_ci_audits_exported_project_dependencies() -> None:
 
     assert (
         "uv export --frozen --no-dev --no-emit-workspace --no-hashes "
-        "--format requirements.txt --output-file /tmp/threshold-requirements.txt"
+        "--format requirements.txt --output-file /tmp/perlimen-requirements.txt"
     ) in normalized
     assert (
         "uvx --from pip-audit==2.10.1 pip-audit --strict --format json "
-        "--output /tmp/pip-audit.json -r /tmp/threshold-requirements.txt"
+        "--output /tmp/pip-audit.json -r /tmp/perlimen-requirements.txt"
     ) in normalized
     assert ("python3 ci/verify-pip-audit.py /tmp/pip-audit.json cryptography") in normalized

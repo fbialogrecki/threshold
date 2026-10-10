@@ -1,6 +1,6 @@
-# Threshold Agent Guide
+# Perlimen Agent Guide
 
-Threshold is a social and event-discovery platform for the music scene. The MVP proves the community, profiles, groups, public event pages, media pipeline, and moderation loop before ticketing, payments, mobile apps, DMs, or recommendation systems.
+Perlimen is a social and event-discovery platform for the music scene. The MVP proves the community, profiles, groups, public event pages, media pipeline, and moderation loop before ticketing, payments, mobile apps, DMs, or recommendation systems.
 
 This file is the active project briefing for coding agents: product scope, architecture rules, and implementation guidance. Keep it concise and update it in the same change that alters a convention.
 
@@ -50,6 +50,8 @@ graphify update .                           # after modifying code files
 ```
 
 Live infra mutation needs explicit approval and a narrow reason. The CNPG restore gate (a backup plus a disposable restore cluster) is only for backup/data-sensitive work, run with explicit approval. Operator scripts are in `ops/`; after changing `ops/backup/` or `ops/cnpg-restore-gate.sh`, run `go-task ops:backup:install` so cron runs the new copy.
+
+The product and source are Perlimen. Deployed legacy identifiers are intentionally retained until a separate live migration; see `docs/rebranding.md`.
 
 ## Stack
 
@@ -145,22 +147,17 @@ Do not pull post-MVP work into the MVP unless the user explicitly changes scope.
 
 ## Frontend Rules
 
-- Use functional React components and local helpers already present in `apps/web`.
-- Prefer native web APIs and Tailwind over new UI libraries.
-- Keep the brutalist dark UI language: access-first, terminal-like, color indicates state/function rather than decoration.
-- Panel surfaces carry no fills: the page is `pitch`, every boundary is one `border-border-gray` rule, and hierarchy comes from rules, indentation, spacing and type. `bg-graphite`/`bg-raised` survive only on auth surfaces and the `PublicShell` header.
-- One meaning per hue: `acid` affirms (primary action, active nav, upvote), `violet` is the vote axis only (downvote), `orange` flags something incomplete, protection reads as full-contrast text plus a padlock, `error` is destructive only. `cyan` is retired from status use and public surfaces.
-- Size display type against its container (`@container` + `cqi`), never the viewport: the capped page column makes `vw` overflow. No `clamp()` minimum; a `min(…, vh)` arm is fine.
-- Atmosphere (wash, grid, scanlines, grain) is allowed only in the landing hero band, above the threshold rule.
-- `color-scheme: dark` is set on `html`. The product is dark-only; do not add light-mode affordances.
-- Tailwind order can defeat `focus:` variants (`sr-only` beats `focus:not-sr-only`). Write focus-revealed elements such as the skip link as unlayered CSS in `globals.css`; verify with `CSS.forcePseudoState`, because an unfocused tab never matches `:focus`.
-- Type roles: `font-display` is Archivo 700 uppercase for entity titles and is set globally in `globals.css`; author names are sans 600 in natural case and must not use it; mono is for labels, metadata, actions and statuses at 10/11/12px; human content and error messages are sans.
-- The feed is a full-bleed stream: rows separated by one rule, no cards, action row as one flex row at every width with navigation left and evaluation right.
-- A panel route keeps a visible title only where it names something the navigation does not. Routes that drop it keep an `sr-only` heading.
-- Public event, user profile, and Page profile detail routes must keep SSR and Open Graph behavior.
-- Same-origin BFF routes are the preferred browser boundary for backend calls that need cookies or internal tokens.
-- For Next.js work, read `apps/web/AGENTS.md`; this version may differ from model memory.
-- Bun is the default. Use the pnpm fallback in `apps/web/README.md` only for a real Bun blocker.
+- Keep the existing dark-only palette and its functional hue meanings. The modern Perlimen UI may use restrained filled surfaces, softened corners, layered layouts and intentional motion; the former terminal-only/no-fill rules no longer apply.
+- Use existing React components, native web APIs and Tailwind before adding libraries. Next.js remains the only web framework; no Astro split.
+- Three.js is approved only for a lazy-loaded landing hero. Keep its client boundary narrow, cap DPR/geometry, pause offscreen and in hidden tabs, dispose GPU resources, and provide a static fallback for reduced motion, unsupported WebGL and initialization failure. Never block content or auth on the effect.
+- Motion must respect `prefers-reduced-motion`, preserve keyboard/focus behavior, avoid flashing and autoplay, and give useful interaction feedback rather than fake activity or engagement loops.
+- `acid` affirms (primary action, active nav, upvote), `violet` is downvote only, `orange` flags incompleteness, protection uses full-contrast text plus a padlock, `error` is destructive only. `cyan` is retired from public/status surfaces.
+- Keep `color-scheme: dark` on `html`. Size large display type against capped containers, not the viewport; avoid minimum sizes that overflow mobile or translated copy.
+- Archivo display type names entities; people use natural-case sans. Keep human content and errors readable; mono is for compact metadata, not all UI copy.
+- Feed remains chronological and easy to read. Preserve separate navigation and evaluation actions at mobile widths and separate expanded-post scrolling from feed navigation.
+- Keep visible or `sr-only` semantic headings. Focus-revealed elements such as the skip link need unlayered CSS when Tailwind order overrides focus variants; verify actual focused rendering.
+- Public event, user and Page details retain SSR and Open Graph. Existing BFF/session, privacy and anonymous-access boundaries are not design knobs.
+- Read `apps/web/AGENTS.md` and installed Next.js docs before web edits. Bun remains the default; pnpm fallback is only for a real Bun blocker.
 
 ## Backend Rules
 

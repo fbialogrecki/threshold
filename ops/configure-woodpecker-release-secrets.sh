@@ -19,11 +19,11 @@ OPS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${OPS_DIR}/lib-local-env.sh"
 ops_load_local_env
 
-readonly REPOSITORY=${WOODPECKER_RELEASE_REPOSITORY:-fbialogrecki/threshold}
+readonly REPOSITORY=${WOODPECKER_RELEASE_REPOSITORY:-fbialogrecki/perlimen}
 readonly NAMESPACE=${WOODPECKER_RELEASE_SEED_NAMESPACE:-woodpecker}
 # Promotion opens its digest PR against infra/ in the monorepo itself.
-readonly GITOPS_REPO_SLUG=${RELEASE_GITOPS_REPO_SLUG:-fbialogrecki/threshold}
-readonly GITOPS_REPO_URL=${RELEASE_GITOPS_REPO_URL:-https://github.com/fbialogrecki/threshold.git}
+readonly GITOPS_REPO_SLUG=${RELEASE_GITOPS_REPO_SLUG:-fbialogrecki/perlimen}
+readonly GITOPS_REPO_URL=${RELEASE_GITOPS_REPO_URL:-https://github.com/fbialogrecki/perlimen.git}
 HARBOR_IP="${HARBOR_IP:-}"
 
 ops_require_env HARBOR_IP

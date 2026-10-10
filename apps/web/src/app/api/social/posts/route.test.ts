@@ -6,22 +6,22 @@ const { postWithServices } = await import("./route")
 type Services = Parameters<typeof postWithServices>[1]
 
 function request(payload: unknown) {
-  return new Request("http://threshold.test/api/social/posts", {
+  return new Request("http://perlimen.test/api/social/posts", {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      origin: "http://threshold.test",
+      origin: "http://perlimen.test",
     },
     body: JSON.stringify(payload),
   })
 }
 
 function malformedRequest() {
-  return new Request("http://threshold.test/api/social/posts", {
+  return new Request("http://perlimen.test/api/social/posts", {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      origin: "http://threshold.test",
+      origin: "http://perlimen.test",
     },
     body: "{",
   })

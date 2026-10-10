@@ -10,6 +10,7 @@ spec:
     ownership.
   sourceRepos:
   - https://github.com/fbialogrecki/threshold.git
+  - https://github.com/fbialogrecki/perlimen.git
   destinations:
   - server: https://kubernetes.default.svc
     namespace: argocd

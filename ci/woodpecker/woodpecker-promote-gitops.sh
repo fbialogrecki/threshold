@@ -80,9 +80,9 @@ assert_output() {
 
 self_test() {
   local tmp output resolved_digest_dir
-  export GITOPS_REPO_SLUG=test/threshold
-  export GITOPS_REPO_URL=https://github.com/test/threshold.git
-  export IMAGE_REGISTRY=registry.example.test/threshold
+  export GITOPS_REPO_SLUG=test/perlimen
+  export GITOPS_REPO_URL=https://github.com/test/perlimen.git
+  export IMAGE_REGISTRY=registry.example.test/perlimen
   tmp=$(mktemp -d)
   trap "rm -rf -- '$tmp'" EXIT
 
@@ -98,7 +98,7 @@ self_test() {
   printf 'apps/web/src/app/page.tsx\n' > "$tmp/web"
   assert_output web-only "$tmp/web" web
 
-  printf 'libs/py/threshold_common/nats.py\n' > "$tmp/libs-py"
+  printf 'libs/py/perlimen_common/nats.py\n' > "$tmp/libs-py"
   assert_output libs-py "$tmp/libs-py" $'auth-gateway\nevents\nmedia\nsocial\nusers'
 
   printf 'ci/woodpecker/woodpecker-build-push.sh\n' > "$tmp/build-helper"
@@ -194,7 +194,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:
   - name: threshold/$app
-    newName: registry.example.test/threshold/$app
+    newName: registry.example.test/perlimen/$app
     newTag: old
 YAML
     done
@@ -240,7 +240,7 @@ EOF
     WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/ca" \
     WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
     WOODPECKER_TEST_LOG="$tmp/sequence" CI_PIPELINE_EVENT=push \
-    CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main CI_REPO=test/threshold \
+    CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main CI_REPO=test/perlimen \
     CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" >/dev/null
@@ -257,7 +257,7 @@ EOF
     WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
     WOODPECKER_TEST_LOG="$tmp/sequence" WOODPECKER_TEST_FAIL_DIFF=1 \
     CI_PIPELINE_EVENT=push CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
-    CI_REPO=test/threshold \
+    CI_REPO=test/perlimen \
     CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" >/dev/null 2>&1; then
@@ -276,7 +276,7 @@ EOF
     WOODPECKER_TEST_LOG="$tmp/sequence" WOODPECKER_TEST_FULL_PATH=1 \
     WOODPECKER_TEST_PUSH_FAILURES=1 \
     CI_PIPELINE_EVENT=push CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
-    CI_REPO=test/threshold \
+    CI_REPO=test/perlimen \
     CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" >/dev/null
@@ -295,7 +295,7 @@ EOF
     WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
     WOODPECKER_TEST_LOG="$tmp/sequence" RELEASE_TAG=v1.2.3 AUTO_MERGE=true \
     CI_PIPELINE_EVENT=manual CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
-    CI_REPO=test/threshold \
+    CI_REPO=test/perlimen \
     CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
     "$SCRIPT_PATH" >/dev/null
   [[ "$(<"$tmp/sequence")" == $'clone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/release/v1.2.3\npr-list\npr-create\nauto-merge' ]] ||
@@ -477,8 +477,8 @@ promote_attempt() {
     "$repo_url" "$attempt_dir" || return 1
   (
     cd "$attempt_dir" || exit 1
-    "$GIT_BIN" config user.name threshold-ci-bot || exit 1
-    "$GIT_BIN" config user.email threshold-ci-bot@users.noreply.github.com || exit 1
+    "$GIT_BIN" config user.name perlimen-ci-bot || exit 1
+    "$GIT_BIN" config user.email perlimen-ci-bot@users.noreply.github.com || exit 1
 
     for app in "${selected_apps[@]}"; do
       target="infra/kustomize/overlays/local/$app/kustomization.yaml"

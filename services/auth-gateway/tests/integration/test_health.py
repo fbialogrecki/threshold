@@ -4,7 +4,7 @@ import auth_gateway.main as main
 from auth_gateway.main import app
 from fastapi.testclient import TestClient
 
-from threshold_common.auth import Principal
+from perlimen_common.auth import Principal
 
 
 def test_healthz() -> None:

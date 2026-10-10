@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation"
 import type { ManagedPage } from "@/components/pages/page-management-panel"
 import { eventDraft, lineupWithReference, EventValidationError, type EventDraft } from "@/lib/events/editor"
 import { saveEvent, EventSaveError } from "@/lib/events/editor-submit"
-import type { ThresholdEvent } from "@/lib/types"
+import type { PerlimenEvent } from "@/lib/types"
 
 const inputClass = "w-full border border-border-gray bg-pitch p-3 text-sm text-raw-white focus:border-acid focus:outline-none"
 const actionClass = "border border-border-gray px-3 py-2 font-mono text-xs uppercase text-acid disabled:opacity-50"
 
-export function EventForm({ pages, event }: { pages: ManagedPage[]; event?: ThresholdEvent }) {
+export function EventForm({ pages, event }: { pages: ManagedPage[]; event?: PerlimenEvent }) {
   const t = useTranslations("eventEditor")
   const router = useRouter()
   const [draft, setDraft] = useState<EventDraft>(() => ({ ...eventDraft(event), page_id: event?.page_id ?? pages[0]?.id ?? "" }))

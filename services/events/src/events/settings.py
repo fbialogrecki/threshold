@@ -1,6 +1,6 @@
 from pydantic import Field, field_validator
 
-from threshold_common.config import ServiceSettings
+from perlimen_common.config import ServiceSettings
 
 
 class Settings(ServiceSettings):
@@ -19,7 +19,7 @@ class Settings(ServiceSettings):
     write_rate_limit_window_seconds: int = 60
     check_in_token_ttl_seconds: int = 300
 
-    threshold_internal_token: str | None = Field(
+    perlimen_internal_token: str | None = Field(
         default=None, validation_alias="THRESHOLD_INTERNAL_TOKEN"
     )
 

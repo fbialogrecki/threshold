@@ -1,4 +1,4 @@
-# NUC-sized node-exporter for Threshold infra metrics.
+# NUC-sized node-exporter for Perlimen infra metrics.
 # Render target: prometheus-community/prometheus-node-exporter.
 #
 # DaemonSet on hostNetwork exposing :9100. Scraped by Alloy via Kubernetes pod

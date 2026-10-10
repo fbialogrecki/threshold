@@ -1,5 +1,5 @@
 /**
- * Threshold domain contracts (frontend view).
+ * Perlimen domain contracts (frontend view).
  * These mirror product domain rules so backend response mapping stays
  * explicit at the UI boundary.
  */
@@ -40,7 +40,7 @@ export type AccessState =
   | "approved"
   | "rejected"
 
-export type ThresholdEvent = {
+export type PerlimenEvent = {
   id: string
   slug: string
   title: string
@@ -160,7 +160,7 @@ export type Post = {
   media: MediaAttachment[]
   eventId: string | null
   eventSlug: string | null
-  linkedEvent?: ThresholdEvent
+  linkedEvent?: PerlimenEvent
 }
 
 /** A comment on a post; replies carry parentId (up to two levels of nesting). */
@@ -207,7 +207,7 @@ type FeedMetadata = {
 
 export type FeedItem =
   | { kind: "post"; post: Post; feed: FeedMetadata }
-  | { kind: "event"; event: ThresholdEvent; feed: FeedMetadata }
+  | { kind: "event"; event: PerlimenEvent; feed: FeedMetadata }
   | { kind: "access_update"; update: AccessUpdate; feed: FeedMetadata }
   | { kind: "event_update"; update: EventUpdate; feed: FeedMetadata }
   | { kind: "residency_update"; feed: FeedMetadata }

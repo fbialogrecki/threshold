@@ -4,9 +4,9 @@ import { getLocale, getTranslations } from "next-intl/server"
 import { Card, CardBody, CardHeader } from "@/components/ui/card"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { cityLabel } from "@/lib/cities"
-import type { ThresholdEvent } from "@/lib/types"
+import type { PerlimenEvent } from "@/lib/types"
 
-export async function LocationStates({ event }: { event: ThresholdEvent }) {
+export async function LocationStates({ event }: { event: PerlimenEvent }) {
   const [t, locale] = await Promise.all([
     getTranslations("eventDetail.location"),
     getLocale(),

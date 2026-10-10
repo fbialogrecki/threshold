@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import InMemoryMetricReader, Metric
 
-from threshold_common.http_observability import (
+from perlimen_common.http_observability import (
     HttpObservabilityMiddleware,
     instrument_http_observability,
 )

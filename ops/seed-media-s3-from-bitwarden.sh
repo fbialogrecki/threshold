@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
 
-# End-to-end helper for Threshold media/SeaweedFS S3 secret bootstrap.
+# End-to-end helper for Perlimen media/SeaweedFS S3 secret bootstrap.
 # Flow:
 # 1. Configure/unlock the operator's personal Bitwarden vault (settings in ops/local.env).
 # 2. Read BWS_ACCESS_TOKEN from the personal Bitwarden item.

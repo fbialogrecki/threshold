@@ -1,5 +1,5 @@
 import type { NotificationItem } from "@/lib/auth/product-auth"
-import type { AccessState, AccessUpdate, EventUpdate, FeedFilter, FeedItem, Post, ThresholdEvent } from "@/lib/types"
+import type { AccessState, AccessUpdate, EventUpdate, FeedFilter, FeedItem, Post, PerlimenEvent } from "@/lib/types"
 
 const ACCESS_NOTIFICATION_TYPES = new Set([
   "guestlist.added",
@@ -13,7 +13,7 @@ type FutureFeedKind = Extract<FeedItem["kind"], "residency_update" | "lineup_upd
 
 export type FeedAssemblySource = {
   posts: Post[]
-  events: ThresholdEvent[]
+  events: PerlimenEvent[]
   eventUpdates: EventUpdate[]
   notifications: NotificationItem[]
   followedPageIds: Set<string>
@@ -43,7 +43,7 @@ function clean(value: string | null | undefined): string | null {
   return trimmed ? trimmed.toLowerCase() : null
 }
 
-function eventTime(event: ThresholdEvent): string {
+function eventTime(event: PerlimenEvent): string {
   return event.created_at || event.updated_at || event.starts_at
 }
 
@@ -73,7 +73,7 @@ function matchesFilter(item: FeedItem, filter: FeedFilter): boolean {
   return filter === "all" || FILTER_KIND[filter].has(item.kind)
 }
 
-export function eventVisibleInFeed(event: ThresholdEvent, source: Pick<FeedAssemblySource, "followedPageIds" | "followedUserIds" | "viewerCity">): string | null {
+export function eventVisibleInFeed(event: PerlimenEvent, source: Pick<FeedAssemblySource, "followedPageIds" | "followedUserIds" | "viewerCity">): string | null {
   if (event.page_id && source.followedPageIds.has(event.page_id)) return "You follow this page"
   if (event.created_by_user_id && source.followedUserIds.has(event.created_by_user_id)) return "You follow this organizer"
   if (event.is_following) return "You follow this event"
@@ -126,7 +126,7 @@ export function assembleFeed(source: FeedAssemblySource): FeedItem[] {
   const legacyRepresentedEventSlugs = new Set(
     [...source.legacyRepresentedEventSlugs].map((slug) => slug.toLowerCase()),
   )
-  const admittedEvents = source.events.flatMap((event): { event: ThresholdEvent; reason: string }[] => {
+  const admittedEvents = source.events.flatMap((event): { event: PerlimenEvent; reason: string }[] => {
     const reason = eventVisibleInFeed(event, source)
     return reason ? [{ event, reason }] : []
   })

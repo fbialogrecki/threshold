@@ -43,6 +43,15 @@ describe("registration validation", () => {
     })
   })
 
+  it("reserves both brand names after folding and punctuation removal", () => {
+    for (const username of ["threshold", "Perlimen", ".pęrlimęn-"]) {
+      expect(validateRegistration({ ...valid, username })).toEqual({
+        ok: false,
+        error: "reservedUsername",
+      })
+    }
+  })
+
   it("rejects alphabets outside the explicit set", () => {
     // Cyrillic lookalikes are the impersonation route folding exists to close.
     expect(validateRegistration({ ...valid, username: "Реregrin" }).ok).toBe(false)

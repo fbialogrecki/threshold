@@ -1,6 +1,6 @@
 import { mediaDerivativeUrl } from "@/lib/media/urls"
 import { pageType } from "@/lib/page-types"
-import type { Post, ThresholdEvent } from "@/lib/types"
+import type { Post, PerlimenEvent } from "@/lib/types"
 
 export type OrganizerRef = {
   id: string
@@ -11,11 +11,11 @@ export type OrganizerRef = {
   target_url: string
 }
 
-export function organizerPageIds(events: ThresholdEvent[]): string[] {
+export function organizerPageIds(events: PerlimenEvent[]): string[] {
   return [...new Set(events.flatMap((event) => event.page_id ? [event.page_id] : []))]
 }
 
-export function missingPostEventSlugs(posts: Post[], events: ThresholdEvent[]): string[] {
+export function missingPostEventSlugs(posts: Post[], events: PerlimenEvent[]): string[] {
   const availableIds = new Set(events.map((event) => event.id))
   const availableSlugs = new Set(events.map((event) => event.slug.toLowerCase()))
   return [...new Set(posts.flatMap((post) => {
@@ -27,15 +27,15 @@ export function missingPostEventSlugs(posts: Post[], events: ThresholdEvent[]): 
 }
 
 export function mergeFeedEvents(
-  scopedEvents: ThresholdEvent[],
-  linkedEvents: ThresholdEvent[],
-): ThresholdEvent[] {
+  scopedEvents: PerlimenEvent[],
+  linkedEvents: PerlimenEvent[],
+): PerlimenEvent[] {
   return [...new Map([...scopedEvents, ...linkedEvents].map((event) => [event.id, event])).values()]
 }
 
 export function hydrateFeedPosts(
   posts: Post[],
-  events: ThresholdEvent[],
+  events: PerlimenEvent[],
   organizers: OrganizerRef[],
 ): Post[] {
   const eventsById = new Map(events.map((event) => [event.id, event]))

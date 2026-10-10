@@ -35,7 +35,7 @@ def _announcement(
     post = Post(
         author_user_id=author_user_id,
         author_username="threshold-events",
-        author_display_name="Threshold Events",
+        author_display_name="Perlimen Events",
         author_type=author_type,
         group_id=group.id,
         event_id=event_id,
@@ -203,7 +203,7 @@ def test_legacy_event_refs_selects_one_matching_deterministic_pair(session: Sess
     post = Post(
         author_user_id="event-system",
         author_username="threshold-events",
-        author_display_name="Threshold Events",
+        author_display_name="Perlimen Events",
         author_type="system",
         group_id=group.id,
         body="legacy",

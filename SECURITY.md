@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Threshold is under active MVP development. Security fixes are applied to the current `main` branch. There are no supported stable release branches yet.
+Perlimen is under active MVP development. Security fixes are applied to the current `main` branch. There are no supported stable release branches yet.
 
 ## Reporting a vulnerability
 

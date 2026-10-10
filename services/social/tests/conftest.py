@@ -12,7 +12,7 @@ from sqlalchemy.pool import StaticPool
 
 @pytest.fixture(autouse=True)
 def configure_test_settings() -> None:
-    settings.threshold_internal_token = "test-internal-token"
+    settings.perlimen_internal_token = "test-internal-token"
     settings.media_service_url = None
     settings.media_request_timeout_seconds = 1.5
     settings.nats_enabled = False

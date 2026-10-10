@@ -1,7 +1,7 @@
 [project]
-name = "threshold-media"
+name = "perlimen-media"
 version = "0.1.0"
-description = "Threshold media service"
+description = "Perlimen media service"
 requires-python = ">=3.13"
 dependencies = [
   "alembic>=1.17",
@@ -19,12 +19,12 @@ dependencies = [
   "psycopg[binary]>=3.2",
   "python-multipart>=0.0.20",
   "sqlalchemy>=2.0",
-  "threshold-common",
+  "perlimen-common",
   "uvicorn[standard]>=0.38",
 ]
 
 [tool.uv.sources]
-threshold-common = { workspace = true }
+perlimen-common = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

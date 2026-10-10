@@ -1,6 +1,6 @@
 from pydantic import Field, field_validator
 
-from threshold_common.config import ServiceSettings
+from perlimen_common.config import ServiceSettings
 
 
 class Settings(ServiceSettings):
@@ -20,7 +20,7 @@ class Settings(ServiceSettings):
     block_sync_interval_seconds: float = 300
     block_sync_timeout_seconds: float = 10
 
-    threshold_internal_token: str | None = Field(
+    perlimen_internal_token: str | None = Field(
         default=None, validation_alias="THRESHOLD_INTERNAL_TOKEN"
     )
 

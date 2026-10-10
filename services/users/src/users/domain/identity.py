@@ -25,7 +25,7 @@ _USERNAME_CHARS = r"A-Za-z0-9_.\-ąćęłńóśźżĄĆĘŁŃÓŚŹŻ"
 USERNAME_PATTERN = rf"[{_USERNAME_CHARS}]{{{USERNAME_MIN_LENGTH},{USERNAME_MAX_LENGTH}}}"
 USERNAME_RE = re.compile(rf"\A{USERNAME_PATTERN}\Z")
 
-RESERVED_USERNAMES = frozenset({"admin", "root", "support", "threshold"})
+RESERVED_USERNAMES = frozenset({"admin", "root", "support", "threshold", "perlimen"})
 
 # ł and Ł are the one Polish pair NFKD will not decompose, so they need an
 # explicit mapping; the rest lose their combining marks below.

@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 shopt -s inherit_errexit 2>/dev/null || true
 
-# Manual OpenBao unseal helper for the local Threshold cluster.
+# Manual OpenBao unseal helper for the local Perlimen cluster.
 # Security model:
 # - Personal Bitwarden CLI (bw) logs into the account configured in ops/local.env if needed.
 # - BWS_ACCESS_TOKEN is read from the personal vault item named by BW_BWS_ACCESS_TOKEN_ITEM.

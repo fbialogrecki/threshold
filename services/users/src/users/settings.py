@@ -2,7 +2,7 @@ from typing import Literal, Self
 
 from pydantic import Field, field_validator, model_validator
 
-from threshold_common.config import ServiceSettings
+from perlimen_common.config import ServiceSettings
 
 
 class Settings(ServiceSettings):
@@ -16,7 +16,7 @@ class Settings(ServiceSettings):
     social_service_url: str | None = None
     events_service_url: str | None = None
     media_service_url: str | None = None
-    threshold_internal_token: str | None = Field(
+    perlimen_internal_token: str | None = Field(
         default=None, validation_alias="THRESHOLD_INTERNAL_TOKEN"
     )
     social_request_timeout_seconds: float = 1.5

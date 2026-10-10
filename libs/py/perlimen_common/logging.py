@@ -49,7 +49,7 @@ class OtelLogDefaultsFilter(logging.Filter):
             or "unknown_service"
         )
         try:
-            from threshold_common.http_observability import request_id_context
+            from perlimen_common.http_observability import request_id_context
 
             request_id = request_id_context.get()
         except Exception:  # pragma: no cover - logging must never break app startup
