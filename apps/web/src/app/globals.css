@@ -2,8 +2,10 @@
 
 /*
   Perlimen design system.
-  Brutalist, dark, terminal-like. Color is meaning, not decoration:
-  it only marks action, status or access.
+  Dark-only. Colour is meaning, not decoration: acid affirms, violet is
+  downvote only, orange flags incompleteness, error is destructive only.
+  Surfaces may be filled and softly rounded; motion is short, purposeful and
+  gated behind prefers-reduced-motion.
 */
 
 @theme {
@@ -46,8 +48,25 @@
   --tracking-label: 0.14em;
   --tracking-cta: 0.2em;
 
-  /* No rounded corners: brutalist */
+  /*
+    Corners: controls stay tighter than the surfaces that hold them. `none`
+    remains for the older square surfaces until they are redesigned.
+  */
   --radius-none: 0px;
+  --radius-control: 0.625rem;
+  --radius-surface: 1.25rem;
+
+  /* Motion: one decisive ease for entrances, one springy ease for presses. */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-press: cubic-bezier(0.3, 1.4, 0.5, 1);
+  --animate-rise: rise 0.8s var(--ease-out-expo) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
 }
 
 :root {
@@ -75,9 +94,11 @@ body {
   font-family: var(--font-sans);
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 /*
@@ -173,89 +194,70 @@ textarea:focus-visible {
   color: var(--color-pitch);
 }
 
-/* ───────────────────────── Landing page atmosphere ───────────────────────── */
+/* ───────────────────────── Landing ───────────────────────── */
 
-/*
-  Atmosphere is scoped to the hero band and stops at the hero boundary.
-  This is wash, not semantic colour: the violet haze is an unfocusable
-  background field, so it does not claim the vote axis.
-*/
-.landing-void {
+/* A single acid wash anchors the hero; everything below stays on pitch. */
+.landing-hero {
   background:
-    radial-gradient(
-      55rem 40rem at 10% -20%,
-      rgba(198, 255, 0, 0.1),
-      transparent 62%
-    ),
-    radial-gradient(
-      50rem 38rem at 105% 115%,
-      rgba(143, 0, 255, 0.16),
-      transparent 58%
-    ),
+    radial-gradient(48rem 36rem at 80% 28%, rgba(198, 255, 0, 0.08), transparent 65%),
     var(--color-pitch);
 }
 
-/* Faint engineering grid, faded out before the hero boundary. */
-.landing-grid {
-  background-image:
-    linear-gradient(to right, rgba(242, 242, 234, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(242, 242, 234, 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 70% 60% at 45% 30%, black, transparent 80%);
+/*
+  Square box so the rings keep their proportion at every width. The mask
+  fades the sculpture out before it reaches the copy.
+*/
+.hero-visual {
+  aspect-ratio: 1;
+  mask-image: radial-gradient(closest-side, black 60%, transparent);
 }
 
-/* Film grain via inline SVG turbulence. */
-.landing-grain {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.05;
-  mix-blend-mode: overlay;
+.hero-fallback,
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 1.2s var(--ease-out-expo);
 }
 
-/* Subtle horizontal scanlines. */
-.landing-scanlines {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0,
-    rgba(0, 0, 0, 0) 2px,
-    rgba(0, 0, 0, 0.22) 3px
-  );
-  opacity: 0.35;
+/* The static state: tilted concentric rings drawn by CSS alone. */
+.hero-fallback {
+  background:
+    radial-gradient(closest-side, rgba(198, 255, 0, 0.14), transparent 70%),
+    repeating-radial-gradient(
+      closest-side,
+      transparent 0 calc(5.5% - 1px),
+      rgba(198, 255, 0, 0.4) calc(5.5% - 1px) 5.5%
+    );
+  mask-image: radial-gradient(closest-side, black 35%, transparent 92%);
+  transform: perspective(60rem) rotateX(62deg) rotateZ(-22deg) scale(1.15);
 }
 
-/* The hero boundary: glowing acid rule that draws in on load. */
-.landing-boundary {
-  transform: scaleX(0);
-  transform-origin: left center;
-  animation: perlimen-draw 1.1s 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  box-shadow:
-    0 0 12px rgba(198, 255, 0, 0.7),
-    0 0 40px rgba(198, 255, 0, 0.35);
-}
-
-@keyframes perlimen-draw {
-  to {
-    transform: scaleX(1);
+/* Sections rise as they scroll in, where the browser does it natively. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .landing-reveal {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
   }
 }
 
-/* One shared entrance for the hero group. */
-.landing-rise {
-  opacity: 0;
-  animation: landing-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.landing-faq > summary {
+  list-style: none;
 }
 
-@keyframes landing-rise {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.landing-faq > summary::-webkit-details-marker {
+  display: none;
 }
 
-/* Blinking terminal cursor. */
+.landing-faq[open] .landing-faq-icon {
+  transform: rotate(45deg);
+}
+
+/* Blinking terminal cursor, still used by the loading skeleton. */
 .landing-cursor {
   animation: landing-blink 1.1s steps(1) infinite;
 }
@@ -271,11 +273,9 @@ textarea:focus-visible {
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
 
-  .landing-boundary {
-    transform: scaleX(1);
-  }
 }

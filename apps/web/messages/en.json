@@ -89,6 +89,14 @@
       "anonymous": {
         "question": "Can I read without an account?",
         "answer": "Event pages, profiles and organization Pages, yes. The Feed, the event catalogue and groups require an account."
+      },
+      "images": {
+        "question": "Can I share photos?",
+        "answer": "Yes. Posts can include images, events carry a poster, and profiles and Pages have an avatar."
+      },
+      "app": {
+        "question": "Is there an app?",
+        "answer": "Perlimen runs in the browser, on a phone or a computer. There is no mobile app."
       }
     },
     "who": {

@@ -176,6 +176,12 @@ The approved public path is Cloudflare HTTPS → `cloudflared` → `http://web.t
 - Event location modes in use are `public_location` and `tba`. `secret_location` exists in the model but create/update rejects it until the encrypted-reveal work lands.
 - Cursor helpers stay local to `social` and `events`: `events` uses URL-safe base64 timestamp cursors, `social` uses `created_at|id` cursors. They are different enough that a shared helper in `libs/py` would not help.
 
+## Web Design System
+
+- Tokens live in `apps/web/src/app/globals.css`: the dark palette, `rounded-control`/`rounded-surface` corners, `ease-out-expo`/`ease-press` easing and the `animate-rise` entrance. The global reduced-motion rule collapses every CSS animation and transition.
+- `Button`/`ButtonLink` keep the square mono `md` size for existing routes; `size="lg"` is the modern rounded control. Surfaces move to the modern shape route by route.
+- Only the landing hero uses three.js. `components/landing/hero-visual.tsx` renders a CSS ring fallback on the server; `hero-lifecycle.ts` skips the scene chunk under reduced motion, runs the loop only while visible and on screen, and falls back on missing WebGL, chunk failure or context loss. Other motion is CSS (`animation-timeline: view()` where supported).
+
 ## Deployment
 
 Releases are tag-driven and promote image digests into `infra/` through a pull request; Argo CD syncs after the merge. Database migrations run as Argo CD `Sync` hook Jobs. See `docs/release-and-deploy.md`.
