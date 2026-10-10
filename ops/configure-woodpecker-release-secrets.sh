@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Seeds the repo secrets for the automatic .woodpecker/deploy.yml workflow.
-# Push enables main publication; manual temporarily preserves the legacy fallback.
+# Every secret is restricted to push, never PR, tag or manual events.
 #
 # Values come from the in-cluster seed Secrets/ConfigMap in the woodpecker
 # namespace, plus HARBOR_IP from ops/local.env. Each value is written to a
@@ -10,7 +10,7 @@ set -euo pipefail
 # file itself), so no secret value appears in any process's argv.
 #
 # No --image filter is set. In Woodpecker v3 an image filter turns a secret
-# into a plugin-only secret: steps with `commands:` (all release.yml steps) are
+# into a plugin-only secret: steps with `commands:` (all deploy.yml steps) are
 # refused with "secret ... is only allowed to be used by plugins". The server
 # also rejects digest-pinned references (name@sha256:...) in the image list.
 
@@ -21,9 +21,6 @@ ops_load_local_env
 
 readonly REPOSITORY=${WOODPECKER_RELEASE_REPOSITORY:-fbialogrecki/perlimen}
 readonly NAMESPACE=${WOODPECKER_RELEASE_SEED_NAMESPACE:-woodpecker}
-# Promotion opens its digest PR against infra/ in the monorepo itself.
-readonly GITOPS_REPO_SLUG=${RELEASE_GITOPS_REPO_SLUG:-fbialogrecki/perlimen}
-readonly GITOPS_REPO_URL=${RELEASE_GITOPS_REPO_URL:-https://github.com/fbialogrecki/perlimen.git}
 HARBOR_IP="${HARBOR_IP:-}"
 
 ops_require_env HARBOR_IP
@@ -61,7 +58,7 @@ set_secret() {
   printf '%s' "$value" > "$VALUE_FILE"
   unset value
 
-  local -a args=(--repository "$REPOSITORY" --name "$name" --value "@${VALUE_FILE}" --event push --event manual)
+  local -a args=(--repository "$REPOSITORY" --name "$name" --value "@${VALUE_FILE}" --event push)
   if ! woodpecker-cli repo secret update "${args[@]}" >/dev/null 2>&1; then
     woodpecker-cli repo secret add "${args[@]}" >/dev/null
   fi
@@ -80,7 +77,5 @@ set_secret release_harbor_ca_sha256 config_value HARBOR_CA_SHA256
 set_secret release_git_username secret_value woodpecker-github-writer GIT_USERNAME
 set_secret release_git_token secret_value woodpecker-github-writer GIT_TOKEN
 set_secret release_image_registry config_value IMAGE_REGISTRY
-set_secret release_gitops_repo_slug literal "$GITOPS_REPO_SLUG"
-set_secret release_gitops_repo_url literal "$GITOPS_REPO_URL"
 
-printf 'Configured push/manual publication secrets for %s\n' "$REPOSITORY"
+printf 'Configured push-only publication secrets for %s\n' "$REPOSITORY"
