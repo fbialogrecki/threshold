@@ -1,3 +1,4 @@
+# Native forge deliveries validate only; publication stays in the manual release workflow.
 when:
   - event: pull_request
     path:

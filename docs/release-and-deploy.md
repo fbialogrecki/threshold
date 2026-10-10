@@ -62,7 +62,7 @@ Revert the digest PR on `main`. Argo CD syncs the previous digests. Database mig
 
 ## Release Token Rotation
 
-The pipeline authenticates to GitHub with a fine-grained PAT limited to the `threshold` repository (Contents: write, Pull requests: write), valid for 90 days. It is stored in OpenBao at `secret/threshold/ci/github-writer` and reaches Woodpecker through ESO.
+The pipeline authenticates to GitHub with a fine-grained PAT limited to the `perlimen` repository (Contents: write, Pull requests: write), valid for 90 days. It is stored in OpenBao at `secret/threshold/ci/github-writer` and reaches Woodpecker through ESO.
 
 To rotate:
 
