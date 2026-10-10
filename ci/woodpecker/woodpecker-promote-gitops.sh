@@ -239,39 +239,6 @@ EOF
   chmod +x "$tmp/curl" "$tmp/git"
 
   : > "$tmp/sequence"
-  HOME="$tmp/home" GIT_USERNAME=u GIT_TOKEN=t \
-    WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
-    WOODPECKER_IMAGE_DIGEST_DIR="$tmp/digests" \
-    WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/ca" \
-    WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
-    WOODPECKER_TEST_LOG="$tmp/sequence" CI_PIPELINE_EVENT=push \
-    CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main CI_REPO=test/perlimen \
-    CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
-    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
-    "$SCRIPT_PATH" >/dev/null
-  [[ "$(<"$tmp/sequence")" == $'fetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff' ]] ||
-    die "self-test failed: credentials were not configured before source fetch/diff"
-  [[ ! -e "$tmp/home/.git-credentials" ]] ||
-    die "self-test failed: credentials were not cleaned"
-
-  : > "$tmp/sequence"
-  if HOME="$tmp/home" GIT_USERNAME=u GIT_TOKEN=t \
-    WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
-    WOODPECKER_IMAGE_DIGEST_DIR="$tmp/digests" \
-    WOODPECKER_KUBE_TOKEN_FILE="$tmp/token" WOODPECKER_KUBE_CA="$tmp/ca" \
-    WOODPECKER_KUBE_NAMESPACE_FILE="$tmp/namespace" \
-    WOODPECKER_TEST_LOG="$tmp/sequence" WOODPECKER_TEST_FAIL_DIFF=1 \
-    CI_PIPELINE_EVENT=push CI_COMMIT_BRANCH=main CI_REPO_DEFAULT_BRANCH=main \
-    CI_REPO=test/perlimen \
-    CI_PREV_COMMIT_SHA=1111111111111111111111111111111111111111 \
-    CI_COMMIT_SHA=2222222222222222222222222222222222222222 \
-    "$SCRIPT_PATH" >/dev/null 2>&1; then
-    die "self-test failed: unavailable production diff was accepted"
-  fi
-  [[ "$(<"$tmp/sequence")" == $'fetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff' ]] ||
-    die "self-test failed: unavailable diff sequence or cleanup"
-
-  : > "$tmp/sequence"
   rm -f "$tmp/sequence.pushes"
   HOME="$tmp/home" GIT_USERNAME=u GIT_TOKEN=t \
     WOODPECKER_CURL_BIN="$tmp/curl" WOODPECKER_GIT_BIN="$tmp/git" \
@@ -288,7 +255,7 @@ EOF
 
   local full_log
   full_log=$(<"$tmp/sequence")
-  [[ "$full_log" == $'fetch:1111111111111111111111111111111111111111\nfetch:2222222222222222222222222222222222222222\ndiff\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\npr-list\npr-create' ]] ||
+  [[ "$full_log" == $'clone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\nclone\nconfig\nconfig\nworktree-diff\nadd\nstaged-diff\ncommit\npush:HEAD:refs/heads/ci/promote-222222222222\npr-list\npr-create' ]] ||
     die "self-test failed: fresh retry did not reapply selected bumps"
 
   : > "$tmp/sequence"
@@ -438,17 +405,9 @@ image_digest_dir=$(resolve_digest_dir "$IMAGE_DIGEST_DIR")
 load_release_config
 configure_credentials
 
-if [[ "$event" == push ]]; then
-  "$GIT_BIN" fetch --no-tags origin "$CI_PREV_COMMIT_SHA" ||
-    die "Unable to fetch CI_PREV_COMMIT_SHA"
-  "$GIT_BIN" fetch --no-tags origin "$CI_COMMIT_SHA" ||
-    die "Unable to fetch CI_COMMIT_SHA"
-  changed_files=$("$GIT_BIN" diff --name-only "$CI_PREV_COMMIT_SHA" "$CI_COMMIT_SHA" --) ||
-    die "Unable to produce source diff"
-  while IFS= read -r path; do
-    [[ -z "$path" ]] || map_path "$path"
-  done <<< "$changed_files"
-fi
+# CI_PREV_COMMIT_SHA can belong to a PR, not the preceding main tree.
+# The main-push workflow selects source changes; publish one consistent image set.
+select_all
 
 mapfile -t selected_apps < <(print_selected)
 [[ ${#selected_apps[@]} -gt 0 ]] || {
