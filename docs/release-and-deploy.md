@@ -26,7 +26,7 @@ go-task release VERSION=v1.2.3
 
 The task refuses to run unless the working tree is clean, `HEAD` equals `origin/main`, the tag does not exist yet, and the `ci-ok` check on that commit is green. It then pushes an annotated tag and starts the Woodpecker `release` pipeline on `main` with `RELEASE_TAG` set. GitHub cannot reach Woodpecker on the LAN, so pushing a tag alone does nothing.
 
-The pipeline (`.woodpecker/release.yml`) runs on the dedicated `release: trusted` agent; its secrets are limited to `manual` events:
+The pipeline (`.woodpecker/release.yml`) runs on the dedicated `release: trusted` agent; its credentials are limited to `manual` events. The public GitOps repository slug/URL are explicit non-secret workflow values, not stored secret metadata that can lag behind a rename:
 
 1. `verify-tag` checks that the tag exists on origin and points at the commit being built.
 2. `build-images` builds `auth-gateway`, `events`, `media`, `social`, `users` and `web`, and pushes each to `core.harbor.domain/threshold/<service>` as `:<full sha>` and `:vX.Y.Z`.

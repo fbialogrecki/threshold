@@ -65,10 +65,8 @@ steps:
         from_secret: release_git_username
       GIT_TOKEN:
         from_secret: release_git_token
-      GITOPS_REPO_SLUG:
-        from_secret: release_gitops_repo_slug
-      GITOPS_REPO_URL:
-        from_secret: release_gitops_repo_url
+      GITOPS_REPO_SLUG: fbialogrecki/perlimen
+      GITOPS_REPO_URL: https://github.com/fbialogrecki/perlimen.git
       IMAGE_REGISTRY:
         from_secret: release_image_registry
       # Digest PRs merge themselves once ci-ok passes (enabled after v0.1.0
